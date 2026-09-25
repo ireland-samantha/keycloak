@@ -912,6 +912,7 @@ public class UserResource {
     @Operation(summary = "Update a credential label for a user")
     @APIResponses(value = {
         @APIResponse(responseCode = "204", description = "No Content"),
+        @APIResponse(responseCode = "400", description = "Bad Request"),
         @APIResponse(responseCode = "403", description = "Forbidden"),
         @APIResponse(responseCode = "404", description = "Not Found")
     })
