@@ -430,6 +430,17 @@ For details on the new configuration model, see link:{adminguide_link}#++_managi
 
 If a custom provider archive defines multiple persistence units within a single `persistence.xml` and an entity-less unit should load `META-INF/orm.xml`, explicitly declare the standard `<mapping-file>META-INF/orm.xml</mapping-file>` element in that `<persistence-unit>` to ensure its entities are properly bound and to prevent cross-unit mapping collisions.
 
+=== Admin REST API accepts an empty credential label
+// https://github.com/keycloak/keycloak/issues/51440
+
+The Admin REST API endpoint for updating a credential label (`PUT /admin/realms/\{realm}/users/\{id}/credentials/\{credentialId}/userLabel`) no longer rejects an empty or blank label with a `400 Bad Request` and the `missingCredentialLabel` error.
+The label is now stored as sent, which is how the equivalent Account REST API endpoint has always behaved.
+
+This removes a long-standing inconsistency between the two APIs.
+The rule that two credentials of the same type cannot share a label is unchanged, so setting an empty label on a second credential of the same type still returns `409 Conflict`.
+
+If you relied on this endpoint returning `400` to keep credential labels non-blank, validate the label in your own client before calling the API.
+
 // ------------------------ Deprecated features ------------------------ //
 == Deprecated features
 
