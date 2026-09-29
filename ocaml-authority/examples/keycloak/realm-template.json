@@ -1,0 +1,368 @@
+{
+  "realm": "typed-authority-demo",
+  "enabled": true,
+  "adminPermissionsEnabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "report-author"
+      },
+      {
+        "name": "document-publisher"
+      },
+      {
+        "name": "realm-operator"
+      }
+    ],
+    "client": {
+      "document-service": [
+        {
+          "name": "reader"
+        }
+      ],
+      "document-service-rbac": [],
+      "document-service-rbac-live": []
+    }
+  },
+  "users": [
+    {
+      "username": "samantha",
+      "enabled": true,
+      "email": "samantha@example.org",
+      "emailVerified": true,
+      "firstName": "Samantha",
+      "lastName": "Demo",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "samantha",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "report-author",
+        "document-publisher",
+        "realm-operator"
+      ]
+    },
+    {
+      "username": "service-account-research-agent",
+      "enabled": true,
+      "serviceAccountClientId": "research-agent",
+      "clientRoles": {
+        "document-service": [
+          "reader"
+        ]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "document-service",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "document-service-secret",
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "standardFlowEnabled": false,
+      "authorizationSettings": {
+        "policyEnforcementMode": "ENFORCING",
+        "decisionStrategy": "UNANIMOUS",
+        "resources": [
+          {
+            "name": "q3-report",
+            "type": "document",
+            "scopes": [
+              {
+                "name": "read"
+              },
+              {
+                "name": "generate"
+              },
+              {
+                "name": "publish"
+              }
+            ]
+          },
+          {
+            "name": "realm-config",
+            "type": "admin-surface",
+            "scopes": [
+              {
+                "name": "administer"
+              }
+            ]
+          }
+        ],
+        "scopes": [
+          {
+            "name": "read"
+          },
+          {
+            "name": "generate"
+          },
+          {
+            "name": "publish"
+          },
+          {
+            "name": "administer"
+          }
+        ],
+        "policies": [
+          {
+            "name": "typed-authority-kernel",
+            "type": "typed-authority",
+            "logic": "POSITIVE",
+            "description": "Delegates the decision to the OCaml authority kernel. config.ledger is injected by run-demo.sh.",
+            "config": {
+              "ledger": ""
+            }
+          },
+          {
+            "name": "kernel-decides",
+            "type": "resource",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "resources": "[\"q3-report\",\"realm-config\"]",
+              "applyPolicies": "[\"typed-authority-kernel\"]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "clientId": "document-service-rbac",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "rbac-secret",
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "standardFlowEnabled": false,
+      "authorizationSettings": {
+        "policyEnforcementMode": "ENFORCING",
+        "decisionStrategy": "UNANIMOUS",
+        "resources": [
+          {
+            "name": "q3-report",
+            "type": "document",
+            "scopes": [
+              {
+                "name": "read"
+              },
+              {
+                "name": "generate"
+              },
+              {
+                "name": "publish"
+              }
+            ]
+          },
+          {
+            "name": "realm-config",
+            "type": "admin-surface",
+            "scopes": [
+              {
+                "name": "administer"
+              }
+            ]
+          }
+        ],
+        "scopes": [
+          {
+            "name": "read"
+          },
+          {
+            "name": "generate"
+          },
+          {
+            "name": "publish"
+          },
+          {
+            "name": "administer"
+          }
+        ],
+        "policies": [
+          {
+            "name": "role-report-author",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"report-author\",\"required\":false}]"
+            }
+          },
+          {
+            "name": "role-document-publisher",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"document-publisher\",\"required\":false}]"
+            }
+          },
+          {
+            "name": "role-realm-operator",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"realm-operator\",\"required\":false}]"
+            }
+          },
+          {
+            "name": "read-generate-needs-author",
+            "type": "scope",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "scopes": "[\"read\",\"generate\"]",
+              "applyPolicies": "[\"role-report-author\"]"
+            }
+          },
+          {
+            "name": "publish-needs-publisher",
+            "type": "scope",
+            "config": {
+              "scopes": "[\"publish\"]",
+              "applyPolicies": "[\"role-document-publisher\"]"
+            }
+          },
+          {
+            "name": "administer-needs-operator",
+            "type": "scope",
+            "config": {
+              "scopes": "[\"administer\"]",
+              "applyPolicies": "[\"role-realm-operator\"]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "clientId": "document-service-rbac-live",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "rbac-live-secret",
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "standardFlowEnabled": false,
+      "authorizationSettings": {
+        "policyEnforcementMode": "ENFORCING",
+        "decisionStrategy": "UNANIMOUS",
+        "resources": [
+          {
+            "name": "q3-report",
+            "type": "document",
+            "scopes": [
+              {
+                "name": "read"
+              },
+              {
+                "name": "generate"
+              },
+              {
+                "name": "publish"
+              }
+            ]
+          },
+          {
+            "name": "realm-config",
+            "type": "admin-surface",
+            "scopes": [
+              {
+                "name": "administer"
+              }
+            ]
+          }
+        ],
+        "scopes": [
+          {
+            "name": "read"
+          },
+          {
+            "name": "generate"
+          },
+          {
+            "name": "publish"
+          },
+          {
+            "name": "administer"
+          }
+        ],
+        "policies": [
+          {
+            "name": "role-report-author",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"report-author\",\"required\":false}]",
+              "fetchRoles": "true"
+            }
+          },
+          {
+            "name": "role-document-publisher",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"document-publisher\",\"required\":false}]",
+              "fetchRoles": "true"
+            }
+          },
+          {
+            "name": "role-realm-operator",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"realm-operator\",\"required\":false}]",
+              "fetchRoles": "true"
+            }
+          },
+          {
+            "name": "read-generate-needs-author",
+            "type": "scope",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "scopes": "[\"read\",\"generate\"]",
+              "applyPolicies": "[\"role-report-author\"]"
+            }
+          },
+          {
+            "name": "publish-needs-publisher",
+            "type": "scope",
+            "config": {
+              "scopes": "[\"publish\"]",
+              "applyPolicies": "[\"role-document-publisher\"]"
+            }
+          },
+          {
+            "name": "administer-needs-operator",
+            "type": "scope",
+            "config": {
+              "scopes": "[\"administer\"]",
+              "applyPolicies": "[\"role-realm-operator\"]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "clientId": "research-agent",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "research-agent-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "standard.token.exchange.enabled": "true"
+      }
+    },
+    {
+      "clientId": "samantha-app",
+      "enabled": true,
+      "publicClient": true,
+      "consentRequired": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8765/callback"
+      ]
+    }
+  ]
+}

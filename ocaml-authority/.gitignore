@@ -2,3 +2,5 @@ _build/
 _build-*/
 *.install
 keycloak-adapter/target/
+_build-wf-*.js
+_demo/
