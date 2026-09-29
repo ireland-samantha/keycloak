@@ -120,7 +120,7 @@ action=$(grep -o 'action="[^"]*consent[^"]*"' "$LIVE/consent.html" | sed 's/acti
 form_code=$(grep -o 'name="code" value="[^"]*"' "$LIVE/consent.html" | sed 's/.*value="//;s/"$//')
 callback=$(curl -s -c "$CJ" -b "$CJ" -o /dev/null -w '%{redirect_url}' --data-urlencode "code=$form_code" --data-urlencode accept=Yes "$KC$action")
 auth_code=$(printf '%s' "$callback" | sed -n 's/.*[?&]code=\([^&]*\).*/\1/p')
-SAMANTHA=$(curl -s -d grant_type=authorization_code -d client_id=samantha-app -d "code=$auth_code" -d redirect_uri="$REDIRECT" "$TOKEN_URL" | jq -r .access_token)
+SAMANTHA=$(curl -s -u samantha-app:samantha-app-secret -d grant_type=authorization_code -d "code=$auth_code" -d redirect_uri="$REDIRECT" "$TOKEN_URL" | jq -r .access_token)
 DELEGATED=$(curl -s -u research-agent:research-agent-secret -d grant_type=urn:ietf:params:oauth:grant-type:token-exchange \
   -d "subject_token=$SAMANTHA" -d subject_token_type=urn:ietf:params:oauth:token-type:access_token \
   -d "actor_token=$AGENT" -d actor_token_type=urn:ietf:params:oauth:token-type:access_token "$TOKEN_URL" | jq -r .access_token)

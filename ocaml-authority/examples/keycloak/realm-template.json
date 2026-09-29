@@ -207,11 +207,19 @@
             }
           },
           {
-            "name": "read-generate-needs-author",
+            "name": "role-document-service-reader",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"document-service/reader\",\"required\":false}]"
+            }
+          },
+          {
+            "name": "generate-needs-author",
             "type": "scope",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "scopes": "[\"read\",\"generate\"]",
+              "scopes": "[\"generate\"]",
               "applyPolicies": "[\"role-report-author\"]"
             }
           },
@@ -229,6 +237,15 @@
             "config": {
               "scopes": "[\"administer\"]",
               "applyPolicies": "[\"role-realm-operator\"]"
+            }
+          },
+          {
+            "name": "read-needs-author-or-reader",
+            "type": "scope",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "scopes": "[\"read\"]",
+              "applyPolicies": "[\"role-report-author\",\"role-document-service-reader\"]"
             }
           }
         ]
@@ -314,11 +331,20 @@
             }
           },
           {
-            "name": "read-generate-needs-author",
+            "name": "role-document-service-reader",
+            "type": "role",
+            "logic": "POSITIVE",
+            "config": {
+              "roles": "[{\"id\":\"document-service/reader\",\"required\":false}]",
+              "fetchRoles": "true"
+            }
+          },
+          {
+            "name": "generate-needs-author",
             "type": "scope",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "scopes": "[\"read\",\"generate\"]",
+              "scopes": "[\"generate\"]",
               "applyPolicies": "[\"role-report-author\"]"
             }
           },
@@ -336,6 +362,15 @@
             "config": {
               "scopes": "[\"administer\"]",
               "applyPolicies": "[\"role-realm-operator\"]"
+            }
+          },
+          {
+            "name": "read-needs-author-or-reader",
+            "type": "scope",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "scopes": "[\"read\"]",
+              "applyPolicies": "[\"role-report-author\",\"role-document-service-reader\"]"
             }
           }
         ]
@@ -356,13 +391,15 @@
     {
       "clientId": "samantha-app",
       "enabled": true,
-      "publicClient": true,
+      "publicClient": false,
       "consentRequired": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "redirectUris": [
         "http://localhost:8765/callback"
-      ]
+      ],
+      "secret": "samantha-app-secret",
+      "fullScopeAllowed": true
     }
   ]
 }

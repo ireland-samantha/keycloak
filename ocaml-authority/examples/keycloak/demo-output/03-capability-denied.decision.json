@@ -1,0 +1,59 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "efc8f5a5-3bd8-4a5b-a260-d84123dbd276",
+  "decision": "deny",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "actor_chain": [],
+  "mandate": "operate-realm",
+  "capability": {
+    "resource_type": "admin-surface",
+    "action": "administer"
+  },
+  "resource": "realm-config",
+  "effect": {
+    "kind": "administer"
+  },
+  "reasons": [
+    {
+      "code": "no_grant_for_capability",
+      "message": "no grant for admin-surface:administer is held by research-agent (service); the ledger's entries for research-agent (service) cover document:read, document:generate, document:publish"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate operate-realm covers admin-surface:administer"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "pass",
+        "detail": "administer is within mandate operate-realm effects administer"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [],
+    "held_capabilities": [
+      {
+        "resource_type": "document",
+        "action": "read"
+      },
+      {
+        "resource_type": "document",
+        "action": "generate"
+      },
+      {
+        "resource_type": "document",
+        "action": "publish"
+      }
+    ]
+  }
+}

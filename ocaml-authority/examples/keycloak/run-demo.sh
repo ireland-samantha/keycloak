@@ -90,32 +90,50 @@ admin -o /dev/null -X POST -d '{"name":"research-agent-may-act-for-users","resou
   "$KC/admin/realms/$REALM/clients/$AP/authz/resource-server/permission/scope"
 
 # ---------------------------------------------------------------- tokens
-log "samantha logs in to samantha-app and consents to delegation:client:research-agent"
-CJ="$WORK/cookies.txt"; rm -f "$CJ"
+# login SCOPE: samantha logs in to samantha-app with a fresh browser session and
+# accepts the consent screen if one is shown; prints the access token.
+login() {
+  local scope=$1 cj page action next consent form_code callback auth_code
+  cj=$(mktemp "$WORK/cookies.XXXXXX"); page=$(mktemp "$WORK/page.XXXXXX")
+  curl -s -c "$cj" -b "$cj" \
+    "$KC/realms/$REALM/protocol/openid-connect/auth?client_id=samantha-app&response_type=code&scope=$scope&redirect_uri=$REDIRECT&state=demo" \
+    > "$page"
+  action=$(grep -o 'action="[^"]*"' "$page" | head -1 | sed 's/action="//;s/"$//;s/&amp;/\&/g')
+  next=$(curl -s -c "$cj" -b "$cj" -o /dev/null -w '%{redirect_url}' \
+    --data-urlencode username=samantha --data-urlencode password=samantha "$action")
+  callback=$next
+  if ! printf '%s' "$next" | grep -q '[?&]code='; then
+    curl -s -c "$cj" -b "$cj" "$next" > "$page"
+    grep -q 'name="accept"' "$page" || { echo "login: no consent form for scope $scope" >&2; return 1; }
+    [ "$scope" = "openid" ] || cp "$page" "$WORK/consent.html"
+    consent=$(grep -o 'action="[^"]*consent[^"]*"' "$page" | sed 's/action="//;s/"$//;s/&amp;/\&/g')
+    form_code=$(grep -o 'name="code" value="[^"]*"' "$page" | sed 's/.*value="//;s/"$//')
+    callback=$(curl -s -c "$cj" -b "$cj" -o /dev/null -w '%{redirect_url}' \
+      --data-urlencode "code=$form_code" --data-urlencode accept=Yes "$KC$consent")
+  fi
+  auth_code=$(printf '%s' "$callback" | sed -n 's/.*[?&]code=\([^&]*\).*/\1/p')
+  curl -s -u samantha-app:samantha-app-secret -d grant_type=authorization_code -d "code=$auth_code" \
+    -d redirect_uri="$REDIRECT" "$TOKEN_URL" | jq -r .access_token
+}
 REDIRECT=http://localhost:8765/callback
-curl -s -c "$CJ" -b "$CJ" \
-  "$KC/realms/$REALM/protocol/openid-connect/auth?client_id=samantha-app&response_type=code&scope=openid%20delegation:client:research-agent&redirect_uri=$REDIRECT&state=demo" \
-  > "$WORK/login.html"
-action=$(grep -o 'action="[^"]*"' "$WORK/login.html" | head -1 | sed 's/action="//;s/"$//;s/&amp;/\&/g')
-next=$(curl -s -c "$CJ" -b "$CJ" -o /dev/null -w '%{redirect_url}' \
-  --data-urlencode username=samantha --data-urlencode password=samantha "$action")
-curl -s -c "$CJ" -b "$CJ" "$next" > "$WORK/consent.html"
+
+log "samantha logs in to samantha-app (scope openid): her ordinary token"
+SAMANTHA=$(login openid)
+echo "$SAMANTHA" | jwt_payload | jq '{sub, azp, aud, scope, realm_roles: .realm_access.roles}' | tee "$OUT/samantha-token-claims.json"
+
+log "samantha logs in again and consents to delegation:client:research-agent"
+MAY_ACT=$(login "openid%20delegation:client:research-agent")
 grep -q 'research-agent to act on your behalf' "$WORK/consent.html" || { echo "no delegation consent screen"; exit 1; }
-action=$(grep -o 'action="[^"]*consent[^"]*"' "$WORK/consent.html" | sed 's/action="//;s/"$//;s/&amp;/\&/g')
-form_code=$(grep -o 'name="code" value="[^"]*"' "$WORK/consent.html" | sed 's/.*value="//;s/"$//')
-callback=$(curl -s -c "$CJ" -b "$CJ" -o /dev/null -w '%{redirect_url}' \
-  --data-urlencode "code=$form_code" --data-urlencode accept=Yes "$KC$action")
-auth_code=$(printf '%s' "$callback" | sed -n 's/.*[?&]code=\([^&]*\).*/\1/p')
-SAMANTHA=$(curl -s -d grant_type=authorization_code -d client_id=samantha-app -d "code=$auth_code" \
-  -d redirect_uri="$REDIRECT" "$TOKEN_URL" | jq -r .access_token)
+echo "$MAY_ACT" | jwt_payload | jq '{sub, azp, aud, scope, may_act, realm_roles: .realm_access.roles}' | tee "$OUT/samantha-may-act-token-claims.json"
 
 log "research-agent obtains its own token (client credentials)"
 AGENT=$(curl -s -u research-agent:research-agent-secret -d grant_type=client_credentials "$TOKEN_URL" | jq -r .access_token)
+echo "$AGENT" | jwt_payload | jq '{sub, azp, aud, realm_roles: .realm_access.roles, client_roles: .resource_access}' | tee "$OUT/agent-token-claims.json"
 
 log "research-agent exchanges samantha's token for a delegated token (RFC 8693, actor_token)"
 DELEGATED=$(curl -s -u research-agent:research-agent-secret \
   -d grant_type=urn:ietf:params:oauth:grant-type:token-exchange \
-  -d "subject_token=$SAMANTHA" -d subject_token_type=urn:ietf:params:oauth:token-type:access_token \
+  -d "subject_token=$MAY_ACT" -d subject_token_type=urn:ietf:params:oauth:token-type:access_token \
   -d "actor_token=$AGENT" -d actor_token_type=urn:ietf:params:oauth:token-type:access_token \
   "$TOKEN_URL" | jq -r .access_token)
 echo "$DELEGATED" | jwt_payload | jq '{sub, azp, act, realm_roles: .realm_access.roles}' | tee "$OUT/delegated-token-claims.json"
@@ -142,7 +160,7 @@ run() { # NAME TOKEN_LABEL TOKEN PERMISSION MANDATE EFFECT
   ev=$(ls -t "$EVIDENCE"/*.json 2>/dev/null | head -1 || true)
   if [ -n "$ev" ]; then
     cp "$ev" "$OUT/$name.decision.json"
-    decision=$(jq -r .decision "$ev"); codes=$(jq -r '[.reasons[].code] | join(", ")' "$ev")
+    decision=$(jq -r .decision "$ev"); codes=$(jq -r '[.reasons[].code] | reduce .[] as $c ([]; if index([$c]) then . else . + [$c] end) | join(", ")' "$ev")
     rm -f "$EVIDENCE"/*.json
   else
     decision="(no evidence)"; codes=""

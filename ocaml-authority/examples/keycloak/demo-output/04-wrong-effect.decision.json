@@ -1,0 +1,160 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "6202a228-4d24-4385-a9ca-0e0a0aba8fea",
+  "decision": "deny",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "user",
+    "id": "samantha"
+  },
+  "actor_chain": [
+    {
+      "type": "service",
+      "id": "research-agent"
+    }
+  ],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "document",
+    "action": "generate"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "produce",
+    "audience": "public"
+  },
+  "reasons": [
+    {
+      "code": "effect_within_mandate",
+      "message": "mandate generate-report bounds effects to observe, produce:organization - not produce:public"
+    },
+    {
+      "code": "holder_is_actor",
+      "message": "g-samantha-generate: holder samantha (user) is not the acting principal research-agent (service)"
+    },
+    {
+      "code": "delegation_path_matches",
+      "message": "g-samantha-generate: ledger path [samantha] differs from token path [samantha > research-agent]"
+    },
+    {
+      "code": "effect_within_grant",
+      "message": "g-samantha-generate: grant bounds effects to produce:organization - not produce:public"
+    },
+    {
+      "code": "effect_within_grant",
+      "message": "d-agent-generate: grant bounds effects to produce:organization - not produce:public"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate generate-report covers document:generate"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "fail",
+        "detail": "mandate generate-report bounds effects to observe, produce:organization - not produce:public"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "g-samantha-generate",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "fail",
+            "detail": "holder samantha (user) is not the acting principal research-agent (service)"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [samantha] differs from token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "fail",
+            "detail": "grant bounds effects to produce:organization - not produce:public"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:generate"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "fail",
+            "detail": "mandate generate-report bounds effects to observe, produce:organization - not produce:public"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-samantha-generate; root anchored in realm role report-author held by samantha (user)"
+          }
+        ]
+      },
+      {
+        "grant": "d-agent-generate",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "pass",
+            "detail": "ledger path [samantha > research-agent] matches token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target q3-report covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "fail",
+            "detail": "grant bounds effects to produce:organization - not produce:public"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:generate"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "fail",
+            "detail": "mandate generate-report bounds effects to observe, produce:organization - not produce:public"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-samantha-generate > d-agent-generate; root anchored in realm role report-author held by samantha (user)"
+          }
+        ]
+      }
+    ]
+  }
+}
