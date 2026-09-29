@@ -1,0 +1,3 @@
+; Only these directories contain OCaml. keycloak-adapter/ is a Maven project,
+; tools/ holds the Java source-graph extractor, docs/ and examples/ are data.
+(dirs lib bin test)
