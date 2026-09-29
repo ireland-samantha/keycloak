@@ -430,6 +430,16 @@ For details on the new configuration model, see link:{adminguide_link}#++_managi
 
 If a custom provider archive defines multiple persistence units within a single `persistence.xml` and an entity-less unit should load `META-INF/orm.xml`, explicitly declare the standard `<mapping-file>META-INF/orm.xml</mapping-file>` element in that `<persistence-unit>` to ensure its entities are properly bound and to prevent cross-unit mapping collisions.
 
+=== Clearing the theme cache now also clears cached FreeMarker templates
+// https://github.com/keycloak/keycloak/issues/51066
+
+Clearing the theme cache now also discards the compiled FreeMarker templates cached by the `FreeMarkerProvider` factory.
+Previously only the `Theme` objects were discarded, so a template edited on disk kept rendering its old content until the server was restarted.
+
+The `FreeMarkerProviderFactory` interface gains a `clearCache()` method for this purpose.
+The method has a no-op default implementation, so existing custom implementations continue to compile and run unchanged.
+If you provide a custom `FreeMarkerProviderFactory` that caches compiled templates, override `clearCache()` to discard that cache.
+
 // ------------------------ Deprecated features ------------------------ //
 == Deprecated features
 
