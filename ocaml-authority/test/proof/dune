@@ -1,0 +1,7 @@
+(tests
+ (names test_scc test_rules test_p2 test_certificate test_emit)
+ (modules harness gb random_graphs test_scc test_rules test_p2 test_certificate test_emit)
+ (libraries proof tjson)
+ (deps
+  ../../examples/proof/keycloak-authz.graph.json
+  ../../examples/proof/certificate.json))
