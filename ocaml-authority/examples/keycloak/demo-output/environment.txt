@@ -1,4 +1,4 @@
-keycloak: keycloak-999.0.0-SNAPSHOT built from 5da68fb0842248c94c59b1eec07816ef48d15270
+keycloak: keycloak-999.0.0-SNAPSHOT built from 7251be3eee07196a17651447444de7eb19e1aa55
 kernel:   /home/user/keycloak/ocaml-authority/_build/default/bin/authority_kernel/main.exe
 adapter:  typed-authority-keycloak-adapter-0.1.0-SNAPSHOT.jar
-date:     2026-09-29T17:51:49Z
+date:     2026-09-29T18:53:29Z
