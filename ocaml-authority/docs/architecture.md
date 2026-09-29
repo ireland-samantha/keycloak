@@ -66,10 +66,14 @@ flowchart LR
    - the policy's config (the ledger)
    - a `KeycloakSession` for reading live role mappings
 2. **No upstream change.** The adapter is a provider jar dropped into
-   `providers/`. From the repository root, `git diff 6688a3d6 -- .
-   ':!ocaml-authority' ':!README.md' ':!.github/workflows/ocaml-does-keycloak.yml'`
-   is empty. The root README pointer and the CI workflow are the only files
-   outside `ocaml-authority/`.
+   `providers/`. The only files outside `ocaml-authority/` are:
+   - the root README pointer
+   - the OCaml CI workflow
+   - one exclusion in `.github/scripts/find-modules-with-unit-tests.sh`,
+     which keeps Keycloak's unit-test job from selecting the standalone
+     adapter
+
+   `verify-all.sh` checks this.
 3. **Keycloak's decision machinery stays in charge.** The OCaml policy is one
    policy inside Keycloak's normal permission and decision-strategy
    composition. It can be combined with, or compared against, conventional

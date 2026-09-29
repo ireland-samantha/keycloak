@@ -31,12 +31,17 @@ It asks it twice:
 Java says: *this is how authorization works.* OCaml replies: *prove it.*
 
 Keycloak is not rewritten, and none of its code is modified. Outside this
-directory there are only two changes: a pointer at the top of the root
-`README.md`, and one CI workflow in which Keycloak files its authorization
-types with OCaml (see "Keycloak files paperwork" below). From the repository
-root, `git diff 6688a3d6 -- . ':!ocaml-authority' ':!README.md'
-':!.github/workflows/ocaml-does-keycloak.yml'` is empty. Everything else
-lives here, as a provider jar, a child process, and a pile of evidence.
+directory there are only three changes:
+
+- a pointer at the top of the root `README.md`
+- one CI workflow in which Keycloak files its authorization types with OCaml
+  (see "Keycloak files paperwork" below)
+- one extra entry in the exclusion list of Keycloak's own
+  `.github/scripts/find-modules-with-unit-tests.sh`, so that Keycloak's CI
+  does not mistake the standalone adapter for a module of its Maven build
+
+Everything else lives here, as a provider jar, a child process, and a pile of
+evidence. `./verify-all.sh` checks that no other file differs from `6688a3d6`.
 
 > The hypotheses were committed before any kernel, adapter or solver code
 > ([`docs/hypothesis.md`](docs/hypothesis.md), commit `c7106ebe`). That commit

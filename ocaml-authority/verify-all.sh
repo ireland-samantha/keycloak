@@ -62,7 +62,7 @@ step "Java adapter tests with the real kernel" bash -c \
 step "Adapter size (S4, NCLOC of main Java)" ncloc
 step "Kernel size (W6, lines of lib/authority)" bash -c "cat lib/authority/*.ml lib/authority/*.mli | wc -l"
 step "Upstream Keycloak untouched" bash -c \
-  "echo 'files changed outside ocaml-authority/: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' | paste -sd' ' -); echo 'files changed outside ocaml-authority/, README.md and the OCaml workflow: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' ':!README.md' ':!.github/workflows/ocaml-does-keycloak.yml' | wc -l)"
+  "echo 'files changed outside ocaml-authority/: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' | paste -sd' ' -); echo 'files changed outside ocaml-authority/, README.md, the OCaml workflow and the unit-test module exclusion: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' ':!README.md' ':!.github/workflows/ocaml-does-keycloak.yml' ':!.github/scripts/find-modules-with-unit-tests.sh' | wc -l)"
 if [ $LIVE = 1 ]; then
   step "Live Keycloak demo (examples/keycloak/run-demo.sh)" bash -c \
     "examples/keycloak/run-demo.sh >/tmp/verify-demo.log 2>&1; rc=\$?; grep -E '^[0-9]{2}-|server_error|ClassCastException|no policy evaluation' /tmp/verify-demo.log; exit \$rc"
