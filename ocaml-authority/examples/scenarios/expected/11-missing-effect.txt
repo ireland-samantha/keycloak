@@ -1,0 +1,10 @@
+INDETERMINATE
+principal:  research-agent (service)
+mandate:    generate-report
+capability: document:read on q3-report
+effect:     (none declared)
+reason:
+  no effect declared; an action without one cannot be authorized
+candidates:
+  g-agent-read           undetermined  effect_within_grant unknown, effect_within_mandate unknown
+  d-agent-read           refuted       delegation_path_matches fail, effect_within_grant unknown, effect_within_mandate unknown, provenance fail

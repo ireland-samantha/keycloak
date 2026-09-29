@@ -1,0 +1,13 @@
+DENY
+principal:  research-agent (service) acting for samantha (user)
+mandate:    generate-report
+capability: document:generate on q3-report
+effect:     produce -> organization
+reason:
+  g-samantha-generate: holder samantha (user) is not the acting principal research-agent (service)
+  g-samantha-generate: ledger path [samantha] differs from token path [samantha > research-agent]
+  root g-samantha-generate: samantha (user) does not hold realm role report-author
+  d-agent-generate: root g-samantha-generate: samantha (user) does not hold realm role report-author
+candidates:
+  g-samantha-generate    refuted       holder_is_actor fail, delegation_path_matches fail, provenance fail
+  d-agent-generate       refuted       provenance fail

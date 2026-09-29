@@ -1,0 +1,12 @@
+ALLOW
+principal:  research-agent (service)
+mandate:    generate-report
+capability: document:read on q3-report
+effect:     observe
+authority:
+  g-agent-read           research-agent (service)   root: client role document-service:reader
+  anchor: research-agent holds client role document-service:reader (facts.source = fixture)
+checks:     all 8 passed
+candidates:
+  g-agent-read           authorizes
+  d-agent-read           refuted       delegation_path_matches fail, provenance fail

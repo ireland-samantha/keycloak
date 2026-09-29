@@ -1,0 +1,16 @@
+DENY
+principal:  research-agent (service) acting for samantha (user)
+mandate:    generate-report
+capability: document:publish on q3-report
+effect:     disclose -> public
+reason:
+  mandate generate-report covers document:read, document:generate - not document:publish
+  mandate generate-report bounds effects to observe, produce:organization - not disclose:public
+  g-samantha-publish: holder samantha (user) is not the acting principal research-agent (service)
+  g-samantha-publish: ledger path [samantha] differs from token path [samantha > research-agent]
+  g-samantha-publish: usable only under publish-release - not generate-report
+  u-agent-publish: ledger path [research-agent] differs from token path [samantha > research-agent]
+  u-agent-publish: usable only under publish-release - not generate-report
+candidates:
+  g-samantha-publish     refuted       holder_is_actor fail, delegation_path_matches fail, mandate_permitted fail, mandate_covers_capability fail, effect_within_mandate fail
+  u-agent-publish        refuted       delegation_path_matches fail, mandate_permitted fail, mandate_covers_capability fail, effect_within_mandate fail, provenance unknown

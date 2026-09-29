@@ -152,7 +152,7 @@ run() { # NAME TOKEN_LABEL TOKEN PERMISSION MANDATE EFFECT
   printf '%-36s rbac=%-5s rbac-live=%-5s kernel=%-5s %s %s\n' "$name" "$rbac" "$live" "$kernel" "$decision" "$codes"
 }
 
-log "scenarios"
+log "scenarios (names match examples/scenarios/demo.json; 14 and 15 exist only live)"
 run 01-direct-read                agent     "$AGENT"     "q3-report#read"          generate-report observe
 run 02-delegated-generate         delegated "$DELEGATED" "q3-report#generate"      generate-report produce:organization
 run 03-capability-denied          agent     "$AGENT"     "realm-config#administer" operate-realm   administer
@@ -160,7 +160,9 @@ run 04-wrong-effect               delegated "$DELEGATED" "q3-report#generate"   
 run 05-expired-delegation         delegated "$DELEGATED" "q3-report#read"          generate-report observe
 run 06-missing-provenance         agent     "$AGENT"     "q3-report#publish"       publish-release disclose:public
 run 07-mandate-capability-mismatch delegated "$DELEGATED" "q3-report#publish"      generate-report disclose:public
-run 08-agent-administers-for-samantha delegated "$DELEGATED" "realm-config#administer" generate-report administer
+run 12-direct-publish             samantha  "$SAMANTHA"   "q3-report#publish"       publish-release disclose:public
+run 13-delegation-without-exchange agent    "$AGENT"     "q3-report#generate"      generate-report produce:organization
+run 14-agent-administers-for-samantha delegated "$DELEGATED" "realm-config#administer" generate-report administer
 
 log "stale grant: remove samantha's report-author role, reuse the SAME delegated token"
 SAM_ID=$(admin "$KC/admin/realms/$REALM/users?username=samantha&exact=true" | jq -r '.[0].id')
@@ -168,7 +170,7 @@ ROLE=$(admin "$KC/admin/realms/$REALM/roles/report-author")
 admin -o /dev/null -X DELETE -d "[$ROLE]" "$KC/admin/realms/$REALM/users/$SAM_ID/role-mappings/realm"
 run 09-anchor-role-removed        delegated "$DELEGATED" "q3-report#generate"      generate-report produce:organization
 admin -o /dev/null -X POST -d "[$ROLE]" "$KC/admin/realms/$REALM/users/$SAM_ID/role-mappings/realm"
-run 10-anchor-role-restored       delegated "$DELEGATED" "q3-report#generate"      generate-report produce:organization
+run 15-anchor-role-restored       delegated "$DELEGATED" "q3-report#generate"      generate-report produce:organization
 
 log "results ($RESULTS)"
 cat "$RESULTS"

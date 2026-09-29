@@ -1,0 +1,345 @@
+{
+  "schema": "typed-authority/request/v1",
+  "request_id": "demo-01-direct-read",
+  "query": {
+    "mandate": "generate-report",
+    "capability": {
+      "resource_type": "document",
+      "action": "read"
+    },
+    "resource": "q3-report",
+    "effect": {
+      "kind": "observe"
+    }
+  },
+  "facts": {
+    "source": "fixture",
+    "realm": "typed-authority-demo",
+    "evaluated_at": "2026-09-29T12:00:00Z",
+    "subject": {
+      "type": "service",
+      "id": "research-agent"
+    },
+    "actor_chain": [],
+    "principals": [
+      {
+        "type": "user",
+        "id": "samantha",
+        "realm_roles": [
+          "report-author",
+          "document-publisher",
+          "realm-operator"
+        ],
+        "client_roles": {}
+      },
+      {
+        "type": "service",
+        "id": "research-agent",
+        "realm_roles": [],
+        "client_roles": {
+          "document-service": [
+            "reader"
+          ]
+        }
+      }
+    ]
+  },
+  "ledger": {
+    "schema": "typed-authority/ledger/v1",
+    "principals": [
+      {
+        "type": "user",
+        "id": "samantha"
+      },
+      {
+        "type": "service",
+        "id": "research-agent"
+      }
+    ],
+    "mandates": [
+      {
+        "id": "generate-report",
+        "purpose": "Produce the quarterly report for internal review",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "read"
+          },
+          {
+            "resource_type": "document",
+            "action": "generate"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          },
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ]
+      },
+      {
+        "id": "publish-release",
+        "purpose": "Publish an approved release to the public",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "publish"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ]
+      },
+      {
+        "id": "operate-realm",
+        "purpose": "Change the configuration of the realm",
+        "capabilities": [
+          {
+            "resource_type": "admin-surface",
+            "action": "administer"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "administer"
+          }
+        ]
+      }
+    ],
+    "grants": [
+      {
+        "id": "g-samantha-read",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "g-samantha-generate",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "g-samantha-publish",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "target": "any",
+        "mandates": [
+          "publish-release"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "document-publisher"
+          }
+        }
+      },
+      {
+        "id": "g-samantha-administer",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "admin-surface",
+          "action": "administer"
+        },
+        "target": "any",
+        "mandates": [
+          "operate-realm"
+        ],
+        "effects": [
+          {
+            "kind": "administer"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "realm-operator"
+          }
+        }
+      },
+      {
+        "id": "g-agent-read",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "client_role": {
+              "client": "document-service",
+              "role": "reader"
+            }
+          }
+        }
+      },
+      {
+        "id": "d-agent-generate",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "valid_from": "2026-09-01T00:00:00Z",
+        "valid_until": "2026-12-31T23:59:59Z",
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-samantha-generate",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "d-agent-read",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "valid_from": "2026-04-01T00:00:00Z",
+        "valid_until": "2026-06-30T00:00:00Z",
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-samantha-read",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "u-agent-publish",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "publish-release"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ]
+      }
+    ],
+    "revocations": [],
+    "prohibitions": []
+  }
+}

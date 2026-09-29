@@ -1,0 +1,354 @@
+; Captured kernel outputs. For every scenario in demo.json the CLI builds the
+; request document (`request`) and decides it (`eval`, `eval --text`), exactly
+; as the adapter path does; the results are compared with expected/. The files
+; in expected/ are produced only by these rules: after an intended change, run
+; `dune build @examples/scenarios/runtest` and then `dune promote`.
+
+(rule
+ (alias runtest)
+ (action
+  (run %{dep:../../bin/authority_kernel/main.exe} scenarios %{dep:demo.json} --check)))
+
+(rule
+ (with-stdout-to
+  compare.md.out
+  (run %{dep:../../bin/authority_kernel/main.exe} compare %{dep:demo.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/compare.md compare.md.out)))
+
+(rule
+ (with-stdout-to
+  surface.txt.out
+  (run %{dep:../../bin/authority_kernel/main.exe} surface %{dep:demo.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/surface.txt surface.txt.out)))
+
+(rule
+ (with-stdout-to
+  01-direct-read.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 01-direct-read)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  01-direct-read.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 01-direct-read)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/01-direct-read.json 01-direct-read.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/01-direct-read.txt 01-direct-read.txt.out)))
+
+(rule
+ (with-stdout-to
+  02-delegated-generate.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 02-delegated-generate)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  02-delegated-generate.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 02-delegated-generate)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/02-delegated-generate.json 02-delegated-generate.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/02-delegated-generate.txt 02-delegated-generate.txt.out)))
+
+(rule
+ (with-stdout-to
+  03-capability-denied.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 03-capability-denied)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  03-capability-denied.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 03-capability-denied)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/03-capability-denied.json 03-capability-denied.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/03-capability-denied.txt 03-capability-denied.txt.out)))
+
+(rule
+ (with-stdout-to
+  04-wrong-effect.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 04-wrong-effect)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  04-wrong-effect.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 04-wrong-effect)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/04-wrong-effect.json 04-wrong-effect.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/04-wrong-effect.txt 04-wrong-effect.txt.out)))
+
+(rule
+ (with-stdout-to
+  05-expired-delegation.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 05-expired-delegation)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  05-expired-delegation.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 05-expired-delegation)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/05-expired-delegation.json 05-expired-delegation.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/05-expired-delegation.txt 05-expired-delegation.txt.out)))
+
+(rule
+ (with-stdout-to
+  06-missing-provenance.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 06-missing-provenance)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  06-missing-provenance.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 06-missing-provenance)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/06-missing-provenance.json 06-missing-provenance.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/06-missing-provenance.txt 06-missing-provenance.txt.out)))
+
+(rule
+ (with-stdout-to
+  07-mandate-capability-mismatch.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 07-mandate-capability-mismatch)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  07-mandate-capability-mismatch.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 07-mandate-capability-mismatch)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/07-mandate-capability-mismatch.json 07-mandate-capability-mismatch.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/07-mandate-capability-mismatch.txt 07-mandate-capability-mismatch.txt.out)))
+
+(rule
+ (with-stdout-to
+  08-confused-deputy.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 08-confused-deputy)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  08-confused-deputy.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 08-confused-deputy)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/08-confused-deputy.json 08-confused-deputy.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/08-confused-deputy.txt 08-confused-deputy.txt.out)))
+
+(rule
+ (with-stdout-to
+  09-anchor-role-removed.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 09-anchor-role-removed)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  09-anchor-role-removed.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 09-anchor-role-removed)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/09-anchor-role-removed.json 09-anchor-role-removed.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/09-anchor-role-removed.txt 09-anchor-role-removed.txt.out)))
+
+(rule
+ (with-stdout-to
+  10-unknown-principal.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 10-unknown-principal)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  10-unknown-principal.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 10-unknown-principal)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/10-unknown-principal.json 10-unknown-principal.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/10-unknown-principal.txt 10-unknown-principal.txt.out)))
+
+(rule
+ (with-stdout-to
+  11-missing-effect.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 11-missing-effect)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  11-missing-effect.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 11-missing-effect)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/11-missing-effect.json 11-missing-effect.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/11-missing-effect.txt 11-missing-effect.txt.out)))
+
+(rule
+ (with-stdout-to
+  12-direct-publish.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 12-direct-publish)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  12-direct-publish.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 12-direct-publish)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/12-direct-publish.json 12-direct-publish.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/12-direct-publish.txt 12-direct-publish.txt.out)))
+
+(rule
+ (with-stdout-to
+  13-delegation-without-exchange.json.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 13-delegation-without-exchange)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval))))
+
+(rule
+ (with-stdout-to
+  13-delegation-without-exchange.txt.out
+  (pipe-stdout
+   (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:demo.json} 13-delegation-without-exchange)
+   (run %{dep:../../bin/authority_kernel/main.exe} eval --text))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/13-delegation-without-exchange.json 13-delegation-without-exchange.json.out)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/13-delegation-without-exchange.txt 13-delegation-without-exchange.txt.out)))
+
+; Hypothesis W4: which dimension of the model decided each scenario. The
+; ablation fails outright if a decision's evidence cannot reproduce it.
+(rule
+ (with-stdout-to
+  ablation.md.out
+  (run %{dep:../../bin/authority_kernel/main.exe} ablate %{dep:demo.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/ablation.md ablation.md.out)))

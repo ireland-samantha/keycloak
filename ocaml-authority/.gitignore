@@ -4,3 +4,5 @@ _build-*/
 keycloak-adapter/target/
 _build-wf-*.js
 _demo/
+# The Keycloak root .gitignore ignores every "bin" directory; the kernel CLI and prove live in bin/.
+!bin/

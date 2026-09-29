@@ -1,0 +1,136 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "demo-11-missing-effect",
+  "decision": "indeterminate",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "actor_chain": [],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "document",
+    "action": "read"
+  },
+  "resource": "q3-report",
+  "effect": null,
+  "reasons": [
+    {
+      "code": "missing_effect",
+      "message": "no effect declared; an action without one cannot be authorized"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate generate-report covers document:read"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "unknown",
+        "detail": "no effect declared"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "g-agent-read",
+        "status": "undetermined",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "pass",
+            "detail": "ledger path [research-agent] matches token path [research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "unknown",
+            "detail": "no effect declared"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:read"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "unknown",
+            "detail": "no effect declared"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-agent-read; root anchored in client role document-service:reader held by research-agent (service)"
+          }
+        ]
+      },
+      {
+        "grant": "d-agent-read",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [samantha > research-agent] differs from token path [research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target q3-report covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "unknown",
+            "detail": "no effect declared"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:read"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "unknown",
+            "detail": "no effect declared"
+          },
+          {
+            "check": "provenance",
+            "outcome": "fail",
+            "detail": "expired: d-agent-read expired at 2026-06-30T00:00:00Z"
+          }
+        ]
+      }
+    ]
+  }
+}
