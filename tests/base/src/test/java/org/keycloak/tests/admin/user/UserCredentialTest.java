@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -150,19 +149,41 @@ public class UserCredentialTest extends AbstractUserTest {
     }
 
     @Test
-    public void testShouldFailToSetCredentialUserLabelWhenLabelIsEmpty() {
-        UserResource user = userOtp1.admin();
-        CredentialRepresentation otpCred = user.credentials().get(0);
-        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () -> {
-            user.setCredentialUserLabel(otpCred.getId(), "   ");
+    public void testShouldSetCredentialUserLabelToEmptyOrBlank() {
+        UserResource user = userOtp2.admin();
+        String otpId = user.credentials().stream().filter(cr -> OTPCredentialModel.TYPE.equals(cr.getType()))
+                .findFirst().orElseThrow().getId();
+
+        // like on the Account API, an empty or blank label is accepted and stored as sent
+        user.setCredentialUserLabel(otpId, "");
+        Assertions.assertEquals("", getCredentialUserLabel(user, otpId));
+
+        user.setCredentialUserLabel(otpId, "   ");
+        Assertions.assertEquals("   ", getCredentialUserLabel(user, otpId));
+    }
+
+    @Test
+    public void testSecondEmptyCredentialUserLabelStillConflicts() {
+        UserResource user = userOtp2.admin();
+
+        List<CredentialRepresentation> credentials = user.credentials().stream()
+                .filter(c -> c.getType().equals(OTPCredentialModel.TYPE))
+                .toList();
+        Assertions.assertEquals(2, credentials.size());
+
+        user.setCredentialUserLabel(credentials.get(0).getId(), "");
+
+        // an empty label is accepted, but it is still a label: the unique-label rule applies to a second credential of the same type
+        ClientErrorException ex = Assertions.assertThrows(ClientErrorException.class, () -> {
+            user.setCredentialUserLabel(credentials.get(1).getId(), "");
         });
 
-        Response response = ex.getResponse();
-        String body = response.readEntity(String.class);
+        Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), ex.getResponse().getStatus());
+    }
 
-        Assertions.assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        Assertions.assertTrue(body.contains("missingCredentialLabel"));
-        Assertions.assertTrue(body.contains("Credential label must not be empty"));
+    private static String getCredentialUserLabel(UserResource user, String credentialId) {
+        return user.credentials().stream().filter(cr -> cr.getId().equals(credentialId))
+                .findFirst().orElseThrow().getUserLabel();
     }
 
     @Test
