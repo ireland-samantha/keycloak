@@ -1,0 +1,107 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "demo-12-direct-publish",
+  "decision": "allow",
+  "acting": {
+    "type": "user",
+    "id": "samantha"
+  },
+  "subject": {
+    "type": "user",
+    "id": "samantha"
+  },
+  "actor_chain": [],
+  "mandate": "publish-release",
+  "capability": {
+    "resource_type": "document",
+    "action": "publish"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "disclose",
+    "audience": "public"
+  },
+  "authority": {
+    "grant": "g-samantha-publish",
+    "chain": [
+      {
+        "grant": "g-samantha-publish",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "document-publisher"
+          }
+        }
+      }
+    ],
+    "anchor": "samantha holds realm role document-publisher (facts.source = fixture)"
+  },
+  "reasons": [],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate publish-release covers document:publish"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "pass",
+        "detail": "disclose:public is within mandate publish-release effects disclose:public"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "g-samantha-publish",
+        "status": "authorizes",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder samantha (user) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "pass",
+            "detail": "ledger path [samantha] matches token path [samantha]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under publish-release"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "disclose:public is within grant effects disclose:public"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate publish-release covers document:publish"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "pass",
+            "detail": "disclose:public is within mandate publish-release effects disclose:public"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-samantha-publish; root anchored in realm role document-publisher held by samantha (user)"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+# Glue sites of keycloak-adapter/README.md at a62035c9, with the consumed members of docs/flashlight.md step 1.
+# Columns (tab-separated): site, file:line, kind, "enters through" (verbatim), rule, consumed members.
+# A consumed member is slice:<owner>|<member key>|<value position> or outside:<member>.
+# R2 traces are given in the comment after the member list (text after " -- ").
+1	Projection.java:62	O	`Evaluation.getAuthorizationProvider()`	R1	slice:Evaluation|getAuthorizationProvider()|return
+2	Projection.java:63	O	`AuthorizationProvider.getKeycloakSession()`	R1	outside:AuthorizationProvider.getKeycloakSession()
+3	Projection.java:64	O	`AuthorizationProvider.getRealm()`	R1	outside:AuthorizationProvider.getRealm()
+4	Projection.java:74	O	`RealmModel.getName()`	R1	outside:RealmModel.getName()
+5	Projection.java:80	K	`Policy.getConfig()` (`Map<String,String>`)	R1	slice:Policy|getConfig()|return
+6	Projection.java:89	K, C	`EvaluationContext.getAttributes()`	R1	slice:EvaluationContext|getAttributes()|return
+7	Projection.java:94	K	`EvaluationContext.getAttributes()`	R1	slice:EvaluationContext|getAttributes()|return
+8	Projection.java:113	O	`RoleUtils.getDeepUserRoleMappings(UserModel)`	R1	outside:RoleUtils.getDeepUserRoleMappings(UserModel)
+9	Projection.java:114	C, O	`RoleModel.getContainer()`	R1	outside:RoleModel.getContainer()
+10	Projection.java:115	O	`RoleModel.getName()`	R1	outside:RoleModel.getName()
+11	Projection.java:116	C	`RoleModel.getContainer()`	R1	outside:RoleModel.getContainer()
+12	Projection.java:117	O	`RoleModel.getName()`	R1	outside:RoleModel.getName()
+13	Projection.java:129	O, P	`Identity.getId()` (String), act `sub` (#24)	R3	slice:Identity|getId()|return;slice:Attributes|toMap()|return -- act sub: textValue() of JSON.readTree(text) (Projection:159,163), text = element of identity.toMap().get(ACT) (:151,155), identity = Identity.getAttributes() (:68)
+14	Projection.java:132	O, P	`Identity.getId()`	R1	slice:Identity|getId()|return
+15	Projection.java:133	O	`UserProvider.getServiceAccount(ClientModel)`	R1	outside:UserProvider.getServiceAccount(ClientModel)
+16	Projection.java:138	O, P	`UserModel.getServiceAccountClientLink()`	R1	outside:UserModel.getServiceAccountClientLink()
+17	Projection.java:140	O	`UserModel.getUsername()`	R1	outside:UserModel.getUsername()
+18	Projection.java:142	O	`RealmModel.getClientById(link)`	R1	outside:RealmModel.getClientById(String)
+19	Projection.java:146	O	`ClientModel.getClientId()`	R1	outside:ClientModel.getClientId()
+20	Projection.java:151	K	`Identity.getAttributes()`	R1	slice:Identity|getAttributes()|return
+21	Projection.java:155	C	`Attributes.toMap()` value (`Collection<String>`)	R1	slice:Attributes|toMap()|return
+22	Projection.java:159	P	the `act` string	R2	slice:Attributes|toMap()|return -- text = element of identity.toMap().get(ACT) (:151,155)
+23	Projection.java:160	C	parsed `act`	R2	slice:Attributes|toMap()|return -- act = JSON.readTree(text) (:159), text as #22
+24	Projection.java:163	P	parsed `act`	R2	slice:Attributes|toMap()|return -- as #23
+25	Projection.java:174	K	`Attributes.toMap()`	R1	slice:Attributes|toMap()|return
+26	Projection.java:176	C	pushed claim value	R2	slice:Attributes|toMap()|return -- claim = pushed.toMap().get(name) (:174), pushed = EvaluationContext.getAttributes() (:82)
+27	Projection.java:178	C	pushed claim value	R2	slice:Attributes|toMap()|return -- as #26
+28	Projection.java:190	C	pushed `effect` element	R2	slice:Attributes|toMap()|return -- element of claim (:176-179), claim as #26
+29	Projection.java:191	C	pushed `effect` element	R2	slice:Attributes|toMap()|return -- as #28
+30	Projection.java:193–195	P	pushed `effect` string	R2	slice:Attributes|toMap()|return -- as #28
+31	Projection.java:204	P	`config.ledger` string	R2	slice:Policy|getConfig()|return -- text = evaluation.getPolicy().getConfig().get("ledger") (:80)
+32	Projection.java:205	C	parsed ledger	R2	slice:Policy|getConfig()|return -- tree = JSON.readTree(text) (:204), text as #31
+33	Kernel.java:106	P	kernel stdout	R2	outside:Process.getInputStream() -- output = process.getInputStream().readNBytes(...) (:68,72)
+34	Kernel.java:110	P, C	decision	R2	outside:Process.getInputStream() -- decision = JSON.readTree(output) (:106), output as #33
+35	Kernel.java:111	P	decision	R2	outside:Process.getInputStream() -- as #34
+36	Kernel.java:113	P, C	decision	R2	outside:Process.getInputStream() -- as #34
+37	TypedAuthorityPolicyProvider.java:40	P	decision	R2	outside:Process.getInputStream() -- decision = kernel.decide(request) (:39), Kernel.parse as #34
+38	TypedAuthorityPolicyProvider.java:42	P	decision	R2	outside:Process.getInputStream() -- as #37
+39	TypedAuthorityPolicyProvider.java:46	P	decision	R2	outside:Process.getInputStream() -- as #37
+40	TypedAuthorityPolicyProviderFactory.java:39	O, P	`Config.Scope.get("kernel-path")`, `System.getenv`	R1	outside:Config.Scope.get(String,String);outside:System.getenv(String)
+41	TypedAuthorityPolicyProviderFactory.java:40	O	`Config.Scope.get("evidence-dir")`	R1	outside:Config.Scope.get(String)
+42	TypedAuthorityPolicyProviderFactory.java:41	O, P	`Config.Scope.getLong("timeout-ms")`	R1	outside:Config.Scope.getLong(String,Long)
+43	TypedAuthorityPolicyProviderFactory.java:46	P	option strings	R2	outside:Config.Scope.get(String,String);outside:System.getenv(String);outside:Config.Scope.get(String) -- kernel (:39), evidence (:40)
+44	TypedAuthorityPolicyProviderFactory.java:63	O	`Policy.getConfig()`	R1	slice:Policy|getConfig()|return

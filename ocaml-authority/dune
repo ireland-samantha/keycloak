@@ -1,0 +1,3 @@
+; OCaml lives in lib/, bin/ and test/. examples/ holds data plus dune rules that
+; check it. keycloak-adapter/ (Maven), tools/ (Java) and docs/ are not scanned.
+(dirs lib bin test examples)

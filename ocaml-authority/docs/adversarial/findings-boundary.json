@@ -1,0 +1,207 @@
+{
+  "lens": "boundary",
+  "findings": [
+    {
+      "id": "act-forged-by-protocol-mapper",
+      "category": "forgery",
+      "attack": "'act' is not on OIDCAttributeMapperHelper's list of claims mappers may not set. So a hardcoded-claim mapper (or a user-attribute mapper) named 'act' on samantha-app puts {sub: <research-agent SA id>, client_id: research-agent} into samantha's ordinary login token (authorization code grant). No token exchange runs and samantha never consents to delegation. KeycloakIdentity turns an object claim, a JSON-string claim and a one-element array into the same attribute. Goal: the kernel treats a claim no exchange produced as Keycloak's verified delegation: evidence says research-agent acts for samantha, and delegated grants become usable without the exchange (S5 / A2).",
+      "initial_result": "FAILED. Live run against the pre-fix jar: `ADAPTER_JAR=<pre-fix jar> REAL_KERNEL=<kernel> ./verify-act-boundary.sh`. Cases 2 (JSON mapper) and 3 (String mapper) got {\"result\":true}, projected actor_chain [research-agent], and the kernel returned allow via d-agent-read-for-samantha, chain [samantha, research-agent], on a token with jti onrtac:… and a sid. Unit level against HEAD adapter main (`mvn -o test -Dtyped.authority.kernel=<pre-review kernel>` in a git-archive copy): actWrittenByAProtocolMapperOnALoginTokenIsNotADelegation and actOnAnyTokenNotIssuedByTheExchangeGrant… failed (7 jti variants were all projected). BoundaryRoundTripTest.mapperActOnALoginToken… failed with grants=1.",
+      "outcome": "fixed",
+      "fix": "Projection.actorIds (keycloak-adapter/src/main/.../Projection.java) now projects 'act' only when the identity's single jti matches tr(rt|lt)te:.+. TokenExchangeDelegationProvider always issues on a new TRANSIENT session through the token-exchange grant, and DefaultTokenContextEncoderProvider encodes both into the jti, which mappers cannot set. Any other 'act' throws, so the policy fails closed. Genuine delegated tokens still pass (live case 1 is allowed; verify-live.sh delegated token is still projected). Residual: this relies on Keycloak's token-id encoding, so a custom TokenContextEncoderProvider would make genuine tokens fail closed. Only client delegation was verified live; user delegation shares the same code path (read from the code).",
+      "test": "BoundaryAttackTest.actWrittenByAProtocolMapperOnALoginTokenIsNotADelegation, BoundaryAttackTest.actOnAnyTokenNotIssuedByTheExchangeGrantOnATransientSessionIsNotADelegation, BoundaryAttackTest.genuineDelegatedTokenIsProjectedAsAnActorChain, BoundaryRoundTripTest.mapperActOnALoginTokenIsNotAllowedThroughTheDelegatedGrant, verify-act-boundary.sh cases 1-3",
+      "severity": "high"
+    },
+    {
+      "id": "act-overloaded-by-impersonation",
+      "category": "confused-deputy",
+      "attack": "TokenManager.setActClaimFromImpersonator writes act={sub: impersonator id, preferred_username} on every token of an impersonation session. A realm user 'helpdesk' with realm-management/impersonation impersonates samantha. The adapter projected this as the delegation chain [samantha; helpdesk], which is exactly the shape delegation_path_matches accepts for a consented delegation samantha->helpdesk. From the claim shape alone it cannot be told apart: a user delegation copies may_act, which holds only 'sub', and an impersonation act without the username note is also only 'sub'. What does differ is the session (jti 'on..' plus a sid, against 'tr..te' with no sid).",
+      "initial_result": "FAILED. Live run with the pre-fix jar (verify-act-boundary.sh case 4): the token carried act {sub:<helpdesk id>, preferred_username:helpdesk} and jti onrtac:…; the projected actor_chain was [helpdesk]; the kernel answered indeterminate unknown_principal only because helpdesk is not in the ledger. Unit tests impersonationActIsNotADelegation and impersonationAndUserDelegationHaveTheSameActShape failed against HEAD adapter main.",
+      "outcome": "fixed",
+      "fix": "The same jti gate in Projection.actorIds: an impersonation token (online session) carrying 'act' now fails closed. The wire format cannot express impersonation, and dropping 'act' would falsify 'who acts'. Live case 4 after the fix: 'kernel not called' with IllegalArgumentException, response not_authorized.",
+      "test": "BoundaryAttackTest.impersonationActIsNotADelegation, BoundaryAttackTest.impersonationAndUserDelegationHaveTheSameActShape, verify-act-boundary.sh case 4",
+      "severity": "medium"
+    },
+    {
+      "id": "act-nested-from-actor-token",
+      "category": "delegation-chain",
+      "attack": "TokenExchangeDelegationProvider.checkRequestedAudiences builds act = copy(may_act) and nests the ACTOR token's own 'act' verbatim. It also copies any extra may_act key, including a mapper-made may_act.act. A hardcoded 'act' mapper on research-agent's own client puts {sub: <document-service-rbac SA>} into research-agent's client-credentials token (jti trrtcc:…). Used as actor_token, it becomes an inner link of a genuine delegated token (jti trrtte:…). Goal: invent intermediaries, so that grants delegated samantha -> X -> research-agent become usable without X ever taking part.",
+      "initial_result": "PASSED as an attack (the weakness is present). Live, both before and after the fix (verify-act-boundary.sh case 5): the delegated token's act = {sub: research-agent SA, client_id: research-agent, act: {sub: dsr SA}} and the projected actor_chain is [research-agent, document-service-rbac] (the kernel said unknown_principal only because dsr is not in the ledger). The pin test passes against HEAD and against the fixed code.",
+      "outcome": "open",
+      "fix": "Not fixable in the adapter: the outer token is genuine, and the actor token is not visible to the policy. Options: (a) in Keycloak, add 'act' and 'may_act' to OIDCAttributeMapperHelper's non-modifiable claims, or nest prevAct only when the actor token is itself a delegation token (its jti is 'tr..te'); (b) in the adapter, accept only one-link chains, which would reject genuine two-deep chains and change documented behaviour (design change).",
+      "test": "BoundaryAttackTest.known_weakness_nestedActCopiedFromTheActorTokenIsProjected, verify-act-boundary.sh case 5",
+      "severity": "medium"
+    },
+    {
+      "id": "act-from-user-attributes-authzen",
+      "category": "forgery",
+      "attack": "Through AuthZEN, a USER subject's Identity is a UserModelIdentity, whose attributes are the user's raw attributes. AuthZenResource.withSubjectProperties then overlays PEP-supplied subject.properties, JSON-serialising Maps into one string. If a user may edit unmanaged attributes, or the PEP asserts properties, they can set both 'act' and 'jti'=trrtte:x, and the adapter projects a Keycloak-verified-looking actor chain. This also contradicts architecture.md/limitations.md, which say the AuthZEN actor chain is empty.",
+      "initial_result": "PASSED as an attack. The pin test passes both before (HEAD adapter: any act was projected) and after (a jti attribute is accepted from user attributes). `mvn -o test -Dtest=BoundaryAttackTest`.",
+      "outcome": "open",
+      "fix": "Not fixed; the proposal would add more NCLOC over budget. Project 'act' only when the context carries 'kc.client.id'. DefaultEvaluationContext adds it only for KeycloakIdentity, and users cannot set context attributes; the PEP can, but the PEP already asserts the subject. Alternatively ignore 'act' outside the UMA path. Separately, docs/architecture.md and docs/limitations.md should drop the claim that AuthZEN always has an empty actor chain (not my files).",
+      "test": "BoundaryAttackTest.known_weakness_actAndJtiSetAsUserAttributesAreProjected, BoundaryAttackTest.actOnAnyTokenNotIssuedByTheExchangeGrantOnATransientSessionIsNotADelegation (no-jti case)",
+      "severity": "low"
+    },
+    {
+      "id": "tjson-duplicate-key-quadratic",
+      "category": "malformed-request",
+      "attack": "A confidential client controls claim_token, which is limited to 128 KiB by quarkus.http.limits.max-form-attribute-size=131072. It pushes {\"mandate\":[{12,782 distinct keys}]}. That list passes ResourcePermission, the adapter forwards the object as query.mandate, and tjson's duplicate-key check (List.mem over the seen keys) is O(n^2). Goal: burn kernel CPU per evaluated scope, close to the adapter's 2 s timeout, which is the DoS the threat model covers only for the admin-controlled ledger.",
+      "initial_result": "FAILED. HEAD kernel on a 1 MiB object with 96k keys: 90.0 s of CPU (test_boundary 'resources: …', run in a git-archive HEAD copy: `./_build/default/test/boundary/test_boundary.exe …` → 25 tests, 3 failed). Claim-sized object: the pre-review kernel took 1.55 s and the fixed one 0.024 s (`./kernel-before.exe eval claimsized.json` vs `./kernel-after.exe eval claimsized.json`). BoundaryRoundTripTest.aClaimSizedObjectWithManyKeys… failed with the pre-review kernel: 'no decision within 1 s (took 1016 ms)'.",
+      "outcome": "fixed",
+      "fix": "lib/json/tjson.ml: object keys are tracked in a Set.Make(String), which is O(n log n) and cannot be hash-flooded; the duplicate semantics are unchanged. tjson.mli documents the bound. After the fix: the 1 MiB case is under 1 s for the whole test binary, and the round trip decides within 1 s.",
+      "test": "test/boundary/test_boundary.ml 'resources: a 1 MiB object with ~96k distinct keys is rejected within 2 s'; BoundaryRoundTripTest.aClaimSizedObjectWithManyKeysIsDecidedWellWithinTheTimeout",
+      "severity": "medium"
+    },
+    {
+      "id": "kernel-output-invalid-utf8",
+      "category": "malformed-request",
+      "attack": "Send the kernel bytes such as 0xFF, 0xFE or a lone 0xC3 where a token or ':' is expected. tjson's messages 'unexpected character '%c'' and 'expected ':' but found '%c'' copied the raw byte into the decision's reason message. The decision document was therefore not valid UTF-8, which tjson itself rejects and Jackson rejects too, so the verdict was lost and 'kernel failed' was logged. It cannot be reached through the adapter, because Jackson writes valid JSON, but it can through the CLI.",
+      "initial_result": "FAILED. HEAD kernel: 'output: every decision document is strict JSON' failed at byte 341 (invalid UTF-8 lead byte), and 'cli: garbage on stdin' failed with 'output does not parse'. `printf '\\xff\\xfe{\\x00}\\x00' | main.exe eval | python3 -c 'decode utf-8'` → INVALID at position 341.",
+      "outcome": "fixed",
+      "fix": "lib/json/tjson.ml: show_byte prints printable ASCII as 'c' and every other byte as 'byte 0xNN' in both messages. Documented in tjson.mli.",
+      "test": "test_boundary.ml 'output: every decision document is strict JSON (valid UTF-8), even for garbage input', 'cli: garbage on stdin: exit 0 with a malformed_request decision'",
+      "severity": "low"
+    },
+    {
+      "id": "decision-allow-without-authority",
+      "category": "malformed-request",
+      "attack": "The kernel (or anything in its place) prints {schema, request_id: <echo>, decision: \"allow\"} with no authority, or an allow with reasons present, null or missing. wire-format.md says authority is present iff the decision is allow and reasons are non-empty iff it is not. The adapter's 'well-formed allow' checked only schema, a textual decision and the request_id.",
+      "initial_result": "FAILED. Against HEAD adapter: allowWithoutAuthorityDoesNotGrant got {bare=1, reasons only=1, null=1, string=1}, and allowWithReasonsOrWithoutAReasonsArrayDoesNotGrant got {with reasons=1, reasons null=1, no reasons=1} (every one granted). A bare {\"decision\":\"allow\"} without schema was already rejected (held).",
+      "outcome": "fixed",
+      "fix": "Kernel.parse: an \"allow\" must carry an 'authority' object and a 'reasons' array that is empty. The FailClosedTest stub prelude, the oversize, null-id and no-schema stubs, and the verify-live.sh stand-in now emit an authority object, so each test still has exactly one defect. evidenceIsTheKernelsBytes expects the new stub bytes. No assertion was removed.",
+      "test": "BoundaryAttackTest.allowWithoutAuthorityDoesNotGrant, BoundaryAttackTest.allowWithReasonsOrWithoutAReasonsArrayDoesNotGrant, BoundaryAttackTest.aFullyValidAllowGrants, BoundaryAttackTest.decisionAllowAloneDoesNotGrant",
+      "severity": "low"
+    },
+    {
+      "id": "decision-encoding-lenient",
+      "category": "parser-differential",
+      "attack": "On the decision document, Jackson's byte reader (readTree(byte[])) auto-detects UTF-16/32, skips a UTF-8 BOM, and decodes overlong UTF-8: \"\\301\\241llow\" reads as \"allow\". tjson rejects all of these, so the adapter accepted documents the kernel's own parser calls invalid (RFC 8259 §8.1).",
+      "initial_result": "FAILED. Against HEAD adapter: decisionThatIsNotStrictUtf8DoesNotGrant got {bom=1, utf16le=1, utf32be=1, overlong=1}. Probe with Jackson 2.22.2 in jshell: overlong C0 AF → '/', F4 90 80 80 → '\\uDC00\\uDC00', utf16le and utf32 allow docs → OBJECT.",
+      "outcome": "fixed",
+      "fix": "Kernel.parse decodes stdout with StandardCharsets.UTF_8.newDecoder() (REPORT on malformed input) and parses the String. A BOM then becomes U+FEFF, which Jackson's char reader rejects; UTF-16/32 turn into NULs, which it also rejects.",
+      "test": "BoundaryAttackTest.decisionThatIsNotStrictUtf8DoesNotGrant",
+      "severity": "low"
+    },
+    {
+      "id": "oversize-request-evidence",
+      "category": "evidence",
+      "attack": "A request over 1 MiB (for example a padded ledger). The kernel reads 1 MiB+1, answers request_too_large and exits, so the adapter's stdin writer gets EPIPE. Kernel.decide checked stdin before writing evidence, so the correct verdict was discarded and logged as 'kernel failed: … Broken pipe', although the README promises every decision document in evidence-dir.",
+      "initial_result": "FAILED. With the fixed kernel and the old ordering: anOversizeRequestIsNotGrantedAndItsVerdictIsKept expected [request_too_large] but got [], with log 'kernel failed: java.util.concurrent.ExecutionException: java.io.IOException: Broken pipe'. The same with the HEAD adapter in the git-archive run. No grant in either case (fail closed held).",
+      "outcome": "fixed",
+      "fix": "Kernel.decide writes the evidence file right after strict parsing and before stdin.get; no NCLOC was added. An incomplete write still ends in a Failure with no grant, but the kernel's verdict is now on file.",
+      "test": "BoundaryRoundTripTest.anOversizeRequestIsNotGrantedAndItsVerdictIsKept",
+      "severity": "low"
+    },
+    {
+      "id": "adapter-over-s4-budget",
+      "category": "evidence",
+      "attack": "Not an exploit: the cost of hardening the boundary against hypothesis S4/W2 (adapter at most 400 NCLOC). Closing act forgery and impersonation (+4) and reading decisions strictly (+3) is the glue the boundary actually needs.",
+      "initial_result": "397 NCLOC before (README awk command in keycloak-adapter).",
+      "outcome": "open",
+      "fix": "404 NCLOC after (same awk command). W2's threshold is crossed by 4 lines of security glue. Not compressed artificially; the lead decides. README 'Size' and glue-site table updated: 47 rows (new #45-#47); P 19, C 13, O 20, K 6; rows #45 and #46 touch the delegation chain.",
+      "test": "awk NCLOC command from keycloak-adapter/README.md 'Size (hypothesis S4)'",
+      "severity": "info"
+    },
+    {
+      "id": "principal-id-is-mutable-username",
+      "category": "projection",
+      "attack": "User principals are usernames (by the wire-format design), while Keycloak's stable identity is the user id. After samantha is deleted, a self-registered user takes the username 'samantha' (or a user renames when edit-username is enabled, or an admin renames a clientId). The new holder inherits the ledger's grants, delegations and prohibitions for that name, as far as they also hold the anchor roles.",
+      "initial_result": "PASSED as an attack: two distinct Keycloak users (u-samantha, u-mallory) project the same facts.subject, against both HEAD and the fixed code (`mvn -o test -Dtest=BoundaryAttackTest`).",
+      "outcome": "open",
+      "fix": "Design-level. The wire format would need a stable id (Keycloak user id or client internal id) next to the name, and the ledger would need to bind to it. Not changed.",
+      "test": "BoundaryAttackTest.known_weakness_principalIdIsTheMutableUsername",
+      "severity": "low"
+    },
+    {
+      "id": "unrepresentable-role-name",
+      "category": "projection",
+      "attack": "Keycloak allows role and client names outside the kernel's id syntax [A-Za-z0-9._:@-]{1,128}, such as 'Report Author' or URL client ids. The adapter projects every live role of the subject and the actors, so one such role, for example from a group, makes every request of that principal malformed_request, whatever the ledger says. This is denial of service by configuration; the system still fails closed.",
+      "initial_result": "PASSED as an attack: a group role 'Report Author' on samantha gives INDETERMINATE malformed_request citing realm_roles (BoundaryRoundTripTest, real kernel, before and after).",
+      "outcome": "open",
+      "fix": "Proposal: skip and log roles whose names are not valid kernel ids. That is safe, because the ledger cannot name them as anchors either, but it changes what 'faithful projection' means, so it was left to the lead.",
+      "test": "BoundaryRoundTripTest.known_weakness_oneUnrepresentableRoleMakesEveryRequestOfItsHolderMalformed",
+      "severity": "low"
+    },
+    {
+      "id": "malformed-structure",
+      "category": "malformed-request",
+      "attack": "Truncate the allowed base request (examples/requests/02-delegated-generate.json) at every byte offset. Replace every node with a value of every other JSON kind. Add an unknown field to every object. Nest 64, 66 and 500k levels (also inside facts.realm). Send exactly 1 MiB, 1 MiB+1, and 1 MiB+1 and 3 MiB on the CLI's stdin. Replace every node with null.",
+      "initial_result": "PASSED (held). test_boundary on HEAD: every prefix and every wrong-type or extra-field mutation gives malformed_request; 64 levels parse and 66 do not; 500k levels are rejected without stack overflow; 1 MiB+1 gives request_too_large; the CLI exits 0 with request_id null. Null is tolerated only on the codec's optional fields (request_id, mandate, effect, realm, valid_from, valid_until, delegable_depth, provenance, revocations, prohibitions). wire-format.md does not document request_id/realm as nullable.",
+      "outcome": "held",
+      "fix": "No change needed.",
+      "test": "test_boundary.ml 'malformed: every proper prefix…', 'a wrong JSON type at any node…', 'null is tolerated only on optional fields', 'an extra field in any object…', 'nesting is bounded', '500k levels…', '1 MiB + 1 byte…', 'cli: 1 MiB + 1 byte and 3 MiB on stdin…'",
+      "severity": "info"
+    },
+    {
+      "id": "malformed-bytes",
+      "category": "malformed-request",
+      "attack": "Raw NUL inside a string, between tokens and after the document; \\u0000 in an id and in free text; invalid UTF-8 (80, FF, FE, truncated, bad continuation); overlong C0 AF, C0 80, C1 BF, E0 80 AF, F0 80 80 AF; encoded surrogates ED A0 80 and ED BF BF; above U+10FFFF (F4 90 80 80, F5, F8); lone or mispaired surrogate escapes; a BOM before the document.",
+      "initial_result": "PASSED (held). test_boundary on HEAD: all give malformed_request. \\u0000 in free text decodes and is re-encoded as \\u0000. Valid é, U+FFFF, emoji, U+10FFFF, an in-string BOM and valid surrogate pairs decode.",
+      "outcome": "held",
+      "fix": "No change needed.",
+      "test": "test_boundary.ml 'malformed: NUL bytes', 'invalid, overlong and surrogate UTF-8 in a string', 'lone surrogates in \\u escapes', 'a BOM before the document is malformed'",
+      "severity": "info"
+    },
+    {
+      "id": "malformed-numbers-timestamps-ids",
+      "category": "malformed-request",
+      "attack": "delegable_depth set to 99999999999999999999, max_int+1, -1, min_int, 1e2, 1E2, 1e0, 1.0, 100.0, 1e400, 0.5, or \"1\"; max_int; -0. Timestamps 2026-02-29, 2100-02-29, 24:00:00, 23:59:60, lowercase z or t, +00:00, fractions, missing seconds, single-digit month, leading space, a space for T, +2026, -026, +10000 (Java ISO_INSTANT for year 10000), month 00 or 13, 04-31, day 00, minute 60, Arabic-Indic digit, empty. Ids of 128 vs 129 characters; empty; spaces; tab or NUL via escapes; '/', '#'; Cyrillic homoglyph; é; trailing newline.",
+      "initial_result": "PASSED (held). test_boundary on HEAD: all rejected with a path-named malformed_request. max_int decodes and allows. -0 is 0, which gives deny delegation_depth_exceeded. 2028-02-29, 2000-02-29, 0000-01-01 and 9999-12-31 are accepted and round-trip. The id limit is exactly 128.",
+      "outcome": "held",
+      "fix": "No change needed.",
+      "test": "test_boundary.ml 'malformed: delegable_depth numbers', 'malformed: timestamps', 'malformed: identifiers'",
+      "severity": "info"
+    },
+    {
+      "id": "parser-differential-ledger",
+      "category": "parser-differential",
+      "attack": "Same ledger bytes to Jackson (as the adapter configures it) and to tjson: duplicate keys (top level, nested, spelled with an escape as \"grants\"), trailing comma, comment, NaN, Infinity, 01, single quotes, BOM, VT or NBSP as whitespace, raw control character, two documents, number lexemes (+1, .5, 1., 1e, 0x10, 1_000, --1), 1e2, -0, 1E400, big ints, \\uD800, \\u0000. The question: can the two sides disagree about meaning?",
+      "initial_result": "PASSED (held). Jackson rejects every ambiguous text, so the adapter embeds it as a JSON string and the kernel reports malformed_request. tjson rejects the same raw bytes. Where Jackson re-spells (1e2→100.0, -0→0, 1E400→\"Infinity\", \\uD800 kept as an escape, P→P), the kernel's verdict on Jackson's bytes equals tjson's verdict on the raw bytes. Commands: `mvn -o test -Dtest=BoundaryAttackTest`, test_boundary on HEAD, and BoundaryRoundTripTest with the real kernel (all malformed, no grant). Observation: the kernel never sees raw ledger text, so Jackson's STRICT_DUPLICATE_DETECTION is the only guard that counts.",
+      "outcome": "held",
+      "fix": "No code change. Doc note for the lead: threat-model.md's 'both reject duplicate keys' overstates the kernel's role for the ledger.",
+      "test": "BoundaryAttackTest.jacksonRejectsEveryAmbiguousLedgerTextSoTheKernelGetsItAsAString, BoundaryAttackTest.jacksonReserialisesLedgerNumbersAndStrings, test_boundary.ml 'differential: …' (5 cases), BoundaryRoundTripTest.ambiguousLedgerTextsAreMalformedNeverAllowed, BoundaryRoundTripTest.reserialisedLedgerNumbersAreMalformedNeverAllowed",
+      "severity": "info"
+    },
+    {
+      "id": "parser-differential-claims-and-act",
+      "category": "parser-differential",
+      "attack": "Duplicate keys, trailing documents and overlong UTF-8 in claim_token. Duplicate keys in the act claim.",
+      "initial_result": "PASSED (held). Keycloak's JsonSerialization.mapper, a default ObjectMapper, resolves the claim token before the adapter sees it: the last duplicate wins ('generate-report'), a second document is ignored, and overlong C0 AD decodes to '-'. Only this one interpretation reaches the adapter (as a Map) and the kernel, so Java and OCaml cannot disagree. Keycloak serialises 'act' itself, so it cannot contain duplicate keys. A String-typed mapper 'act' with duplicate keys is rejected by the adapter's strict parser (IOException).",
+      "outcome": "held",
+      "fix": "No change needed. The leniency only affects the requesting client, which writes the claims.",
+      "test": "BoundaryAttackTest.keycloakResolvesAmbiguousClaimTokensBeforeTheAdapterSeesThem, BoundaryAttackTest.actTextWithDuplicateKeysIsRejected",
+      "severity": "info"
+    },
+    {
+      "id": "pushed-claim-type-confusion",
+      "category": "malformed-request",
+      "attack": "{\"mandate\":\"generate-report\"}, {\"mandate\":{\"x\":1}}, {\"mandate\":[1,2]}, {\"effect\":null}, [true], [null], [[\"generate-report\"]], [{x:1}], a mandate given twice, 'OBSERVE', 'produce: organization'.",
+      "initial_result": "PASSED (held). Reproducing ResourcePermission.<init>'s addAll gives ClassCastException for a scalar and for a Map, and NullPointerException for null, all before any policy runs (same as the lead's live fact). Lists of anything reach the adapter and are forwarded as JSON. The real kernel answers malformed_request, or missing_effect for [null], and never allows. HEAD and fixed code behave the same.",
+      "outcome": "held",
+      "fix": "No change needed.",
+      "test": "BoundaryAttackTest.keycloakFailsOnScalarObjectAndNullClaimsBeforeAnyPolicyRuns, BoundaryAttackTest.claimValuesThatReachThePolicyAreForwardedAsJsonForTheKernelToReject, BoundaryRoundTripTest.pushedClaimTypeConfusionIsMalformedOrMissingNeverAllowed",
+      "severity": "info"
+    },
+    {
+      "id": "process-protocol-held",
+      "category": "malformed-request",
+      "attack": "Kernel stand-ins that: write partial output then hang; print deny then allow, or allow twice; print an allow followed by NUL; print a bare {\"decision\":\"allow\"}; spell the decision 'ALLOW', 'Allow', ' allow', 'allow ', 'allowed', 'permit', 'true', or use a boolean; duplicate a nested key or request_id; print only whitespace; write 16 MiB to stderr and then a valid allow; leave a grandchild holding stdout open after a valid allow.",
+      "initial_result": "PASSED (held) against the HEAD adapter: no grant in every case. The hang and grandchild cases return at the 500 ms timeout (under 5 s and 2 s). 16 MiB of stderr is drained and the valid allow grants. Note: the grandchild survives destroyForcibly (an orphan until it exits).",
+      "outcome": "held",
+      "fix": "No change needed.",
+      "test": "BoundaryAttackTest.partialOutputThenHangDoesNotGrantAndReturnsAtTheTimeout, twoDocumentsDoNotGrant, decisionAllowAloneDoesNotGrant, decisionSpellingsOtherThanAllowDoNotGrant, duplicateKeysAnywhereInTheDecisionDoNotGrant, exitZeroWithOnlyWhitespaceDoesNotGrant, sixteenMebibytesOfStderrAreDrained, aGrandchildHoldingStdoutOpenDoesNotGrantAndReturnsAtTheTimeout",
+      "severity": "info"
+    },
+    {
+      "id": "evidence-leakage",
+      "category": "evidence",
+      "attack": "Does anything the kernel returns (evidence, reasons, authority) reach the requesting client through the UMA response or the RPT?",
+      "initial_result": "PASSED (held). A recording proxy around Evaluation shows the provider calls only getAuthorizationProvider, getContext, getPolicy, getPermission and grant (once). The ResourcePermission's claims stay empty, and a marker in the kernel's evidence reaches nothing. Live responses were only {\"result\":true} or {\"error\":\"access_denied\",\"error_description\":\"not_authorized\"}. Evidence files are named by the adapter's own UUID.",
+      "outcome": "held",
+      "fix": "No change needed. Evidence goes only to the server log (codes) and evidence-dir.",
+      "test": "BoundaryAttackTest.nothingTheKernelReturnsReachesTheEvaluationExceptGrant, BoundaryAttackTest.evidenceFilesAreNamedByTheAdaptersOwnRequestId, verify-act-boundary.sh responses",
+      "severity": "info"
+    }
+  ],
+  "final_test_run": "OCaml (in /home/user/keycloak/ocaml-authority): `dune test --force --build-dir _build-attack-boundary`, exit 0. test_boundary: 25 tests, 0 failed. test_authority: 135 tests, 0 failed. The other suites in the tree also ran: 527 tests, 0 failed; scenarios 13/13, 43/43, 13/13; test_p2 1007, test_scc 912, test_rules 110, test_emit 242, test_certificate 17, test_rule_table 25, flashlight 73, test_false_proven 25, test_evasions 85, test_checker 31, all 0 failed.\n\nAdapter (in keycloak-adapter): `mvn -q -o test` exit 0, with the round-trip tests skipped. `mvn -o test -Dtyped.authority.kernel=../_build-attack-boundary/default/bin/authority_kernel/main.exe`: 84 tests, 0 failures, 0 errors (FactoryTest 6, FailClosedTest 21, KernelRoundTripTest 5, BoundaryRoundTripTest 8, BoundaryAttackTest 28, ProjectionTest 16).\n\nLive: `./verify-live.sh` exit 0 with the stand-in (the delegated token is still projected). `REAL_KERNEL=… ./verify-live.sh` exit 0: agent read allowed via g-agent-read, delegated read denied as expired. `REAL_KERNEL=… ./verify-act-boundary.sh` (port 18380) exit 0: the genuine delegated token is allowed, the mapper-made act (JSON and String types) and impersonation fail closed, and the nested forged act is still projected (open).\n\nInitial runs against unmodified code:\n- OCaml: `git archive HEAD` copy with the final test_boundary.ml: 25 tests, 3 failed.\n- Java: HEAD adapter main plus the final tests, using the pre-review kernel: 81 tests, 10 failures.\n- Live: the same script with the pre-fix jar: forged act allowed.",
+  "notes": "Every code change stayed inside the paths I own. codec.ml was not changed. Other reviewers edited lib/authority, run-demo.sh and the docs in parallel; I did not touch those files.\n\nExisting tests changed without weakening any assertion:\n- FailClosedTest: the PRELUDE decide() now adds an authority object to an allow. The oversize, allow-null-id and no-schema stubs also carry authority and reasons, so each still has exactly one defect. evidenceIsTheKernelsBytes expects the new bytes.\n- DemoRealm.actors() and ProjectionTest.actClaimAsKeycloakDelegationWritesIt now set the jti a genuine delegated token carries. It was captured live: trrtte:….\n- verify-live.sh: the stand-in allow now includes an authority object.\n\nS4/W2: the adapter is at 404 NCLOC, over the 400 budget. The cost is +4 for the act gate and +3 for strict decision reading; the evidence reorder added 0. The README's Size section and glue-site table were updated: #45-#47 added, line numbers shifted, counts P 19, C 13, O 20, K 6.\n\nThe act gate depends on DefaultTokenContextEncoderProvider's jti encoding, which is internal to services. I verified it live only for client delegation; user delegation uses the same TokenExchangeDelegationProvider.tokenExchange path, per the code.\n\nDoc drift, for the lead (not my files):\n- architecture.md and limitations.md say AuthZEN has an empty actor chain. It does not: subject.properties and user attributes can carry act.\n- architecture.md says act is 'written by Keycloak's own delegation exchange'. Mappers and impersonation write it too.\n- threat-model.md: for the ledger, only Jackson's strictness matters; the kernel never sees raw ledger text.\n- wire-format.md does not say that request_id and realm accept null.\n\nNot explored: the ID-token claim_token format, which carries no pushed claims and so is always missing_mandate. The kernel inherits Keycloak's environment variables, which may include secrets; it is trusted, so this is info only.\n\nArtifacts in the scratchpad (<scratch>):\n- kernel-before.exe: the pre-review kernel, copied from _build-lead.\n- adapter-before.jar: the pre-fix jar.\n- live-before.out and live-after.out: verify-act-boundary.sh transcripts.\n- head-ocaml/ and head-adapter/: HEAD copies used for the initial runs."
+}

@@ -9,6 +9,14 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/keycloak/keycloak)
 [![Translation status](https://hosted.weblate.org/widget/keycloak/svg-badge.svg)](docs/translation.md)
 
+> [!NOTE]
+> **This fork carries a research experiment: [OCaml does Keycloak](ocaml-authority/README.md).**
+> Through a custom policy provider, a small OCaml kernel decides Keycloak Authorization Services
+> requests as *principal · mandate · capability · effect · provenance* and returns its evidence.
+> A memoized proof search (`attempt_proof`) projects Keycloak's Java authorization
+> types into OCaml and reports what it can prove, strengthen, not know, or must refuse.
+> Keycloak's own code is unmodified; everything lives in [`ocaml-authority/`](ocaml-authority/README.md).
+
 # Open Source Identity and Access Management
 
 Add authentication to applications and secure services with minimum effort. No need to deal with storing users or authenticating users.
