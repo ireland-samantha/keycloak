@@ -24,7 +24,7 @@ step() { # TITLE COMMAND...
   if out=$("$@" 2>&1); then rc=0; else rc=$?; status=1; fi
   # Keep the output short: tool noise out, counts and verdicts in.
   printf '%s\n' "$out" | grep -v 'JAVA_TOOL_OPTIONS' | grep -E -i \
-    'passed|failed|tests|scenarios|accepted|rejected|compiles|PROVEN|STRENGTHENED|UNKNOWN|REFUTED|memo|states|greedy|Tests run|BUILD|error|exception|^ok |FAIL|OPEN|decisive|allow|deny|indeterminate|NCLOC|tuples|compound|administered|files changed|^[0-9]+$' \
+    'passed|failed|tests|scenarios|accepted|rejected|compiles|PROVEN|STRENGTHENED|UNKNOWN|REFUTED|memo|states|greedy|Tests run|BUILD|error|exception|^ok |FAIL|OPEN|decisive|allow|deny|indeterminate|NCLOC|tuples|compound|administered|files changed|drift|what-if|Verdict|^[0-9]+$' \
     | grep -v -E '^\s*$|^\s+(PROVEN|UNKNOWN|STRENGTHENED|REFUTED)\s+[A-Za-z_]+:|^(INFO|WARN):|^\s+at |literal-S2 exception' | head -400 >> "$LOG"
   printf '(exit %d, %ds)\n```\n' "$rc" $((SECONDS - t0)) >> "$LOG"
 }
@@ -47,12 +47,22 @@ step "Compound-role surface (W1)" "$KERNEL" surface examples/scenarios/demo.json
 step "attempt_proof certificate check (P1)" "$PROVE" --check examples/proof/keycloak-authz.graph.json examples/proof/certificate.json
 step "Extractor reproduces the committed graph" bash -c \
   "java tools/java-graph/JavaGraph.java --root .. --commit 6688a3d63f59e0c4a9131bfdd556c4312799f04e --slice tools/java-graph/authz-slice.txt --out /tmp/verify-graph.json && cmp /tmp/verify-graph.json examples/proof/keycloak-authz.graph.json && echo 'graph: byte-identical, accepted'"
+step "OCaml's review of this checkout (prove-it.sh: drift gate)" ./prove-it.sh
+step "What-if reviews reproduce (examples/proof/what-if)" bash -c '
+  ok=0
+  for p in examples/proof/what-if/*.patch; do
+    r="${p%.patch}.review.md"; want=0; case "$p" in *scope-gains-behaviour*) want=1 ;; esac
+    ./prove-it.sh --what-if "$p" 2>/dev/null > /tmp/verify-whatif.md; got=$?
+    if cmp -s /tmp/verify-whatif.md "$r" && [ $got = $want ]; then
+      echo "what-if $(basename "$p"): identical review, verdict $([ $got = 0 ] && echo accepted || echo refused)"
+    else echo "what-if $(basename "$p"): FAIL (exit $got, expected $want)"; ok=1; fi
+  done; exit $ok'
 step "Java adapter tests with the real kernel" bash -c \
   "cd keycloak-adapter && mvn -B -q test -Dtyped.authority.kernel='$KERNEL' >/dev/null 2>&1; grep -h 'Tests run' target/surefire-reports/*.txt | awk -F'[ ,]+' '{r+=\$3; f+=\$5; e+=\$7; s+=\$9} END {print \"Tests run: \"r\", Failures: \"f\", Errors: \"e\", Skipped: \"s}'"
 step "Adapter size (S4, NCLOC of main Java)" ncloc
 step "Kernel size (W6, lines of lib/authority)" bash -c "cat lib/authority/*.ml lib/authority/*.mli | wc -l"
 step "Upstream Keycloak untouched" bash -c \
-  "git -C .. diff --stat 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' ':!README.md' | tail -1; echo 'files changed outside ocaml-authority/ and README.md: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' ':!README.md' | wc -l)"
+  "echo 'files changed outside ocaml-authority/: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' | paste -sd' ' -); echo 'files changed outside ocaml-authority/, README.md and the OCaml workflow: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' ':!README.md' ':!.github/workflows/ocaml-does-keycloak.yml' | wc -l)"
 if [ $LIVE = 1 ]; then
   step "Live Keycloak demo (examples/keycloak/run-demo.sh)" bash -c \
     "examples/keycloak/run-demo.sh >/tmp/verify-demo.log 2>&1; rc=\$?; grep -E '^[0-9]{2}-|server_error|ClassCastException|no policy evaluation' /tmp/verify-demo.log; exit \$rc"

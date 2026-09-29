@@ -1,5 +1,8 @@
 # OCaml does Keycloak
 
+![attempt_proof](https://img.shields.io/badge/attempt__proof-721%20proven%20%C2%B7%207%20strengthened%20%C2%B7%2029%20unknown%20%C2%B7%203%20refuted-b7410e)
+![kernel](https://img.shields.io/badge/kernel-13%2F13%20scenarios%20%C2%B7%2043%2F43%20adversarial-2e7d32)
+
 This directory asks an unreasonable question: **can a small OCaml program
 reconstruct and verify part of Keycloak's authority model?**
 
@@ -27,10 +30,13 @@ It asks it twice:
 
 Java says: *this is how authorization works.* OCaml replies: *prove it.*
 
-Keycloak is not rewritten, and none of its code is modified. From the
-repository root, `git diff 6688a3d6 -- . ':!ocaml-authority' ':!README.md'`
-is empty. Everything lives here, as a provider jar, a child process, and a
-pile of evidence.
+Keycloak is not rewritten, and none of its code is modified. Outside this
+directory there are only two changes: a pointer at the top of the root
+`README.md`, and one CI workflow in which Keycloak files its authorization
+types with OCaml (see "Keycloak files paperwork" below). From the repository
+root, `git diff 6688a3d6 -- . ':!ocaml-authority' ':!README.md'
+':!.github/workflows/ocaml-does-keycloak.yml'` is empty. Everything else
+lives here, as a provider jar, a child process, and a pile of evidence.
 
 > The hypotheses were committed before any kernel, adapter or solver code
 > ([`docs/hypothesis.md`](docs/hypothesis.md), commit `c7106ebe`). That commit
@@ -257,6 +263,10 @@ _build/default/bin/prove/main.exe --check examples/proof/keycloak-authz.graph.js
 # 6. Live, end to end, against this fork.
 examples/keycloak/run-demo.sh
 
+# 7. OCaml's review of this checkout, and of a change you have not made yet.
+./prove-it.sh
+./prove-it.sh --what-if examples/proof/what-if/typed-act-claim.patch
+
 # Or all of the above, recorded to docs/verification.md:
 ./verify-all.sh --live
 ```
@@ -340,6 +350,42 @@ mandate and effect would all be PROVEN, and they were, 13 of 13. We also
 predicted that Q2 ("false comfort" above 50% of glue sites) would be at least
 partly triggered. On the pre-registered all-sites reading it was not: 43.2%.
 It fell short only because most glue lies outside the slice.
+
+## Keycloak files paperwork
+
+The CI workflow `.github/workflows/ocaml-does-keycloak.yml` makes the joke
+literal. Whenever Keycloak's authorization types change, [`prove-it.sh`](prove-it.sh)
+re-extracts them, OCaml re-proves them, and the independent checker verifies
+the new certificate. OCaml's review lands in the job summary. A change that
+gains a REFUTED obligation fails the check.
+
+On this checkout:
+
+> **No drift.** The slice is byte-identical to the one the certificate was
+> issued for. Verdict: **accepted.** Keycloak may proceed.
+
+`--what-if PATCH` asks OCaml before you make the change. It applies the
+patch to a scratch copy of the slice, never to the tree. Three hypothetical
+Keycloak changes, with OCaml's reviews committed in
+[`examples/proof/what-if/`](examples/proof/what-if):
+
+| patch | verdict | what OCaml says |
+|---|---|---|
+| `Scope` gains `void copyDisplayTo(Scope other)` | **refused** | *Scope must be able to carry behaviour because Scope.copyDisplayTo(Scope) is behaviour, but as Closures: Policy.getScopes() : Set<Scope> needs a comparable element; Resource.updateScopes(Set) … needs a comparable element* |
+| AuthZEN's `context` and `subject.properties` become `Map<String, String>` | accepted | UNKNOWN 29 → 27: two `Dynamic` obligations are gone |
+| `act` becomes a type, `record Actor(String sub, String clientId, Actor act)` | accepted | 8 new obligations, all PROVEN or STRENGTHENED |
+
+The last one is the flashlight result turned around. The delegation chain
+that Keycloak ships as a JSON string inside `otherClaims`, and that
+`attempt_proof` cannot see, becomes this the moment Java gives it a type:
+
+```ocaml
+type json_web_token_actor = {
+  sub : string option;
+  client_id : string option;
+  act : json_web_token_actor option;
+}
+```
 
 ## What we learned
 
@@ -444,4 +490,6 @@ against our own design, [`docs/adversarial-review.md`](docs/adversarial-review.m
 | `keycloak-adapter` | the Keycloak `PolicyProvider` (Maven project, provider jar) |
 | `examples/scenarios`, `examples/requests` | fixture ledger, scenarios, captured kernel outputs |
 | `examples/keycloak` | demo realm, `run-demo.sh`, captured live output |
-| `examples/proof` | extracted graph, certificate, emitted OCaml, report |
+| `examples/proof` | extracted graph, certificate, emitted OCaml, report; `what-if/` patches and OCaml's reviews of them |
+| `prove-it.sh`, `.github/workflows/ocaml-does-keycloak.yml` | the drift gate: Keycloak's authorization types re-proved on every change |
+| `verify-all.sh` | rebuilds and re-checks every claim; writes `docs/verification.md` |
