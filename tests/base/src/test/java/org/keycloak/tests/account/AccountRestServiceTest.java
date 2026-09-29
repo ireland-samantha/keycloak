@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ClientErrorException;
@@ -85,6 +86,7 @@ import org.keycloak.services.resources.account.AccountCredentialResource;
 import org.keycloak.services.util.ResolveRelative;
 import org.keycloak.testframework.annotations.KeycloakIntegrationTest;
 import org.keycloak.testframework.events.EventAssertion;
+import org.keycloak.testframework.realm.CredentialBuilder;
 import org.keycloak.testframework.realm.UserBuilder;
 import org.keycloak.tests.suites.DatabaseTest;
 import org.keycloak.tests.utils.admin.AdminApiUtil;
@@ -94,6 +96,7 @@ import org.keycloak.testsuite.util.userprofile.UserProfileUtil;
 import org.keycloak.userprofile.UserProfileContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.node.NullNode;
 import org.apache.http.Header;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
@@ -692,6 +695,93 @@ public class AccountRestServiceTest extends AbstractRestServiceTest {
                 .findFirst()
                 .get();
         Assertions.assertTrue(ObjectUtil.isEqualOrBothNull(otpCredential.getUserLabel(), otpCredentialLoaded.getUserLabel()));
+    }
+
+    @Test
+    public void testSetCredentialLabelRejectsEmptyOrBlankLabel() throws IOException {
+        String token = oauth.client("direct-grant", "password").doPasswordGrantRequest("test-user@localhost", "password").getAccessToken();
+        UserResource user = AdminApiUtil.findUserByUsernameId(managedRealm.admin(), "test-user@localhost");
+        try {
+            addOtpCredentials(user, "initial-label");
+            String otpId = otpCredentialId(user, "initial-label");
+
+            // like the Admin API, the Account API rejects an empty, blank or null label and keeps the current label
+            for (Object label : new Object[] {"", "   ", NullNode.getInstance()}) {
+                try (SimpleHttpResponse response = putCredentialLabel(token, otpId, label)) {
+                    Assertions.assertEquals(400, response.getStatus(), "label '" + label + "'");
+                    Assertions.assertEquals("missingCredentialLabel", response.asJson().get("error").asText(), "label '" + label + "'");
+                }
+                Assertions.assertEquals("initial-label", otpCredentialLabel(user, otpId), "label '" + label + "'");
+            }
+        } finally {
+            removeOtpCredentials(user);
+        }
+    }
+
+    @Test
+    public void testSetCredentialLabelStillAcceptsValidLabelAndReportsConflicts() throws IOException {
+        String token = oauth.client("direct-grant", "password").doPasswordGrantRequest("test-user@localhost", "password").getAccessToken();
+        UserResource user = AdminApiUtil.findUserByUsernameId(managedRealm.admin(), "test-user@localhost");
+        try {
+            addOtpCredentials(user, "label-a", "label-b");
+            String idA = otpCredentialId(user, "label-a");
+            String idB = otpCredentialId(user, "label-b");
+
+            try (SimpleHttpResponse response = putCredentialLabel(token, idA, "My Phone")) {
+                Assertions.assertEquals(204, response.getStatus());
+            }
+            Assertions.assertEquals("My Phone", otpCredentialLabel(user, idA));
+
+            // the unique-label rule for credentials of the same type still applies
+            try (SimpleHttpResponse response = putCredentialLabel(token, idB, "My Phone")) {
+                Assertions.assertEquals(409, response.getStatus());
+            }
+            Assertions.assertEquals("label-b", otpCredentialLabel(user, idB));
+
+            // an unknown credential is answered with 404 even when the label is empty
+            try (SimpleHttpResponse response = putCredentialLabel(token, UUID.randomUUID().toString(), "")) {
+                Assertions.assertEquals(404, response.getStatus());
+            }
+        } finally {
+            removeOtpCredentials(user);
+        }
+    }
+
+    private SimpleHttpResponse putCredentialLabel(String token, String credentialId, Object jsonLabel) throws IOException {
+        return simpleHttp.doPut(getAccountUrl("credentials/" + credentialId + "/label")).auth(token).json(jsonLabel).asResponse();
+    }
+
+    // Add one OTP credential per label to the user through the admin REST API
+    private void addOtpCredentials(UserResource user, String... labels) {
+        UserBuilder userBuilder = UserBuilder.update(user.toRepresentation());
+        for (String label : labels) {
+            CredentialRepresentation otp = CredentialBuilder.totp("totpSecret-" + label).build();
+            otp.setUserLabel(label);
+            userBuilder.credential(otp);
+        }
+        user.update(userBuilder.build());
+    }
+
+    private String otpCredentialId(UserResource user, String label) {
+        return user.credentials().stream()
+                .filter(credentialRep -> OTPCredentialModel.TYPE.equals(credentialRep.getType()) && label.equals(credentialRep.getUserLabel()))
+                .findFirst()
+                .get()
+                .getId();
+    }
+
+    private String otpCredentialLabel(UserResource user, String credentialId) {
+        return user.credentials().stream()
+                .filter(credentialRep -> credentialId.equals(credentialRep.getId()))
+                .findFirst()
+                .get()
+                .getUserLabel();
+    }
+
+    private void removeOtpCredentials(UserResource user) {
+        user.credentials().stream()
+                .filter(credentialRep -> OTPCredentialModel.TYPE.equals(credentialRep.getType()))
+                .forEach(credentialRep -> user.removeCredential(credentialRep.getId()));
     }
 
     @Test
