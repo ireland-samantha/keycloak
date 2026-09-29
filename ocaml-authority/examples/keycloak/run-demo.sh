@@ -182,6 +182,17 @@ run 12-direct-publish             samantha  "$SAMANTHA"   "q3-report#publish"   
 run 13-delegation-without-exchange agent    "$AGENT"     "q3-report#generate"      generate-report produce:organization
 run 14-agent-administers-for-samantha delegated "$DELEGATED" "realm-config#administer" generate-report administer
 
+log "declared type vs runtime: pushed claims arrive as Map<String, List<String>> via an unchecked cast"
+# claim_token {"mandate": "generate-report", "effect": "observe"}: scalars where Keycloak's type says lists.
+scalar=$(printf '{"mandate":"generate-report","effect":"observe"}' | base64 -w0 | tr '+/' '-_' | tr -d '=')
+curl -s -H "Authorization: Bearer $AGENT" \
+  -d grant_type=urn:ietf:params:oauth:grant-type:uma-ticket -d audience=document-service -d "permission=q3-report#read" \
+  -d response_mode=decision -d claim_token_format=urn:ietf:params:oauth:token-type:jwt -d "claim_token=$scalar" \
+  "$TOKEN_URL" | tee "$OUT/scalar-claim-response.json"; echo
+sleep 1
+grep -m1 -o 'java.lang.ClassCastException.*' "$WORK/keycloak.log" | tr -d '\r' | tee "$OUT/scalar-claim-keycloak-log.txt" || echo "(no ClassCastException logged)"
+ls "$EVIDENCE"/*.json >/dev/null 2>&1 && echo "the policy ran" || echo "no policy evaluation reached the kernel" | tee -a "$OUT/scalar-claim-keycloak-log.txt"
+
 log "stale grant: remove samantha's report-author role, reuse the SAME delegated token"
 SAM_ID=$(admin "$KC/admin/realms/$REALM/users?username=samantha&exact=true" | jq -r '.[0].id')
 ROLE=$(admin "$KC/admin/realms/$REALM/roles/report-author")

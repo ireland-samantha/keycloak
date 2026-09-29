@@ -336,6 +336,9 @@ let validate g =
         | Class c ->
             if c.resolution = Slice && not (Hashtbl.mem ids c.name) then
               bad := Some (Printf.sprintf "%s: slice reference to unknown type %s" where c.name);
+            (* Slice ids and external names share one namespace in a certificate's encodings. *)
+            if c.resolution <> Slice && Hashtbl.mem ids c.name then
+              bad := Some (Printf.sprintf "%s: external type %s has the name of a slice type" where c.name);
             List.iter (walk where) c.args
       in
       List.iter

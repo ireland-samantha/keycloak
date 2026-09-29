@@ -81,8 +81,9 @@ let verdict_notes env (obls : Obligation.t list) =
   String.concat "; " (group Proven @ group Strengthened @ each Unknown @ each Refuted)
 
 let member_note env (jt : jtype) m =
-  let obls = Option.value (Hashtbl.find_opt env.by_member (jt.id, Obligation.member_key m)) ~default:[] in
-  Printf.sprintf "%s %s:%d | %s" (Obligation.member_key m) (Filename.basename jt.file) m.m_line (verdict_notes env obls)
+  let key = Obligation.member_key_in jt m in
+  let obls = Option.value (Hashtbl.find_opt env.by_member (jt.id, key)) ~default:[] in
+  Printf.sprintf "%s %s:%d | %s" key (Filename.basename jt.file) m.m_line (verdict_notes env obls)
 
 let param_types env m =
   List.map
@@ -125,27 +126,28 @@ let layout env (jt : jtype) (enc : Encoding.t) : layout =
   in
   (match enc with
   | Record ->
-      (* One field per property; a setter makes its property's field mutable. *)
+      (* One field per property; a setter that takes the property's type makes its field mutable. A setter
+         without such a data member (an orphan) gets a mutable field of its own. *)
       let data, orphans = Obligation.carried_members jt in
-      let setters = List.filter (fun m -> Obligation.role m = Obligation.Setter && not (Jgraph.is_static m)) members in
-      let prop_slots = Hashtbl.create 16 in
+      let setters =
+        List.filter (fun m -> Obligation.role m = Obligation.Setter && not (Jgraph.is_static m) && not (List.memq m orphans)) members
+      in
+      (* A getter's field has its return type: (_, exn) result when it declares throws (Checked), and
+         explicit polymorphism for its own type parameters. *)
+      let data_type m = match m.m_kind with Method -> poly m (return_type env m) | _ -> value_type m in
       List.iter
         (fun m ->
           let prop = Obligation.property m in
           let name = fresh (Ocaml_type.snake prop) in
           let setter_notes = List.filter (fun s -> Obligation.property s = prop) setters in
           let is_mutable = (m.m_kind = Field && not (Jgraph.is_final m)) || setter_notes <> [] in
-          Hashtbl.replace prop_slots prop ();
-          add slots { name; mutable_ = is_mutable; ty = value_type m; notes = note m :: List.map note setter_notes })
+          add slots { name; mutable_ = is_mutable; ty = data_type m; notes = note m :: List.map note setter_notes })
         data;
       List.iter
         (fun m ->
-          if not (Hashtbl.mem prop_slots (Obligation.property m)) then begin
-            let p = List.hd m.m_params in
-            let ty = Ocaml_type.with_nullability p.p_type (Obligation.evidence ~returns_null:false p.p_annotations) (Ocaml_type.render env.ctx p.p_type) in
-            Hashtbl.replace prop_slots (Obligation.property m) ();
-            add slots { name = fresh (Ocaml_type.snake (Obligation.property m)); mutable_ = true; ty; notes = [ note m ] }
-          end)
+          let p = List.hd m.m_params in
+          let ty = Ocaml_type.with_nullability p.p_type (Obligation.evidence ~returns_null:false p.p_annotations) (Ocaml_type.render env.ctx p.p_type) in
+          add slots { name = fresh (Ocaml_type.snake (Obligation.property m)); mutable_ = true; ty = poly m ty; notes = [ note m ] })
         orphans;
       List.iter
         (fun m ->
@@ -233,6 +235,29 @@ let constraints env (jt : jtype) =
         tp.tp_bounds)
     jt.type_params
 
+(* OCaml constructors for enum constants. Java allows constants that OCaml constructors cannot be (_HIDDEN,
+   $DOLLAR, non-ASCII letters) and constants that capitalise to the same name (Low, low). *)
+let constructors (constants : constant list) =
+  let taken = Hashtbl.create 8 in
+  List.map
+    (fun c ->
+      let b = Buffer.create 16 in
+      String.iter
+        (fun ch ->
+          match ch with
+          | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_' -> Buffer.add_char b ch
+          | '$' -> Buffer.add_char b '_'
+          | _ -> Printf.bprintf b "u%02x" (Char.code ch))
+        c.c_name;
+      let s = Buffer.contents b in
+      let base = match s.[0] with 'A' .. 'Z' -> s | 'a' .. 'z' -> String.capitalize_ascii s | _ -> "C" ^ s in
+      let rec claim i =
+        let cand = if i = 1 then base else Printf.sprintf "%s_%d" base i in
+        if Hashtbl.mem taken cand then claim (i + 1) else (Hashtbl.replace taken cand (); cand)
+      in
+      claim 1)
+    constants
+
 let definition env (jt : jtype) enc =
   let l = layout env jt enc in
   let b = Buffer.create 512 in
@@ -241,7 +266,9 @@ let definition env (jt : jtype) enc =
   | Variant ->
       Printf.bprintf b "%s =" params;
       if jt.constants = [] then Buffer.add_string b " |";
-      List.iter (fun c -> Printf.bprintf b "\n  | %s" (String.capitalize_ascii c.c_name)) jt.constants
+      List.iter2
+        (fun c name -> Printf.bprintf b "\n  | %s%s" name (if name = c.c_name then "" else "  (* " ^ comment_safe c.c_name ^ " *)"))
+        jt.constants (constructors jt.constants)
   | Record | Closures ->
       if l.slots = [] && l.not_carried = [] then Printf.bprintf b "%s = unit  (* no instance data *)" params
       else if l.slots = [] then begin

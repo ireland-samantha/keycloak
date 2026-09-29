@@ -3,6 +3,13 @@
 
 type t
 
+type seal
+(** Only this private module can produce a seal. [Decision.make] requires one,
+    so a [Decision.t] (and with it an [Allow]) is assembled only inside the
+    library, around the request it decides. *)
+
+val seal : seal
+
 val mint : Chain.verified -> Check.t list -> Facts.source -> t option
 (** [Some] only if the checks include [Provenance] and every check passes. *)
 

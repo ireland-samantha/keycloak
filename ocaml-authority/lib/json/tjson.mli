@@ -4,7 +4,11 @@
     be read in one sitting. Stricter than most parsers on purpose:
 
     - duplicate object keys are rejected (Jackson keeps the last one; a parser
-      differential between the Java adapter and the kernel is an attack surface)
+      differential between the Java adapter and the kernel is an attack surface),
+      in O(n log n) for an object of n keys: the keys of a pushed claim are
+      client-controlled
+    - error messages never copy input bytes that are not printable ASCII, so a
+      decision about any input is valid UTF-8
     - nesting depth is bounded
     - strings must be valid UTF-8; lone surrogates in [\u] escapes are rejected
     - nothing but whitespace may follow the top-level value *)

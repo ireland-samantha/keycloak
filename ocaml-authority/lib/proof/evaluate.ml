@@ -32,7 +32,7 @@ let verdict (m : Model.t) (enc : Model.assignment) (o : Obligation.t) : verdict 
     | Some v -> v
     | None -> (
         match (Rules.compared_type o, o.subject) with
-        | Some t, _ -> comparable_verdict m enc (Model.leaves m t)
+        | Some t, _ -> worst (Rules.compared_floor ~arity:m.arity t) (comparable_verdict m enc (Model.leaves m t))
         | None, Bound (_, b) -> (
             match Rules.bound_target b with
             | Rules.Bound_fixed v -> v

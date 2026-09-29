@@ -40,6 +40,8 @@ let acting a = match a.actor_chain with x :: _ -> x | [] -> a.subject
 
 type t = { request_id : Id.Request.t option; about : about option; verdict : verdict; evidence : evidence }
 
+let make (_ : Mint.seal) ~request_id ~about ~verdict ~evidence = { request_id; about; verdict; evidence }
+
 let reason_code_to_string = function
   | Malformed_request -> "malformed_request"
   | Request_too_large -> "request_too_large"

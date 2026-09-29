@@ -29,12 +29,16 @@ let well_formedness (r : Request.t) =
       List.filter_map
         (fun p -> if Option.is_some (registered p) then None else Some (reason Unknown_principal "%s is not in ledger.principals" (pstr p)))
         in_request;
-      List.filter_map
+      (* Every ledger entry with the id, not the first one: with a ledger that
+         registers an id twice the reasons must not depend on ledger order. *)
+      List.concat_map
         (fun (p : Principal.t) ->
-          match registered p with
-          | Some (x : Principal.t) when x.kind <> p.kind ->
-              Some (reason Principal_kind_mismatch "the facts name %s; the ledger has %s" (pstr p) (pstr x))
-          | _ -> None)
+          List.filter_map
+            (fun (x : Principal.t) ->
+              if Id.Principal.equal x.id p.id && x.kind <> p.kind then
+                Some (reason Principal_kind_mismatch "the facts name %s; the ledger has %s" (pstr p) (pstr x))
+              else None)
+            l.principals)
         (unique Principal.equal (in_request @ fact_principals));
       (match q.mandate with
       | Some m when Option.is_none (Ledger.find_mandate l m) ->
@@ -72,12 +76,15 @@ let request_checks (q : Request.query) (mandate : Mandate.t option) =
               ~fail:(sp "mandate %s bounds effects to %s - not %s" mid bound e')) ]
 
 (* Prohibitions bind the subject and everyone in the actor chain, so
-   delegated authority cannot escape a restriction on the delegator. *)
+   delegated authority cannot escape a restriction on the delegator. The
+   holder is matched by id alone: ledger principal ids are unique across
+   kinds, and a deny must not be dropped because its holder was written with
+   the wrong kind (honoring an unverified deny is always safe). *)
 let prohibition_checks (r : Request.t) =
   let bound = Facts.token_path r.facts in
   List.filter_map
     (fun (p : Ledger.prohibition) ->
-      if not (List.exists (Principal.equal p.holder) bound) then None
+      if not (List.exists (Principal.same_id p.holder) bound) then None
       else
         let outcome, detail =
           match r.query.effect with
@@ -224,11 +231,12 @@ let evaluate (r : Request.t) =
                     | rs :: rss -> Deny (Nonempty.dedup (Nonempty.prepend request_failures (Nonempty.concat rs rss)))))))
   in
   let about = { query = q; subject = f.subject; actor_chain = f.actor_chain } in
-  { request_id = r.request_id; about = Some about; verdict; evidence = { request_checks = req_checks; prohibitions; candidates = List.map fst assessed; held } }
+  make Mint.seal ~request_id:r.request_id ~about:(Some about) ~verdict
+    ~evidence:{ request_checks = req_checks; prohibitions; candidates = List.map fst assessed; held }
 
 let undecodable code message =
-  { request_id = None; about = None; verdict = Indeterminate (Nonempty.singleton { code; message });
-    evidence = { request_checks = []; prohibitions = []; candidates = []; held = [] } }
+  make Mint.seal ~request_id:None ~about:None ~verdict:(Indeterminate (Nonempty.singleton { code; message }))
+    ~evidence:{ request_checks = []; prohibitions = []; candidates = []; held = [] }
 
 let run input =
   if String.length input > max_request_bytes then

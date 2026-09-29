@@ -117,7 +117,38 @@ let member_key m =
   | Field | Component -> m.m_name
   | Method | Constructor -> m.m_name ^ "(" ^ String.concat "," (List.map (fun p -> erased p.p_type) m.m_params) ^ ")"
 
-let member_ref m = { key = member_key m; name = m.m_name; line = m.m_line; static = is_static m }
+(* Java erasure with qualified names: a type variable erases to its first bound (java.lang.Object if it
+   has none), a class to its resolved name. *)
+let rec erased_qualified ~bound_of depth = function
+  | Void -> "void"
+  | Primitive p -> p
+  | Array e -> erased_qualified ~bound_of depth e ^ "[]"
+  | Wildcard _ -> "?"
+  | Type_var v -> (
+      match bound_of v with Some b when depth < 8 -> erased_qualified ~bound_of (depth + 1) b | _ -> "java.lang.Object")
+  | Class c -> c.name
+
+(* The key of member [m] of [jt]. It is [member_key m] unless another projected method of [jt] has the same
+   one: legal overloads such as f(java.util.Date) / f(java.sql.Date), or <T extends A> f(T) / <T extends B> f(T),
+   share their simple-name key. Those are keyed by their qualified Java erasure, which javac requires to be
+   distinct. Keys that do not collide are unchanged. *)
+let member_key_in (jt : jtype) m =
+  let k = member_key m in
+  match m.m_kind with
+  | Field | Component | Constructor -> k
+  | Method ->
+      let same = List.filter (fun m' -> m'.m_kind = Method && projected m' && member_key m' = k) jt.members in
+      if List.length same <= 1 then k
+      else
+        let bound_of v =
+          let find tps =
+            List.find_map (fun tp -> if tp.tp_name = v then Some (match tp.tp_bounds with b :: _ -> Some b | [] -> None) else None) tps
+          in
+          match find m.m_type_params with Some b -> b | None -> Option.join (find jt.type_params)
+        in
+        m.m_name ^ "(" ^ String.concat "," (List.map (fun p -> erased_qualified ~bound_of 0 p.p_type) m.m_params) ^ ")"
+
+let member_ref jt m = { key = member_key_in jt m; name = m.m_name; line = m.m_line; static = is_static m }
 
 (* ---------- leaves of a type reference ---------- *)
 
@@ -139,7 +170,9 @@ let rec leaves ~arity (t : type_ref) : leaf list =
   | Array e -> leaves ~arity e
   | Type_var v -> [ Var v ]
   | Wildcard None -> [ Dynamic_value "?" ]
-  | Wildcard (Some (_, b)) -> leaves ~arity b
+  (* A List<? super Integer> may hold any supertype of Integer: reading it yields Object. *)
+  | Wildcard (Some (Super, b)) -> [ Dynamic_value ("? super " ^ render b) ]
+  | Wildcard (Some (Extends, b)) -> leaves ~arity b
   | Class c -> (
       let args () = List.concat_map (leaves ~arity) c.args in
       match c.resolution with
@@ -187,8 +220,12 @@ let positions m =
 let carried_members (jt : jtype) =
   let instance = List.filter (fun m -> projected m && not (is_static m)) jt.members in
   let data = List.filter (fun m -> role m = Data) instance in
-  let props = List.map property data in
-  let orphan_setters = List.filter (fun m -> role m = Setter && not (List.mem (property m) props)) instance in
+  (* A setter shares its property's field only if it takes that field's type: setName(Integer) next to
+     String getName() needs a field of its own, or the Integer it takes is carried nowhere. *)
+  let same_type d s = match (d.m_type, s.m_params) with Some t, [ p ] -> render t = render p.p_type | _ -> false in
+  let orphan_setters =
+    List.filter (fun m -> role m = Setter && not (List.exists (fun d -> property d = property m && same_type d m) data)) instance
+  in
   (data, orphan_setters)
 
 let carried_types jt =
@@ -251,7 +288,9 @@ let rec collections path (t : type_ref) acc =
   match t with
   | Void | Primitive _ | Type_var _ | Wildcard None -> acc
   | Array e -> collections (path ^ "/[]") e acc
-  | Wildcard (Some (_, e)) -> collections path e acc
+  (* Values read through ? super B are not B's: no Set or Map inside B is a fact about them. *)
+  | Wildcard (Some (Super, _)) -> acc
+  | Wildcard (Some (Extends, e)) -> collections path e acc
   | Class c ->
       let here =
         match (c.resolution, simple_name c.name, c.args) with
@@ -304,7 +343,7 @@ let derive (g : Jgraph.t) : t list =
       List.iter
         (fun m ->
           if projected m then begin
-            let member = member_ref m in
+            let member = member_ref jt m in
             List.iter
               (fun (pos, t, anns, returns_null) ->
                 emit ~member ~position:pos Represent owner (Value t);

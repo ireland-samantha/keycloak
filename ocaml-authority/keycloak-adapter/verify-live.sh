@@ -42,7 +42,7 @@ if [ -n "$TYPED_AUTHORITY_REAL_KERNEL" ]; then
   printf '%s' "$request" | "$TYPED_AUTHORITY_REAL_KERNEL" eval
   exit $?
 fi
-printf '{"schema":"typed-authority/decision/v1","request_id":"%s","decision":"allow","reasons":[]}\n' "$id"
+printf '{"schema":"typed-authority/decision/v1","request_id":"%s","decision":"allow","authority":{"grant":"stand-in","chain":[],"anchor":"recording kernel"},"reasons":[]}\n' "$id"
 EOF
 chmod +x "$LIVE/recording-kernel.sh"
 

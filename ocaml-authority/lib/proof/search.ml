@@ -21,7 +21,7 @@ type pending = { obl : int; floor : verdict; demands : (int * req) list  (** sor
 type plan =
   | Fixed of verdict
   | Owner of int
-  | Comparable_leaves of Obligation.leaf list
+  | Comparable_leaves of Obligation.leaf list * verdict  (** leaves, and the floor of the compared type itself *)
   | Bound_on of int
   | Subtype_pair of int * int
 
@@ -52,7 +52,7 @@ let plan_of (m : Model.t) (o : Obligation.t) =
         match o.subject with Supertype t -> Subtype_pair (node o.owner, node t) | _ -> Fixed v)
     | None -> (
         match (Rules.compared_type o, o.subject) with
-        | Some t, _ -> Comparable_leaves (Model.leaves m t)
+        | Some t, _ -> Comparable_leaves (Model.leaves m t, Rules.compared_floor ~arity:m.arity t)
         | None, Bound (_, b) -> (
             match Rules.bound_target b with Rules.Bound_fixed v -> Fixed v | Rules.Bound_node id -> Bound_on (node id))
         | None, _ -> invalid_arg ("Search.plan_of: " ^ o.id))
@@ -132,8 +132,8 @@ let run (m : Model.t) : outcome =
         match plans.(o) with
         | Fixed v -> finalize o v
         | Owner n -> finalize o (Rules.owner_verdict obls.(o) (enc_of n))
-        | Comparable_leaves ls ->
-            let floor = ref Proven and demands = ref [] in
+        | Comparable_leaves (ls, floor0) ->
+            let floor = ref floor0 and demands = ref [] in
             let _, leaf = comparable floor demands (Hashtbl.create 4) in
             List.iter leaf ls;
             settle o !floor !demands

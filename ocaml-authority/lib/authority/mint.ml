@@ -1,4 +1,7 @@
 type t = { chain : Chain.verified; checks : Check.t list; source : Facts.source }
+type seal = Seal
+
+let seal = Seal
 
 let mint chain checks source =
   let passed (c : Check.t) = c.outcome = Check.Pass in

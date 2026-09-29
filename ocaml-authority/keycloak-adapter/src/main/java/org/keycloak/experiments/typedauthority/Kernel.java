@@ -3,6 +3,7 @@ package org.keycloak.experiments.typedauthority;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,11 +82,12 @@ final class Kernel {
                             + new String(stderr.get(deadline - System.nanoTime(), TimeUnit.NANOSECONDS), StandardCharsets.UTF_8));
                 }
                 JsonNode decision = parse(output, requestId);
-                stdin.get(deadline - System.nanoTime(), TimeUnit.NANOSECONDS);
                 if (evidenceDir != null) {
                     Files.createDirectories(evidenceDir);
                     Files.write(evidenceDir.resolve(requestId + ".json"), output, StandardOpenOption.CREATE_NEW);
                 }
+                // After the evidence: a kernel that answers request_too_large stops reading, and the rest of the write fails.
+                stdin.get(deadline - System.nanoTime(), TimeUnit.NANOSECONDS);
                 return decision;
             } finally {
                 process.destroyForcibly();
@@ -103,14 +105,18 @@ final class Kernel {
     private static JsonNode parse(byte[] output, String requestId) throws Failure {
         JsonNode decision;
         try {
-            decision = Projection.JSON.readTree(output);
+            // Strict UTF-8, as the kernel's own parser: Jackson's byte reader would also take a BOM, UTF-16/32 and overlong forms.
+            decision = Projection.JSON.readTree(StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(output)).toString());
         } catch (IOException e) {
             throw new Failure("unparseable decision: " + e.getMessage());
         }
+        boolean allow = decision != null && "allow".equals(decision.path("decision").textValue());
         if (decision == null || !DECISION_SCHEMA.equals(decision.path("schema").textValue()) || !decision.path("decision").isTextual()
                 || !(requestId.equals(decision.path("request_id").textValue())
                         // A request the kernel cannot decode gets request_id null; such a decision is never "allow".
-                        || decision.path("request_id").isNull() && !"allow".equals(decision.get("decision").textValue()))) {
+                        || decision.path("request_id").isNull() && !allow)
+                // wire-format.md: authority is present iff the decision is allow, reasons are non-empty iff it is not.
+                || allow && (!decision.path("authority").isObject() || !decision.path("reasons").isArray() || !decision.path("reasons").isEmpty())) {
             throw new Failure("output is not a " + DECISION_SCHEMA + " document for request " + requestId);
         }
         return decision;

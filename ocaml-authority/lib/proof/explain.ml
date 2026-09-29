@@ -185,7 +185,12 @@ let explain (m : Model.t) (enc : Model.assignment) (verdicts : verdict array) (i
               tradeoff ~culprit:c ~requirement:"comparable" ~because:(describe o ^ via)
                 ~ok:(fun e -> comparability e <> Not_comparable)
           | None -> plain "not comparable")
-      | Unknown -> plain (unknown_parts m enc leaves)
+      | Unknown ->
+          let compound =
+            if Rules.set_makeable ~arity:m.arity t then []
+            else [ "no Set.Make or Map.Make over " ^ Jgraph.render t ^ ": carried as a list, which does not enforce uniqueness" ]
+          in
+          plain (String.concat "; " (compound @ List.filter (( <> ) "") [ unknown_parts m enc leaves ]))
       | _ -> plain (match o.kind with Unique -> "Set.Make over a comparable element" | _ -> "Map.Make over a comparable key"))
   | Bounded, Bound (p, b) -> (
       match (v, Rules.bound_target b) with

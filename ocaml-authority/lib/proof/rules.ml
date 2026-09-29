@@ -35,6 +35,20 @@ let fixed_verdict ~leaves (o : Obligation.t) : verdict option =
 let compared_type (o : Obligation.t) =
   match o.subject with Element e -> Some e | Key_value (k, _) -> Some k | _ -> None
 
+(* "Element or key is String, a primitive or an enum -> Set.Make or Map.Make" (doc line 125). A Set.Make /
+   Map.Make exists for a String, a primitive or boxed scalar, or a slice type without type arguments
+   (Ocaml_type.collection_module). Any other element or key, such as List<String>, String[], Set<String> or
+   ? extends E, is carried as a list, which enforces no uniqueness, so Unique / Keyed is at best UNKNOWN. *)
+let set_makeable ~arity (t : Jgraph.type_ref) =
+  match t with
+  | Primitive _ -> true
+  | Class { resolution = Jdk; name; _ } -> List.mem (Jgraph.simple_name name) scalar_jdk
+  | Class { resolution = Slice; name; args = []; _ } -> arity name = 0
+  | _ -> false
+
+(* The verdict a compared type starts from, before its leaves are looked at. *)
+let compared_floor ~arity t = if set_makeable ~arity t then Proven else Unknown
+
 (* Contribution of a leaf that is not a slice type. *)
 let leaf_verdict = function
   | Scalar _ -> Proven

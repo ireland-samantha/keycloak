@@ -18,7 +18,8 @@ let is_upper c = Char.uppercase_ascii c = c && Char.lowercase_ascii c <> c
 let is_lower c = Char.lowercase_ascii c = c && Char.uppercase_ascii c <> c
 let is_digit c = c >= '0' && c <= '9'
 
-(* camelCase, PascalCase and ACRONYMS to snake_case; '.' becomes '_'. *)
+(* camelCase, PascalCase and ACRONYMS to snake_case; '.' and '$' become '_'. Java identifiers may hold
+   letters outside ASCII, which OCaml identifiers may not: each such byte becomes "u" and its hex code. *)
 let snake s =
   let n = String.length s in
   let b = Buffer.create (n + 8) in
@@ -32,15 +33,20 @@ let snake s =
         then Buffer.add_char b '_';
         Buffer.add_char b (Char.lowercase_ascii c)
       end
-      else Buffer.add_char b c)
+      else if is_lower c || is_digit c || c = '_' then Buffer.add_char b c
+      else Printf.bprintf b "u%02x" (Char.code c))
     s;
   Buffer.contents b
+
+(* A type name or type variable must start with a letter: a module name is derived from it by
+   capitalisation, and '_x is not a type variable. *)
+let letter_first s = if s = "" || s.[0] = '_' then "t" ^ s else s
 
 let ident s =
   let s = snake s in
   if List.mem s keywords then s ^ "_" else s
 
-let tvar v = "'" ^ ident v
+let tvar v = "'" ^ letter_first (ident v)
 
 type names = { slice : (string, string) Hashtbl.t; external_ : (string, string) Hashtbl.t }
 
@@ -59,11 +65,11 @@ let names (m : Model.t) : names =
     go 0
   in
   let slice = Hashtbl.create 64 and external_ = Hashtbl.create 16 in
-  Array.iter (fun (jt : jtype) -> Hashtbl.replace slice jt.id (claim (snake jt.id))) m.nodes;
+  Array.iter (fun (jt : jtype) -> Hashtbl.replace slice jt.id (claim (letter_first (snake jt.id)))) m.nodes;
   List.iter
     (fun (q, _) ->
-      let short = snake (simple_name q) in
-      let base = if Hashtbl.mem taken short then snake q else short in
+      let short = letter_first (snake (simple_name q)) in
+      let base = if Hashtbl.mem taken short then letter_first (snake q) else short in
       Hashtbl.replace external_ q (claim base))
     m.externals;
   { slice; external_ }
@@ -107,7 +113,8 @@ let collection_suffix = function Set_of -> "_set" | Map_of -> "_map"
 
 (* The Set.Make / Map.Make module for an element or key type, if the encoding
    admits one: a scalar, or a single slice type whose comparison is not REFUTED.
-   Everything else is carried as a list. *)
+   Everything else is carried as a list; Rules.set_makeable is the same test, and
+   keeps Unique / Keyed of such a list from being PROVEN. *)
 let collection_module ctx kind (elem : type_ref) =
   let register name el =
     Hashtbl.replace ctx.used name (kind, el);
@@ -116,6 +123,8 @@ let collection_module ctx kind (elem : type_ref) =
   let scalar s =
     Option.bind (scalar_module s) (fun md -> register (md ^ collection_suffix kind) (Scalar_module md))
   in
+  if not (Rules.set_makeable ~arity:ctx.m.arity elem) then None
+  else
   match elem with
   | Primitive p -> scalar p
   | Class { resolution = Jdk; name; _ } -> scalar (simple_name name)
@@ -131,7 +140,9 @@ let rec render ctx (t : type_ref) : string =
   | Array e -> render ctx e ^ " array"
   | Type_var v -> ( match List.assoc_opt v ctx.subst with Some s -> s | None -> tvar v)
   | Wildcard None -> "java_object"
-  | Wildcard (Some (_, b)) -> render ctx b
+  | Wildcard (Some (Extends, b)) -> render ctx b
+  (* A value read through ? super B is some supertype of B, up to Object. *)
+  | Wildcard (Some (Super, _)) -> "java_object"
   | Class c -> (
       match c.resolution with
       | Jdk -> (

@@ -22,14 +22,20 @@ class FailClosedTest {
 
     static final Path STUBS = Path.of("target", "kernel-stubs").toAbsolutePath();
 
-    /** Reads the request, records it, and defines decide VERDICT [REASONS_JSON]. */
+    /**
+     * Reads the request, records it, and defines decide VERDICT [REASONS_JSON]. An allow carries an "authority"
+     * object, as every allow of the real kernel does (wire-format.md), and the adapter requires.
+     */
     static final String PRELUDE = """
             [ "$1" = eval ] || exit 64
             request=$(cat)
             printf '%s\\n' "$request" >> "$0.log"
             id=$(printf '%s' "$request" | sed -n 's/.*"request_id":"\\([^"]*\\)".*/\\1/p')
             action=$(printf '%s' "$request" | sed -n 's/.*"action":"\\([^"]*\\)".*/\\1/p')
-            decide() { printf '{"schema":"typed-authority/decision/v1","request_id":"%s","decision":"%s","reasons":[%s]}\\n' "$id" "$1" "$2"; }
+            decide() {
+              authority=; [ "$1" = allow ] && authority='"authority":{"grant":"g-stub","chain":[],"anchor":"stub"},'
+              printf '{"schema":"typed-authority/decision/v1","request_id":"%s","decision":"%s",%s"reasons":[%s]}\\n' "$id" "$1" "$authority" "$2"
+            }
             """;
 
     final DemoRealm demo = new DemoRealm();
@@ -111,7 +117,7 @@ class FailClosedTest {
     void oversizeStdoutDoesNotGrantEvenWhenItIsAValidAllow() throws IOException {
         // A syntactically valid allow document, padded past the 4 MiB cap.
         assertEquals(0, grants(stub("oversize", """
-                printf '{"schema":"typed-authority/decision/v1","request_id":"%s","decision":"allow","reasons":[],"pad":"' "$id"
+                printf '{"schema":"typed-authority/decision/v1","request_id":"%s","decision":"allow","authority":{},"reasons":[],"pad":"' "$id"
                 head -c 4194304 /dev/zero | tr '\\000' x
                 printf '"}\\n'""")));
     }
@@ -123,7 +129,7 @@ class FailClosedTest {
 
     @Test
     void allowWithNullRequestIdDoesNotGrant() throws IOException {
-        assertEquals(0, grants(stub("allow-null-id", "printf '{\"schema\":\"typed-authority/decision/v1\",\"request_id\":null,\"decision\":\"allow\"}'")));
+        assertEquals(0, grants(stub("allow-null-id", "printf '{\"schema\":\"typed-authority/decision/v1\",\"request_id\":null,\"decision\":\"allow\",\"authority\":{},\"reasons\":[]}'")));
     }
 
     @Test
@@ -144,7 +150,7 @@ class FailClosedTest {
 
     @Test
     void decisionWithoutSchemaDoesNotGrant() throws IOException {
-        assertEquals(0, grants(stub("no-schema", "printf '{\"request_id\":\"%s\",\"decision\":\"allow\"}' \"$id\"")));
+        assertEquals(0, grants(stub("no-schema", "printf '{\"request_id\":\"%s\",\"decision\":\"allow\",\"authority\":{},\"reasons\":[]}' \"$id\"")));
     }
 
     @Test
@@ -226,7 +232,8 @@ class FailClosedTest {
             Path file = listing.findFirst().orElseThrow();
             String id = file.getFileName().toString().replaceFirst("\\.json$", "");
             assertArrayEquals(("{\"schema\":\"typed-authority/decision/v1\",\"request_id\":\"" + id
-                    + "\",\"decision\":\"allow\",\"reasons\":[]}\n").getBytes(), Files.readAllBytes(file));
+                    + "\",\"decision\":\"allow\",\"authority\":{\"grant\":\"g-stub\",\"chain\":[],\"anchor\":\"stub\"},\"reasons\":[]}\n").getBytes(),
+                    Files.readAllBytes(file));
         }
     }
 }

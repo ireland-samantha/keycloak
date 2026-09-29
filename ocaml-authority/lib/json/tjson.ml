@@ -10,6 +10,12 @@ type parse_error = { offset : int; message : string }
 
 exception Parse_failure of int * string
 
+module Keys = Set.Make (String)
+
+(* A byte as an error message may show it: messages end up in the decision
+   document, which must stay valid UTF-8 whatever the input was. *)
+let show_byte c = if c >= ' ' && c <= '~' then Printf.sprintf "'%c'" c else Printf.sprintf "byte 0x%02X" (Char.code c)
+
 (* ---------- parsing ---------- *)
 
 let parse ?(max_depth = 64) (src : string) : (t, parse_error) result =
@@ -28,7 +34,7 @@ let parse ?(max_depth = 64) (src : string) : (t, parse_error) result =
   let expect c =
     match peek () with
     | Some c' when c' = c -> advance ()
-    | Some c' -> fail (Printf.sprintf "expected '%c' but found '%c'" c c')
+    | Some c' -> fail (Printf.sprintf "expected '%c' but found %s" c (show_byte c'))
     | None -> fail (Printf.sprintf "expected '%c' but reached end of input" c)
   in
   let literal word v =
@@ -169,18 +175,20 @@ let parse ?(max_depth = 64) (src : string) : (t, parse_error) result =
             skip_ws ();
             let key_offset = !pos in
             let key = parse_string () in
-            if List.mem key seen then
+            (* a balanced set: duplicate detection stays O(n log n) for
+               objects with many keys, and cannot be flooded like a hash table *)
+            if Keys.mem key seen then
               raise (Parse_failure (key_offset, Printf.sprintf "duplicate key %S" key));
             skip_ws ();
             expect ':';
             let v = parse_value (depth + 1) in
             skip_ws ();
             match peek () with
-            | Some ',' -> advance (); members ((key, v) :: acc) (key :: seen)
+            | Some ',' -> advance (); members ((key, v) :: acc) (Keys.add key seen)
             | Some '}' -> advance (); Object (List.rev ((key, v) :: acc))
             | _ -> fail "expected ',' or '}' in object"
           in
-          members [] []
+          members [] Keys.empty
     | Some '[' ->
         advance ();
         skip_ws ();
@@ -200,7 +208,7 @@ let parse ?(max_depth = 64) (src : string) : (t, parse_error) result =
     | Some 'f' -> literal "false" (Bool false)
     | Some 'n' -> literal "null" Null
     | Some ('-' | '0' .. '9') -> parse_number ()
-    | Some c -> fail (Printf.sprintf "unexpected character '%c'" c)
+    | Some c -> fail (Printf.sprintf "unexpected character %s" (show_byte c))
   in
   match
     let v = parse_value 0 in

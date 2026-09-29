@@ -8,13 +8,13 @@
  * is used, and only its parser: no attribution, no classpath. Type references are
  * resolved by name, in this order:
  *
- *   1. type variables of the enclosing method and types
+ *   1. type variables of the enclosing method and of every lexically enclosing type
  *   2. member types of the lexically enclosing types (and those types themselves)
  *   3. single-type imports
  *   4. top-level slice types of the same package
  *   5. a fixed list of java.lang names
  *   6. otherwise: assumed to live in the same package (no on-demand import in the file),
- *      or unknown (the file has on-demand imports)
+ *      or unknown (the file has on-demand imports), named "*.N" so it never equals a slice id
  *
  * A reference is "slice" if it names a type declared in one of the input files, "jdk"
  * if its qualified name is one of JDK_KNOWN, and "external" otherwise. Inherited member
@@ -168,7 +168,11 @@ public class JavaGraph {
     Map<String, Object> typeJson(Decl d) {
         ClassTree ct = d.tree;
         Unit u = d.unit;
-        Scope scope = new Scope(u, d, typeParamNames(ct.getTypeParameters()), List.of());
+        // Step 1: a type parameter of any lexically enclosing type is in scope in a nested type too (JLS 6.3),
+        // and shadows same-package types of the same name. (Using it from a static context is a javac error.)
+        List<String> typeVars = new ArrayList<>(typeParamNames(ct.getTypeParameters()));
+        for (String enclosing : d.enclosingIds) typeVars.addAll(typeParamNames(byId.get(enclosing).tree.getTypeParameters()));
+        Scope scope = new Scope(u, d, typeVars, List.of());
         String kind = switch (ct.getKind()) {
             case INTERFACE -> "interface";
             case ENUM -> "enum";
@@ -343,17 +347,61 @@ public class JavaGraph {
         return switch (e.getKind()) {
             case NULL_LITERAL -> true;
             case PARENTHESIZED -> mayBeNullLiteral(((ParenthesizedTree) e).getExpression());
+            // (String) null is still the null literal.
+            case TYPE_CAST -> mayBeNullLiteral(((TypeCastTree) e).getExpression());
             case CONDITIONAL_EXPRESSION -> {
                 ConditionalExpressionTree c = (ConditionalExpressionTree) e;
                 yield mayBeNullLiteral(c.getTrueExpression()) || mayBeNullLiteral(c.getFalseExpression());
+            }
+            // A switch expression yields the null literal from an arm "-> null" or a "yield null".
+            case SWITCH_EXPRESSION -> {
+                boolean any = false;
+                for (CaseTree c : ((SwitchExpressionTree) e).getCases()) {
+                    Tree body = c.getBody();
+                    if (body instanceof ExpressionTree x) any |= mayBeNullLiteral(x);
+                    else if (body instanceof ExpressionStatementTree s) any |= mayBeNullLiteral(s.getExpression());
+                    else if (body != null) any |= yieldsNullLiteral(body);
+                    else for (StatementTree s : c.getStatements()) any |= yieldsNullLiteral(s);
+                }
+                yield any;
             }
             default -> false;
         };
     }
 
+    /** True if a yield of this switch-expression arm (not of a nested switch expression, lambda or class) can yield null. */
+    static boolean yieldsNullLiteral(Tree arm) {
+        boolean[] found = {false};
+        new TreeScanner<Void, Void>() {
+            @Override
+            public Void visitYield(YieldTree y, Void v) {
+                if (mayBeNullLiteral(y.getValue())) found[0] = true;
+                return null;
+            }
+
+            @Override
+            public Void visitSwitchExpression(SwitchExpressionTree s, Void v) {
+                return null;
+            }
+
+            @Override
+            public Void visitLambdaExpression(LambdaExpressionTree l, Void v) {
+                return null;
+            }
+
+            @Override
+            public Void visitClass(ClassTree c, Void v) {
+                return null;
+            }
+        }.scan(arm, null);
+        return found[0];
+    }
+
     boolean isVarargs(Unit u, VariableTree p) {
-        // The parser records varargs only in an internal flag; the source text is unambiguous.
-        return u.source.substring((int) startPos(u, p.getType()), (int) endPos(u, p)).contains("...");
+        // The parser records varargs only in an internal flag, so read the source between the type and the end of
+        // the parameter, without its comments: "String /* ... */ s" is not varargs.
+        String text = u.source.substring((int) startPos(u, p.getType()), (int) endPos(u, p));
+        return text.replaceAll("(?s)/\\*.*?\\*/", " ").replaceAll("//[^\\n]*", " ").contains("...");
     }
 
     // ---------------------------------------------------------------- type references
@@ -454,7 +502,9 @@ public class JavaGraph {
         if (byQualified.containsKey(samePkg)) return named(samePkg, "same_package");
         if (JAVA_LANG.contains(n)) return named("java.lang." + n, "java.lang");
         if (Character.isLowerCase(n.charAt(0))) return null;
-        if (sc.unit.hasOnDemandImports) return new Resolved("external", n, "unknown");
+        // Some on-demand import supplies n, and nothing says which. "*." keeps the name apart from slice ids,
+        // which are unqualified too (a certificate lists slice ids and external names side by side).
+        if (sc.unit.hasOnDemandImports) return new Resolved("external", "*." + n, "unknown");
         return named(samePkg, "assumed_same_package");
     }
 

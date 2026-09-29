@@ -298,6 +298,9 @@ let check (g : Jgraph.t) ~digest (c : t) : (accepted, string list) result =
             if e.owner <> o.owner then err "%s: owner %s, expected %s" o.id e.owner o.owner;
             let key = Option.map (fun (r : Obligation.member_ref) -> r.key) o.member in
             if e.member <> key then err "%s: member does not match the graph" o.id;
+            (* The line is what a reader follows back to the source; it must be the member's. *)
+            if e.line <> Option.map (fun (r : Obligation.member_ref) -> r.line) o.member then
+              err "%s: line does not match the graph" o.id;
             if e.position <> o.position then err "%s: position does not match the graph" o.id;
             (* 4. the verdict, recomputed from the rule table *)
             if e.verdict <> vs.(i) then

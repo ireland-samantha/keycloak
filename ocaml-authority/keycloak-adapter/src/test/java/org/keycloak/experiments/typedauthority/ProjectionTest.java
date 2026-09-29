@@ -92,6 +92,7 @@ class ProjectionTest {
                 + "\"act\":{\"sub\":\"u-sa-research-agent\",\"client_id\":\"research-agent\"}}";
         DemoRealm.Request request = demo.request().identity(demo.samantha).scopes("read");
         request.identityAttributes.put("act", List.of(act));
+        request.identityAttributes.put("jti", List.of(DemoRealm.DELEGATED_JTI));
 
         assertEquals(json("[{\"type\":\"service\",\"id\":\"summary-agent\"},{\"type\":\"service\",\"id\":\"research-agent\"}]"),
                 only(request.evaluation()).at("/facts/actor_chain"));

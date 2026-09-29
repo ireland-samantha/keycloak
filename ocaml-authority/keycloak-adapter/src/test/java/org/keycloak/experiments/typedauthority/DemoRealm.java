@@ -35,6 +35,8 @@ import org.keycloak.models.UserProvider;
 final class DemoRealm {
 
     static final String NAME = "typed-authority-demo";
+    /** The jti of a delegated token, as this fork issues it (captured by verify-live.sh). */
+    static final String DELEGATED_JTI = "trrtte:45dfa700-dfbd-007d-d579-49b0c15a662f";
 
     private final Map<String, UserModel> users = new LinkedHashMap<>();
     private final Map<String, ClientModel> clients = new HashMap<>();
@@ -152,8 +154,10 @@ final class DemoRealm {
             return this;
         }
 
+        /** A delegated token: act, and the jti of a token-exchange token on a transient session (see Projection). */
         Request actors(UserModel... chain) {
             identityAttributes.put("act", List.of(act(chain)));
+            identityAttributes.put("jti", List.of(DELEGATED_JTI));
             return this;
         }
 

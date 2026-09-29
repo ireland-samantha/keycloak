@@ -146,7 +146,13 @@ final class Projection {
         return new Principal("service", client.getClientId(), user);
     }
 
-    /** RFC 8693 actor chain, current actor first. KeycloakIdentity keeps a JSON-object claim as one JSON text value. */
+    /**
+     * RFC 8693 actor chain, current actor first. KeycloakIdentity keeps a JSON-object claim as one JSON text value.
+     * "act" is only a claim: protocol mappers and admin impersonation (TokenManager.setActClaimFromImpersonator) write
+     * it too. TokenExchangeDelegationProvider always issues on a new transient session through the token-exchange
+     * grant, which DefaultTokenContextEncoderProvider encodes in the jti (mappers cannot set it) as "tr" + token type
+     * + "te:". Any other "act" is not a Keycloak-verified delegation, and this adapter has no way to say so to the kernel.
+     */
     private static List<String> actorIds(Attributes identity) throws IOException {
         Object claim = identity.toMap().get(ACT);
         if (claim == null) {
@@ -161,6 +167,10 @@ final class Projection {
                 throw new IllegalArgumentException("'act' is not a chain of objects with a string 'sub': " + text);
             }
             ids.add(act.get("sub").textValue());
+        }
+        Collection<String> jti = identity.toMap().getOrDefault("jti", List.of());
+        if (jti.size() != 1 || !String.valueOf(jti.iterator().next()).matches("tr(rt|lt)te:.+")) {
+            throw new IllegalArgumentException("'act' on a token no delegation exchange issued (jti " + jti + "): " + text);
         }
         return ids;
     }
