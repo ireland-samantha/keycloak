@@ -1,6 +1,6 @@
 {
   "schema": "typed-authority/decision/v1",
-  "request_id": "88c14869-b6c0-4bc3-a421-90d3cf6fdae9",
+  "request_id": "b1213837-44d3-4eb7-b4b3-e6afdf957b32",
   "decision": "allow",
   "acting": {
     "type": "service",
@@ -146,7 +146,7 @@
           {
             "check": "provenance",
             "outcome": "fail",
-            "detail": "expired: d-agent-read expired at 2026-07-01T18:53:21Z"
+            "detail": "expired: d-agent-read expired at 2026-07-01T19:18:51Z"
           }
         ]
       }

@@ -1,10 +1,10 @@
 {
-  "sub": "7ea2071b-308d-4eaa-9462-ae75b4b74efd",
+  "sub": "c1b293ea-e1b8-488a-be6a-1a787ff7297d",
   "azp": "samantha-app",
   "aud": "research-agent",
   "scope": "openid delegation:client:research-agent profile email",
   "may_act": {
-    "sub": "ba2abd13-dcb4-4165-b761-67d421e97f58",
+    "sub": "f03679da-d944-448a-96e7-03af2b32a4a6",
     "client_id": "research-agent"
   },
   "realm_roles": [

@@ -1,6 +1,6 @@
 {
   "schema": "typed-authority/decision/v1",
-  "request_id": "4ed90bb2-db76-4636-940b-af0460a7d8b8",
+  "request_id": "068d62ec-6a08-4302-8469-ebaffd93d1a6",
   "decision": "deny",
   "acting": {
     "type": "service",
@@ -40,7 +40,7 @@
     },
     {
       "code": "expired",
-      "message": "d-agent-read expired at 2026-07-01T18:53:21Z"
+      "message": "d-agent-read expired at 2026-07-01T19:18:51Z"
     }
   ],
   "evidence": {
@@ -192,7 +192,7 @@
           {
             "check": "provenance",
             "outcome": "fail",
-            "detail": "expired: d-agent-read expired at 2026-07-01T18:53:21Z"
+            "detail": "expired: d-agent-read expired at 2026-07-01T19:18:51Z"
           }
         ]
       }
