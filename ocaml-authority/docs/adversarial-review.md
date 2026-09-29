@@ -24,9 +24,24 @@ The rules were the same for all three:
 | `attempt_proof` | 37 | 11 | 16 | 10 |
 
 "Held" means the attack was tried and the design already handled it. The
-tests are listed at the end. The counts are the reviewers' own. One more open
-residual was found by the lead while checking the boundary fix; it is
-listed under open weaknesses.
+tests are listed at the end.
+
+The counts are the reviewers' own. Their records are committed:
+
+- `adversarial/findings-semantics.json`
+- `adversarial/findings-boundary.json`
+- `adversarial/proof-review.md`
+
+Each finding carries the command and the result the reviewer observed on the
+unmodified code. Tests and fixes landed in the same commit, so the history
+itself does not show the failing state; the records do.
+
+Two notes on the counts:
+
+- The boundary lens's fifth open item is the adapter-size note under "The
+  adapter's size budget".
+- One more open residual was found by the lead while checking the boundary
+  fix. It is listed under open weaknesses and is not pinned by a test.
 
 No attack produced a kernel ALLOW that the documented model forbids, **after
 the fixes below**. Two attacks produced one before them:
@@ -52,7 +67,12 @@ puts the same shape into an ordinary login token. Two examples:
 The adapter projected any `act` as an actor chain. Live, against this fork,
 Samantha's ordinary token with a mapper-written
 `act = {sub: <research-agent>, client_id: research-agent}` was answered
-`{"result": true}` for the agent's delegated grant.
+`{"result": true}` for the agent's delegated grant. The transcripts are in
+`keycloak-adapter/evidence/`:
+
+- `act-boundary-before-fix.txt`: cases 2 and 3
+- `act-boundary-after-fix.txt`: the same cases denied, and the genuine
+  delegated token still allowed
 
 **Fix** (`keycloak-adapter`, `Projection.actorIds`): `act` is projected only
 from tokens that the token-exchange flow itself issued. Such tokens are
@@ -107,12 +127,21 @@ cover:
 
 ### JSON: duplicate-key detection was quadratic (medium)
 
-A confidential client controls `claim_token`, which is up to 128 KiB. A
-pushed claim holding an object with ~12,800 distinct keys reaches the kernel
-as `query.mandate`. A 1 MiB object with 96k keys took **90 s of CPU**.
+A confidential client controls `claim_token`. Its contents reach the kernel,
+for example as `query.mandate`.
+
+- **The kernel's own limit** is 1 MiB. At that size, an object with 96k
+  distinct keys took about 90 s of CPU in the reviewer's run against the
+  pre-fix parser. That run is recorded in `adversarial/findings-boundary.json`
+  and is not committed as a benchmark.
+- **Keycloak's default limit** caps `claim_token` at 20,000 characters
+  (`OIDCProviderConfig`). That makes the exposure through the UMA path small
+  unless the limit is raised. The cap does not apply to other ways of
+  reaching the kernel.
 
 **Fix:** keys are tracked in a balanced set, O(n log n). It cannot be
-hash-flooded, and the result is unchanged.
+hash-flooded, and the result is unchanged. `test/boundary` asserts that the
+1 MiB case now completes within 2 s.
 
 ### Low-severity boundary fixes
 
@@ -163,17 +192,20 @@ certificate, emitted `.ml` and report are byte-identical.
 
 ## Open weaknesses
 
-Each item below is pinned by a test that asserts the *current, undesired*
-behaviour, so a future fix has to update the test on purpose.
+Items are pinned by tests that assert the *current, undesired* behaviour, so
+a future fix has to update the test on purpose. The exceptions are marked.
 
 ### Out of reach by construction
+
+Every row is pinned by a test, except the residual `act` forgery through a
+standard token exchange.
 
 | weakness | lens | why it stays open |
 |---|---|---|
 | **Under-declared effect escapes a prohibition.** An agent prohibited from `disclose:public` publishes but declares `disclose:self`. The grant, mandate and prohibition all pass. | semantics | Effect honesty (threat model A1). Closing it needs a per-capability effect *floor*, a model change. |
 | **Downstream effects are invisible.** "Generate the report" is allowed; the generator's real consequence is public disclosure. One request carries one effect. | semantics | A1 again. It would need declared effect sets or effect composition. |
 | **The mandate is a pushed claim.** A purpose-limited grant stops a client that honestly claims the wrong purpose. It does not stop one that claims the right one. | semantics | Binding the mandate at consent or issuance is future work. |
-| **Residual `act` forgery through a standard token exchange.** The `jti` gate recognises "issued by the token exchange on a transient session", not "issued by *delegation*". A standard exchange of a transient or offline session's token also issues on a transient session. An admin-configured `act` mapper on the exchanging client would therefore pass the gate. The lead found this by reading code after the review; it was not reproduced live. | boundary | The token carries no field that distinguishes delegation from a standard exchange. Reserving `act`/`may_act` against mappers is a Keycloak-side change. |
+| **Residual `act` forgery through a standard token exchange.** The `jti` gate recognises "issued by the token exchange on a transient session", not "issued by *delegation*". A standard exchange of a transient or offline session's token also issues on a transient session. An admin-configured `act` mapper on the exchanging client would therefore pass the gate. The lead found this by reading code after the review; it was not reproduced live, and it is **not pinned** by a test. | boundary | The token carries no field that distinguishes delegation from a standard exchange. Reserving `act`/`may_act` against mappers is a Keycloak-side change. |
 | **Nested `act` from the actor's own token.** Keycloak nests the actor token's `act` verbatim, and a mapper on the actor's own client can pre-seed it. The outer token is genuine, so the `jti` gate passes. | boundary | The actor token is not visible to the policy. It needs a Keycloak-side change. |
 | **User principals are usernames.** A deleted-and-recreated or renamed user inherits the ledger's grants for that name. | boundary | Design: the wire format would need Keycloak's stable user id. |
 | **`attempt_proof` trusts declared types.** An unchecked cast, a JSON document in a `String`, heap pollution through a raw type, and unchecked generic arrays all come out PROVEN. `LiesDemo` shows each lie at runtime. | proof | By construction. This is the H2 result; see `flashlight.md`. |
@@ -184,7 +216,7 @@ behaviour, so a future fix has to update the test on purpose.
 | weakness | lens | note |
 |---|---|---|
 | A role whose name is outside the kernel's id syntax (e.g. `Report Author`) makes every request of its holder `malformed_request` | boundary | Fails closed. A proposed fix (skip and log) would change what "faithful projection" means. |
-| Through AuthZEN, `act` and `jti` could come from user attributes | boundary | The UMA path is the supported one (`architecture.md`). |
+| Through AuthZEN, the caller can assert `act` and `jti` via `subject.properties`, which are merged into the identity's attributes; user attributes can carry them too | boundary | The UMA path is the supported one (`architecture.md`). |
 | In a DENY caused by a prohibition, overridden candidates show `authorizes` with no failed check | semantics | The reason is at request level (`evidence.prohibitions`). This fails the *literal* wording of S2; see `experiment.md`. |
 | Evidence order follows ledger order | semantics | Decisions are permutation-invariant (tested over 131 decisions); only document bytes change. |
 | Static imports, wildcard imports, inherited member types, `@Nonnull` matched by simple name, a lambda returning null behind `@Nonnull`, two top-level types sharing a simple name | proof | Parse-only extraction (`limitations.md`). |

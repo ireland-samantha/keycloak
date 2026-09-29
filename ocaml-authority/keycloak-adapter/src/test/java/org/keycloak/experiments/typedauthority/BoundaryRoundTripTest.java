@@ -164,9 +164,10 @@ class BoundaryRoundTripTest {
     }
 
     /**
-     * Finding tjson-duplicate-key-quadratic. A confidential client controls claim_token (up to 128 KiB as a form
-     * attribute: Keycloak's quarkus.http.limits.max-form-attribute-size). A mandate object with ~12.8k distinct keys
-     * fits; the adapter forwards it, and the kernel's duplicate-key detection was quadratic in the number of keys.
+     * Finding tjson-duplicate-key-quadratic. A confidential client controls claim_token. Keycloak caps it at 20,000
+     * characters by default (OIDCProviderConfig, token-parameter limit, fail-fast); an object with ~12.8k distinct keys
+     * needs a raised limit. The adapter forwards whatever arrives, and the kernel's duplicate-key detection was
+     * quadratic in the number of keys, so this case pins the kernel's side of the fix.
      */
     @Test
     void aClaimSizedObjectWithManyKeysIsDecidedWellWithinTheTimeout() throws IOException {

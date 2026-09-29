@@ -5,10 +5,11 @@ reconstruct and verify part of Keycloak's authority model?**
 
 It asks it twice:
 
-1. **At runtime.** Keycloak's Authorization Services hand every decision
-   about "may X do Y to Z" to a ~1,400-line OCaml kernel. The kernel does
-   not ask *does the principal hold the permission?* It asks five questions
-   and returns the answers as data:
+1. **At runtime.** Through a custom policy provider, Keycloak's
+   Authorization Services can hand a decision about "may X do Y to Z" to a
+   ~1,400-line OCaml kernel. It gets every decision covered by a permission
+   that uses that policy. The kernel does not ask *does the principal hold
+   the permission?* It asks five questions and returns the answers as data:
 
    | question | kernel's name for it |
    |---|---|
@@ -26,14 +27,16 @@ It asks it twice:
 
 Java says: *this is how authorization works.* OCaml replies: *prove it.*
 
-Keycloak is not rewritten, and none of its code is modified. `git diff
-6688a3d6 -- ':!ocaml-authority' ':!README.md'` is empty. Everything lives
-here, as a provider jar, a child process, and a pile of evidence.
+Keycloak is not rewritten, and none of its code is modified. From the
+repository root, `git diff 6688a3d6 -- . ':!ocaml-authority' ':!README.md'`
+is empty. Everything lives here, as a provider jar, a child process, and a
+pile of evidence.
 
-> The hypotheses were committed **before** any implementation
-> ([`docs/hypothesis.md`](docs/hypothesis.md), commit `c7106ebe`).
-> [`docs/experiment.md`](docs/experiment.md) scores the results against them
-> one by one, including the ones that went against us.
+> The hypotheses were committed before any kernel, adapter or solver code
+> ([`docs/hypothesis.md`](docs/hypothesis.md), commit `c7106ebe`). That commit
+> also added the strict JSON codec `lib/json`. The hypotheses file is
+> unchanged since. [`docs/experiment.md`](docs/experiment.md) scores the
+> results against it one by one, including the ones that went against us.
 
 ---
 
@@ -55,9 +58,9 @@ token exchange. The claims are captured in
 
 The agent was delegated to *help generate a quarterly report*. Its token
 carries every realm role Samantha has. A conventional role policy
-(`hasPermission(token, "publish")`) therefore lets it publish the report to
-the world and administer the realm. The live demo shows exactly that, on
-this fork:
+(`hasPermission(token, "publish")`) therefore grants the agent the `publish`
+scope on the report and the `administer` scope on the realm-configuration
+resource. The live demo shows exactly that, on this fork:
 
 | scenario (live, Keycloak 999.0.0-SNAPSHOT @ `6688a3d6`) | role policy, token roles | role policy, live roles | OCaml kernel |
 |---|---|---|---|
@@ -72,9 +75,16 @@ this fork:
 
 The full table has 12 rows and comes from a real run. It is in
 [`examples/keycloak/demo-output/results.md`](examples/keycloak/demo-output/results.md).
-The comparison is kept fair: Keycloak's role policies were given every role
-the kernel's ledger anchors on, and the second RBAC column uses
-`fetchRoles=true`, so it sees live role mappings rather than token claims.
+Within role policies the comparison is fair:
+
+- Keycloak's role policies were given every role the kernel's ledger
+  anchors on.
+- The second RBAC column uses `fetchRoles=true`, so it sees live role
+  mappings rather than token claims.
+
+Keycloak's other native policy types were not tried: client, client-scope,
+time, regex, aggregate and JavaScript. A regex policy, for example, can
+match on the `act` claim.
 
 ## What a decision looks like
 
@@ -101,7 +111,8 @@ candidates:
 ```
 
 And an ALLOW, scenario 02. An ALLOW always carries the chain that justifies
-it, back to a role Keycloak holds for Samantha **right now**:
+it, back to a role Keycloak holds **right now** for the chain's root holder,
+here Samantha:
 
 ```
 ALLOW
@@ -114,6 +125,9 @@ authority:
   d-agent-generate       research-agent (service)   delegated by samantha (user) from g-samantha-generate
   anchor: samantha holds realm role report-author (facts.source = fixture)
 checks:     all 8 passed
+candidates:
+  g-samantha-generate    refuted       holder_is_actor fail, delegation_path_matches fail
+  d-agent-generate       authorizes
 ```
 
 In the live run the anchor line reads `facts.source = keycloak`: the role
@@ -154,9 +168,11 @@ flowchart LR
 - **The kernel decides** whether this acting principal, under this mandate,
   may invoke this capability for this effect, given the grants in a ledger.
   Each grant carries its own provenance.
-- **The Java adapter decides nothing.** It projects state, runs the kernel,
-  and calls `grant()` only on a well-formed `allow`. It fails closed on
-  everything else, including crash, timeout and garbage output.
+- **The Java adapter makes no grant decision.** It projects state, runs the
+  kernel, and calls `grant()` only on a well-formed `allow`. The one thing it
+  does decide is whether to believe an `act` claim (see below), and there it
+  fails closed. It also fails closed on everything else, including crash,
+  timeout and garbage output.
 
 Why this seam, and which alternatives were rejected:
 [`docs/architecture.md`](docs/architecture.md).
@@ -223,25 +239,29 @@ _build/default/bin/authority_kernel/main.exe scenarios examples/scenarios/demo.j
 _build/default/bin/authority_kernel/main.exe compare  examples/scenarios/demo.json   # RBAC vs kernel audit trails
 _build/default/bin/authority_kernel/main.exe ablate   examples/scenarios/demo.json   # which dimension decided each case
 
-# 3. attempt_proof: Keycloak's Java authorization types -> OCaml type graph + certificate.
-java tools/java-graph/JavaGraph.java --root .. --commit "$(git rev-parse HEAD)" \
+# 3. attempt_proof: re-extract Keycloak's Java authorization types (the working tree is read;
+#    --commit only labels the output) and check they equal the committed graph, then search and check.
+java tools/java-graph/JavaGraph.java --root .. --commit 6688a3d63f59e0c4a9131bfdd556c4312799f04e \
      --slice tools/java-graph/authz-slice.txt --out /tmp/graph.json
+cmp /tmp/graph.json examples/proof/keycloak-authz.graph.json
 _build/default/bin/prove/main.exe examples/proof/keycloak-authz.graph.json --report
 _build/default/bin/prove/main.exe --check examples/proof/keycloak-authz.graph.json examples/proof/certificate.json
 
-# 4. The adapter (with a real kernel round trip).
+# 4. Build this Keycloak fork (installs the 999.0.0-SNAPSHOT SPI the adapter compiles against,
+#    and the server distribution the live demo runs).
+(cd .. && ./mvnw -pl quarkus/deployment,quarkus/dist -am -DskipTests install)
+
+# 5. The adapter, with a real kernel round trip. Without step 4, add -Dkeycloak.version=26.7.4.
 (cd keycloak-adapter && mvn -q test -Dtyped.authority.kernel="$PWD/../_build/default/bin/authority_kernel/main.exe")
 
-# 5. Live, end to end, against this fork (build it first:
-#    ./mvnw -pl quarkus/deployment,quarkus/dist -am -DskipTests install).
+# 6. Live, end to end, against this fork.
 examples/keycloak/run-demo.sh
+
+# Or all of the above, recorded to docs/verification.md:
+./verify-all.sh --live
 ```
 
-The extractor commands in step 3 regenerate the committed graph. Pass
-`--commit 6688a3d63f59e0c4a9131bfdd556c4312799f04e` to reproduce the
-committed file byte for byte.
-
-The exact versions, commands and results of the recorded run are in
+The versions, commands and results of the recorded run are in
 [`docs/verification.md`](docs/verification.md).
 
 ## `attempt_proof`: what OCaml says about Keycloak's types
@@ -288,15 +308,17 @@ get_associated_policies : unit -> policy list option;
      Policy.removeConfig(String) needs a closure; ... *)
 ```
 
-The search earns its keep on real code. Greedy per-type choices refute 4
-obligations, the DP refutes 3, and on 250 random graphs the DP equals brute
-force.
+On the real slice the search is shallow. Every strongly connected component
+is a single type, and the DP beats greedy per-type choice by one refuted
+obligation (3 vs 4). The DP's optimality is tested on 250 random graphs,
+where it equals brute force.
 
 **And then the flashlight mostly failed, which is the result we care about
 most.** Before building anything, we predicted (P3) that the obligations
 `attempt_proof` cannot discharge would point at the places where the Java
-adapter needs hand-written glue. We measured this against the adapter's 44
-glue sites ([`docs/flashlight.md`](docs/flashlight.md)):
+adapter needs hand-written glue. We measured this against the 44 glue sites
+the adapter listed at `a62035c9` ([`docs/flashlight.md`](docs/flashlight.md)).
+There are 47 today; with them P3 is 1/47 = 2.1%.
 
 - **P3 is 2.3%**, against a pre-registered 75%. One glue site corresponds to
   a non-PROVEN obligation.
@@ -307,23 +329,41 @@ glue sites ([`docs/flashlight.md`](docs/flashlight.md)):
   are PROVEN.** `act` arrives as a JSON string inside `Attributes`. The
   pushed claims arrive through a `Map<String, List<String>>` built by an
   unchecked cast, which lies at runtime. The live demo captures a scalar
-  claim crashing Keycloak with `ClassCastException` before any policy runs.
+  claim making Keycloak fail the request with `ClassCastException` before
+  any policy runs.
 
 Authority semantics hide inside well-typed strings, and a type-level proof
-search is structurally blind to them. We predicted this in writing
-beforehand; the measurement makes it concrete.
+search is structurally blind to them.
+
+We predicted the mechanism in writing beforehand: the delegation chain,
+mandate and effect would all be PROVEN, and they were, 13 of 13. We also
+predicted that Q2 ("false comfort" above 50% of glue sites) would be at least
+partly triggered. On the pre-registered all-sites reading it was not: 43.2%.
+It fell short only because most glue lies outside the slice.
 
 ## What we learned
 
 The measured results are in [`docs/experiment.md`](docs/experiment.md). The
 short version:
 
-- **Where the typed model makes a real difference:** effect, delegation path
-  and live provenance. On the demo scenarios the conventional check says
-  ALLOW and the kernel does not in 6 of 13. In every case the kernel's
-  evidence names the relationship that failed, and the ablation shows which
-  dimension alone would have flipped it (provenance in 4 scenarios; `who` in
-  3).
+- **Where the typed model makes a difference:** the effect, the delegation
+  path, and validity windows on delegated authority. On the demo scenarios
+  the conventional check says ALLOW and the kernel does not in 6 of 13. The
+  ablation, which recomputes each decision with one dimension ignored, shows
+  what flips each of the six:
+
+  | scenario | what flips it |
+  |---|---|
+  | 04 | effect alone |
+  | 05, 08 | provenance alone (both are validity windows), or `who` alone |
+  | 07 | only who, mandate and effect together |
+  | 10, 11 | nothing: they are INDETERMINATE refusals (unknown principal, no declared effect) |
+
+  Across all 11 ablatable scenarios, provenance alone decides 4 and `who`
+  alone 3.
+
+  Live anchoring is *not* unique to the kernel. The live-role RBAC column
+  also denies scenario 09.
 - **Where it matters less than expected.** In the demo set the mandate was
   never the *only* reason for a denial. In scenario 07 above, the delegation
   path and the effect would have denied it anyway. The adversarial review
@@ -333,11 +373,20 @@ short version:
 
   Those cases only stop clients that claim their mandate honestly, because
   the mandate is a pushed claim.
-- **Is it just RBAC with more roles?** Reproducing the kernel's decision
-  surface exactly needs 18 compound roles, against 13 ledger objects. That
-  is not a large margin at this scale (hypothesis W1). The difference is
-  structural (time, attenuation, live anchors) rather than a matter of
-  counting.
+- **Is it just RBAC with more roles? On our own pre-registered test, partly
+  yes.**
+  - **Binary reading.** On the 13 demo scenarios, 3 compound roles (one per
+    allowed request) reproduce every allow/not-allow outcome, with fewer
+    administered objects than the ledger's 13.
+  - **Three-valued reading.** If INDETERMINATE counts as its own outcome,
+    RBAC cannot reproduce it at all.
+  - **Whole request surface** (768 tuples, a scope wider than the
+    pre-registration): a one-role-per-allowed-tuple encoding needs 18 roles.
+    That is an upper bound, not a minimum.
+  - **What does not reduce to counting roles:** validity windows,
+    attenuation checked link by link, the delegation path matched to
+    Keycloak's `act`, and the evidence (hypothesis W1 in
+    [`docs/experiment.md`](docs/experiment.md)).
 - **Keycloak already carries more of this than it gets credit for.** RFC
   8693 `act`, FGAP v2 delegation permissions and `fetchRoles=true` do real
   work here. The kernel's contribution is joining them into one decision
@@ -345,17 +394,21 @@ short version:
 - **The weakest link was the evidence, not the logic.** The most serious
   attack in the adversarial review never touched the kernel. `act` is not a
   reserved claim, so a protocol mapper named `act` forged a delegation that
-  the live stack accepted. The fix trusts `act` only on tokens issued by the
-  token exchange, recognised by an internal `jti` encoding. That fix is also
-  what pushed the adapter to 404 lines, **over the pre-registered 400**.
-  We record the budget as missed; see [`docs/experiment.md`](docs/experiment.md).
+  the live stack accepted. The before/after transcripts are in
+  [`keycloak-adapter/evidence/`](keycloak-adapter/evidence). The fix trusts
+  `act` only on tokens issued by the token exchange, recognised by an
+  internal `jti` encoding. That fix, plus strict reading of the kernel's
+  output, took the adapter from 397 to 404 lines, **over the pre-registered
+  400**. We record the budget as missed; see
+  [`docs/experiment.md`](docs/experiment.md).
 
 ## What this does not prove
 
 - That authority evaluation beats RBAC in general. It shows concrete
   differences on 13 hand-built scenarios and one realm.
-- Anything about performance. There is one process per decision, and
-  nothing was measured.
+- Anything about performance. There is one process per decision, and no
+  latency or throughput benchmark was run. The only timing reported is a
+  denial-of-service finding in the adversarial review.
 - That declared effects are true. An agent that declares
   `produce → organization` and then emails the report to the world has lied
   where the kernel cannot see ([`docs/threat-model.md`](docs/threat-model.md)).

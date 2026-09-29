@@ -1,6 +1,8 @@
 # Experiment: results against the pre-registered hypotheses
 
-`hypothesis.md` was committed in `c7106ebe`, before any code. This document
+`hypothesis.md` was committed in `c7106ebe`, before any kernel, adapter or
+solver code. The same commit added the strict JSON codec `lib/json`, and the
+file has not changed since (`git log --follow`). This document
 scores every condition listed there, by identifier, using measurements
 anyone can reproduce from this repository (commands in `verification.md`).
 Observations that were not pre-registered are in a separate section at the
@@ -108,8 +110,11 @@ construction. Scenario 11 has no effect to report.
 Threshold: at least three states. Eleven snippets in
 `test/authority/must-not-compile/` are type-checked against the interface
 the library exports. The build requires each to be rejected with a stated
-compiler error, and requires a control snippet to compile. Mutation checks
-show the test is not vacuous. The rejected states:
+compiler error, and requires a control snippet to compile. During
+development the kernel builder checked that the test is not vacuous: making
+`Id.t` a plain `string` flips exactly the two identifier snippets, and
+removing `private_modules` fails the control. That mutation check was done on
+a scratch copy and is not committed. The rejected states:
 
 | snippet | what cannot be written |
 |---|---|
@@ -132,7 +137,7 @@ decision in Java.
 
 | stage | NCLOC |
 |---|---:|
-| first working version | 423 |
+| first working version (uncommitted; reported by the builder) | 423 |
 | after simplifying `Projection` (not reformatting) | 397 |
 | after the adversarial review's boundary fixes | **404** (command in `verification.md`) |
 
@@ -164,10 +169,27 @@ role. A′ (live roles) behaved like the kernel. S5 is therefore a
 property the kernel shares with a correctly configured `fetchRoles=true`
 role policy. It is not a property RBAC lacks.
 
-### W1: merely renamed RBAC. **Not triggered, by a small margin.**
+### W1: merely renamed RBAC. **Triggered on the binary reading of the pre-registered scenario set.**
 
-`authority_kernel surface` enumerates 768 request tuples at the fixture
-time:
+The pre-registered condition: "a compound-role RBAC encoding reproduces
+every kernel decision in the scenario set, with no more administered objects
+than the kernel's ledger".
+
+**On the scenario set, as pre-registered.** The kernel allows 3 of the 13
+demo scenarios: 01, 02 and 12. One compound role per allowed request
+reproduces every allow/not-allow outcome. That is 3 roles, against 13
+administered ledger objects (2 principals, 3 mandates, 8 grants). On this
+binary reading, **W1 is triggered**.
+
+It is not triggered only if INDETERMINATE counts as a decision of its own.
+RBAC has no way to say "insufficient evidence" or "undeclared effect", so it
+cannot reproduce 06, 10 and 11 as the kernel decides them. We report the
+binary reading as the primary result, because the hypothesis did not say
+the three-valued outcome was what counted.
+
+**On the whole request surface** (a wider scope than pre-registered, and
+labelled as such), `authority_kernel surface` enumerates 768 request tuples
+at the fixture time:
 
 | tuples | count |
 |---|---:|
@@ -176,26 +198,23 @@ time:
 | INDETERMINATE | 195 |
 
 Tuples are the ledger's principals × the observed actor chains × mandates ×
-capabilities × resources × the 8 effects.
+capabilities × resources × the 8 effects. One role per allowed tuple is 18
+roles. That is an upper bound: nothing is minimised, and role hierarchies
+could compress it. It is also a snapshot at one instant, since validity
+windows would require re-administering the roles over time.
 
-Reproducing that surface exactly with compound roles needs 18 roles, one per
-allowed tuple. The ledger has 13 administered objects: 2 principals, 3
-mandates and 8 grants. The pre-registered condition (compound RBAC with no
-more administered objects than the ledger) is therefore not met.
-
-We do not read much into 18 versus 13:
-
-- 18 is an upper bound; role hierarchies could compress it.
-- The count is taken at one instant. Validity windows would require
-  re-administering the roles over time.
-- At this scale the two are close.
-
-The differences that do not reduce to counting are structural:
+**What this means.** At the decision level, on a small scenario set, the
+typed model is reproducible by a handful of purpose-built roles. This is the
+"renamed RBAC" outcome the hypothesis warned about. What does not reduce to
+counting roles is how the decisions are reached and explained:
 
 - attenuation checked link by link
-- validity windows
+- validity windows evaluated at decision time
 - anchors re-read at every decision
 - the delegation path matched against Keycloak's `act` chain
+- the evidence itself
+
+W1 does not measure any of these.
 
 ### W2: glue dominates. **Triggered, marginally.**
 
@@ -205,7 +224,13 @@ condition is met, though only just.
 
 No authority logic moved into Java. The glue that grew is the part that
 decides whether Keycloak's own delegation evidence can be believed. The
-adapter README enumerates 47 glue sites; most resolve principals and roles.
+adapter README enumerates 47 glue sites. The largest groups:
+
+| group | sites |
+|---|---:|
+| carry `act` and the pushed claims (including `jti`) | 15 |
+| resolve principals and roles | 12 |
+| read the kernel's output | 8 |
 
 ### W3: effects need application-specific interpretation. **Not triggered.**
 
@@ -289,8 +314,10 @@ shallow.
 ### P3: the flashlight works. **Not supported.**
 
 Threshold: at least 75% of the adapter's glue sites correspond to an
-UNKNOWN or REFUTED obligation. The procedure is fixed in `flashlight.md` §1
-before any counting. Measured on the 44 glue sites the adapter README listed
+UNKNOWN or REFUTED obligation. The procedure is written in `flashlight.md`
+§1. By the reviewer's account it was fixed before counting; the repository
+history cannot show the order, because the measurement and the document were
+committed together. Measured on the 44 glue sites the adapter README listed
 at `a62035c9`:
 
 | class | sites | share |
@@ -310,9 +337,10 @@ only because more than half the glue sites lie outside the slice, where the
 solver has no opinion at all. Among the 20 sites that are inside the slice,
 19 (95%) are PROVEN.
 
-The prediction written into `hypothesis.md` before implementation held
-exactly. All 13 sites that carry the delegation chain, the mandate or the
-effect are PROVEN:
+The prediction in `hypothesis.md` was that Q2 would be "at least partly
+triggered". On the pre-registered reading it was not (43.2%). What held
+exactly is the mechanism the prediction named. All 13 sites that carry the
+delegation chain, the mandate or the effect are PROVEN:
 
 - `act` arrives as a JSON string inside `Attributes`.
 - The pushed claims arrive through `Map<String, List<String>>`, built by an
@@ -353,7 +381,7 @@ because they bear on the research question. None of them was predicted in
 
 1. **In the demo, the mandate was never the sole deciding dimension.** The
    ablation over the fixture found no scenario where ignoring only the
-   mandate checks flips the outcome. Scenario 07 is the brief's own example,
+   mandate checks flips the outcome. Scenario 07 is the original prompt's example,
    "report generation ≠ public publication". There, the delegation path and
    the effect would have denied the request anyway: only ignoring who,
    mandate and effect together flips it.
@@ -376,12 +404,15 @@ because they bear on the research question. None of them was predicted in
    `ClassCastException` before any policy runs. The live run captures the
    response in `demo-output/scalar-claim-*`. The type graph marks the claims
    map PROVEN.
-4. **Keycloak refuses pushed claims from public clients.** This is its own
+4. **Keycloak refuses pushed claims from public clients** (when there is no
+   permission ticket). This is its own
    acknowledgement that pushed claims are client assertions. The same is
    true here of mandate and effect.
-5. **A token carrying `may_act` is an exchange artefact.** It had no roles
-   and its audience was only the actor. It could not have served as
-   Samantha's general bearer token even had we wanted it to.
+5. **A token carrying `may_act` is an exchange input.** Its audience is the
+   actor, which the `delegation:client` scope adds. Keycloak's standard token
+   exchange refuses any subject token carrying `may_act` or `act`
+   (`StandardTokenExchangeProvider.validateSubjectToken`); only the
+   delegation exchange accepts it.
 6. **`act` is not a reserved claim.** It is written for RFC 8693
    delegation. It is also written for admin impersonation, and by any
    protocol mapper an admin names `act`. Before the adversarial review, a
@@ -399,7 +430,7 @@ because they bear on the research question. None of them was predicted in
 | S3 | invalid states unrepresentable | supported: 11 compile-time rejections |
 | S4 | adapter ≤ 400 NCLOC, no decisions | **not met**: 404 after the boundary fixes; no decisions in Java |
 | S5 | Keycloak-anchored provenance | supported; shared with `fetchRoles=true` RBAC |
-| W1 | renamed RBAC | not triggered: 18 compound roles vs 13 objects, a small margin |
+| W1 | renamed RBAC | **triggered on the binary reading**: 3 compound roles reproduce the 13 demo outcomes (13 ledger objects); not triggered only if INDETERMINATE counts as a distinct outcome |
 | W2 | glue dominates | **triggered, marginally** (404 > 400) |
 | W3 | application-specific effects | not triggered, for this vocabulary |
 | W4 | provenance decorative | not triggered: decisive in 4 |

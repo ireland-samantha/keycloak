@@ -11,8 +11,8 @@
 
 > [!NOTE]
 > **This fork carries a research experiment: [OCaml does Keycloak](ocaml-authority/README.md).**
-> A small OCaml kernel decides Keycloak Authorization Services requests as
-> *principal · mandate · capability · effect · provenance* and returns its evidence.
+> Through a custom policy provider, a small OCaml kernel decides Keycloak Authorization Services
+> requests as *principal · mandate · capability · effect · provenance* and returns its evidence.
 > A memoized proof search (`attempt_proof`) projects Keycloak's Java authorization
 > types into OCaml and reports what it can prove, strengthen, not know, or must refuse.
 > Keycloak's own code is unmodified; everything lives in [`ocaml-authority/`](ocaml-authority/README.md).

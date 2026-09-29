@@ -213,9 +213,12 @@ those of `a62035c9`, and the verdicts are those of `examples/proof/certificate.j
      - `kc.client.user_agent`, only when the header is present (`:69-73`).
      - `kc.realm.name` (`:75`).
      - `kc.client.id`, only for a `KeycloakIdentity` with an access token (`:77-83`).
-   - A pushed claim with one of those names survives whenever the matching `put` does not run.
-   - Which value wins is decided by statement order in a body outside the slice. `Keyed:Attributes.toMap()@return`
-     is PROVEN either way.
+   - On the UMA path, `AuthorizationTokenService.java:491-493` first removes every pushed claim whose name
+     starts with `kc.`, so no collision is possible there.
+   - Through AuthZEN, `convertContext` does not filter. There, a pushed claim with one of those names survives
+     whenever the matching `put` does not run.
+   - Which value wins, and whether the collision is possible at all, is decided by code outside the slice.
+     `Keyed:Attributes.toMap()@return` is PROVEN either way.
 4. **`Identity.getId()` has two meanings.** `KeycloakIdentity.java:184-188` (and `:272-276`) sets it to the
    client's internal id when a resource server presents its own service-account token, and to the user id
    otherwise. `Represent:Identity.getId()@return` is PROVEN (`string`). The adapter has to try both

@@ -25,7 +25,7 @@ step() { # TITLE COMMAND...
   # Keep the output short: tool noise out, counts and verdicts in.
   printf '%s\n' "$out" | grep -v 'JAVA_TOOL_OPTIONS' | grep -E -i \
     'passed|failed|tests|scenarios|accepted|rejected|compiles|PROVEN|STRENGTHENED|UNKNOWN|REFUTED|memo|states|greedy|Tests run|BUILD|error|exception|^ok |FAIL|OPEN|decisive|allow|deny|indeterminate|NCLOC|tuples|compound|administered|files changed|^[0-9]+$' \
-    | grep -v -E '^\s*$|^\s+(PROVEN|UNKNOWN|STRENGTHENED|REFUTED)\s+[A-Za-z_]+:|^(INFO|WARN):|^\s+at |literal-S2 exception' | head -70 >> "$LOG"
+    | grep -v -E '^\s*$|^\s+(PROVEN|UNKNOWN|STRENGTHENED|REFUTED)\s+[A-Za-z_]+:|^(INFO|WARN):|^\s+at |literal-S2 exception' | head -400 >> "$LOG"
   printf '(exit %d, %ds)\n```\n' "$rc" $((SECONDS - t0)) >> "$LOG"
 }
 
