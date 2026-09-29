@@ -7,6 +7,12 @@ set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE"
 LIVE=0; [ "${1:-}" = "--live" ] && LIVE=1
+# Recorded before anything runs: the live demo rewrites examples/keycloak/demo-output/.
+HEAD_SHA="$(git rev-parse HEAD)"
+DIRTY=""
+if ! git diff --quiet HEAD -- . ':!docs/verification.md' || [ -n "$(git ls-files --others --exclude-standard -- . ':!docs/verification.md')" ]; then
+  DIRTY=" + uncommitted changes"
+fi
 LOG="$(mktemp)"
 OUT="$HERE/docs/verification.md"
 status=0
@@ -60,7 +66,7 @@ fi
   echo "| | |"
   echo "|---|---|"
   echo "| date (UTC) | $(date -u +%Y-%m-%dT%H:%M:%SZ) |"
-  echo "| repository commit | \`$(git rev-parse HEAD)\`$(git diff --quiet HEAD -- . || echo ' + uncommitted changes') |"
+  echo "| repository commit | \`$HEAD_SHA\`$DIRTY |"
   echo "| Keycloak baseline | \`6688a3d63f59e0c4a9131bfdd556c4312799f04e\` ($(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ../pom.xml | head -1)) |"
   echo "| OCaml | $(ocamlc -version) |"
   echo "| dune | $(dune --version) |"
