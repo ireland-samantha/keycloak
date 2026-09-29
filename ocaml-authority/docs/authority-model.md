@@ -119,14 +119,22 @@ revocation  = { grant : grant_id ; reason ; at : timestamp }
 prohibition = { id ; holder : principal ; effects : effect nonempty ; reason }
 ```
 
-A revoked grant is invalid, and so is every grant delegated from it.
+A revoked grant is invalid, and so is every grant delegated from it. The
+revocation's `at` is informational: it is reported in the evidence but not
+compared with the evaluation time. A mistyped or future `at` cannot keep a
+grant alive (it fails closed). Scheduled expiry is expressed with
+`valid_until`, not with a revocation.
 
 A prohibition forbids its holder from causing any effect at or above one of
 its listed effects (same kind, audience at least as wide). Prohibitions are
 deny-overrides. They apply when the holder is the subject or anyone in the
 actor chain, so delegated authority cannot escape a restriction on the
 delegator. Prohibitions carry no provenance check, because honoring an
-unverified deny is always safe.
+unverified deny is always safe. For the same reason a prohibition's holder is
+matched by **id** alone. A prohibition naming the right id with the wrong
+kind still applies. Principal ids are unique across kinds in a well-formed
+ledger. (Found by the adversarial review: matching on kind as well let a
+kind-confused prohibition fail open.)
 
 ## Chain verification
 
@@ -245,6 +253,17 @@ The outcome is the first matching rule:
 the library and requires a `verified_chain` plus the passing checks.
 `Allow of Authority.t` therefore cannot be built anywhere else, not even by
 the kernel's own CLI.
+
+`Decision.t` is a `private` record. Its fields can be read and matched
+outside the library, but it can only be constructed by `Evaluate`, through a
+seal the private module issues. An authority minted for one request cannot
+be placed into a decision about another. (Found by the adversarial review:
+with public fields, `{ other_decision with verdict = Allow a }` type-checked.)
+
+A DENY caused by a prohibition lists the prohibition under
+`evidence.prohibitions` with outcome `fail`. The candidates it overrode keep
+their own status, which may be `authorizes`. The reason for the DENY is at
+request level, not per candidate.
 
 ## What the model deliberately does not do
 

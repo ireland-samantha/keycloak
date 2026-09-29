@@ -57,7 +57,10 @@ flowchart LR
 
 1. **Smallest seam that sees everything needed.** One `Evaluation` exposes:
    - the identity built from the verified bearer token, including the `act`
-     claim written by Keycloak's own delegation exchange
+     claim. Keycloak writes `act` in its delegation exchange, but also for
+     admin impersonation, and a protocol mapper can emit it too. The adapter
+     therefore believes `act` only on tokens the token-exchange flow issued
+     (`adversarial-review.md`).
    - the resource and scope being decided
    - the pushed claims (mandate, effect)
    - the policy's config (the ledger)
@@ -79,7 +82,8 @@ flowchart LR
 - **Delegation consent.** Samantha consents on Keycloak's consent screen, and
   FGAP v2 decides whether `research-agent` may act for users at all. Keycloak
   checks the `may_act` claim at exchange time and writes `act`. The kernel
-  receives the chain Keycloak verified. It never sees raw tokens.
+  receives that chain, taken only from tokens the exchange issued. It never
+  sees raw tokens.
 - **The resource and scope registry.** A permission for an unknown resource
   or scope is rejected before any policy runs.
 - **Composition and enforcement.** Which policies apply to which

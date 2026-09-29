@@ -48,6 +48,7 @@ Parsing is strict (`lib/json/tjson.ml`):
 | `query.mandate` | no on the wire | absent → INDETERMINATE `missing_mandate` |
 | `query.effect` | no on the wire | absent → INDETERMINATE `missing_effect` |
 | `query.capability`, `query.resource` | yes | from Keycloak's `ResourcePermission` |
+| `request_id`, `facts.realm` | no | may be absent or `null` |
 | `facts.source` | yes | `"keycloak"` (projected by the adapter) or `"fixture"` (hand-written) |
 | `facts.subject` | yes | token `sub`, resolved to username or service `client_id` |
 | `facts.actor_chain` | yes, may be `[]` | RFC 8693 `act` chain, current actor first |
@@ -174,6 +175,12 @@ The fields fall into three groups:
   and from the check names.
 
 Each check's `outcome` is `"pass"`, `"fail"` or `"unknown"`.
+
+For a request that does not decode (or exceeds 1 MiB), `request_id` and the
+five-question fields are `null`: nothing is recovered from undecodable input.
+The adapter accepts a `null` `request_id` only on a non-allow decision. An
+allow must echo the exact id, carry an `authority` object, and have an empty
+`reasons` array.
 
 The kernel CLI exits 0 whenever it wrote a decision document, including
 INDETERMINATE for malformed input. A non-zero exit means the kernel itself

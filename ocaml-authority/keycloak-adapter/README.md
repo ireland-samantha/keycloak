@@ -114,7 +114,7 @@ curl -H "Authorization: Bearer $ACCESS_TOKEN" \
 | `facts.source`, `facts.realm` | `"keycloak"`, `AuthorizationProvider.getRealm().getName()` |
 | `facts.evaluated_at` | UTC now, whole seconds, `Z` (injected `java.time.Clock`) |
 | `facts.subject` | `Identity.getId()` resolved to a user: `{"service", clientId}` for a service account, else `{"user", username}` |
-| `facts.actor_chain` | identity attribute `act`: the RFC 8693 chain `{"sub", "act": {...}}`, current actor first, each `sub` resolved like the subject |
+| `facts.actor_chain` | identity attribute `act`: the RFC 8693 chain `{"sub", "act": {...}}`, current actor first, each `sub` resolved like the subject; only on a token the delegation exchange issued (identity attribute `jti` = `tr` + `rt`/`lt` + `te:`...; see below) |
 | `facts.principals` | for the subject and each actor: **live** effective roles from `RoleUtils.getDeepUserRoleMappings` (direct, composite and group-inherited, including parent groups), split into `realm_roles` and `client_roles` by role container |
 | `ledger` | policy config `ledger` |
 
@@ -122,18 +122,21 @@ Roles come from the live user model, not from the token. A delegated token's `re
 role of the subject, while `facts.principals` lists what each principal holds now; removing a role in
 Keycloak changes the next decision (hypothesis S5).
 
-The SPI's own `Evaluation.getRealm()` (`policy.evaluation.Realm`) is not usable for this in this fork.
-`getUserRealmRoles` returns direct mappings only, with no composites and no groups. `getUserClientRoles(id, clientId)`
-ignores `clientId` and returns the user's direct client roles of every client (`DefaultEvaluation.createRealm`).
+The SPI's own `Evaluation.getRealm()` (`policy.evaluation.Realm`) returns direct role mappings only, with no
+composites and no groups, so the adapter resolves effective roles through `KeycloakSession`/`UserModel`
+(`RoleUtils.getDeepUserRoleMappings`) instead.
 
 ## Failing closed
 
 No grant, with a log line saying why, when: the permission has no scope (there is no action to ask about);
 the subject or an actor does not resolve to a user or service account; the `act` attribute is not one JSON
-text holding a chain of objects with string `sub`; no kernel is configured; the kernel cannot be started;
+text holding a chain of objects with string `sub`; the identity carries `act` but its `jti` is not that of a
+token-exchange token on a transient session (see "Where `act` comes from"); no kernel is configured; the kernel cannot be started;
 no decision arrives within `timeout-ms`; stdout exceeds 4 MiB; the exit status is non-zero (even with an
-allow document on stdout); stdout is not one strict JSON document (duplicate keys and trailing content are
-errors); the document's `schema` is not `typed-authority/decision/v1`, or its `request_id` is not the one
+allow document on stdout); stdout is not one strict JSON document in strict UTF-8 (duplicate keys, trailing
+content, a byte order mark, UTF-16/32 and overlong or surrogate UTF-8 forms are errors); an `"allow"` document
+has no `authority` object or a `reasons` member other than `[]` (wire-format.md: authority iff allow, reasons iff
+not); the document's `schema` is not `typed-authority/decision/v1`, or its `request_id` is not the one
 sent (JSON `null` is accepted on a non-allow decision: that is how the kernel answers a request it could not
 decode, e.g. `malformed_request` for a multi-valued mandate, and the verdict is then kept as evidence);
 writing the evidence file fails; the decision is anything but `"allow"` for any scope; any other
@@ -141,6 +144,26 @@ exception. stderr is drained continuously, and its first 2 KiB are logged when t
 
 A `PolicyProvider` can only grant the whole `ResourcePermission`; there is no per-scope grant from inside a
 policy. Hence the rule: every scope must be allowed.
+
+The evidence file is written as soon as a strict decision document for this request arrives, before the adapter
+checks that the kernel consumed the whole request: a kernel that answers `request_too_large` stops reading, the
+rest of the write fails with a broken pipe (no grant), and its verdict is still on file.
+
+### Where `act` comes from
+
+`act` is an ordinary token claim. In this fork three things write it: `TokenExchangeDelegationProvider` (RFC 8693
+delegation: a copy of the subject token's `may_act`, with the actor token's own `act` nested), admin impersonation
+(`TokenManager.setActClaimFromImpersonator`: `{sub: impersonator id, preferred_username}`), and any protocol mapper
+whose claim name is `act` (it is not among `OIDCAttributeMapperHelper`'s non-modifiable claims; `KeycloakIdentity`
+flattens an object, a JSON string and a one-element array to the same attribute). The delegation exchange always
+issues on a new transient user session through the token-exchange grant, and `DefaultTokenContextEncoderProvider`
+encodes both in the token id (`jti` = session type `tr`, token type `rt` or `lt`, grant type `te`, `:`, raw id),
+which mappers cannot set. The adapter projects `act` only on such a token; `./verify-act-boundary.sh` shows a
+mapper-made `act` on a login token and an impersonation token refused, and a genuine delegated token allowed.
+
+Not covered (see `BoundaryAttackTest`, `known_weakness_*`): the exchange nests the actor token's `act` verbatim,
+so a mapper on the actor's own client can forge the inner links of a genuine delegated token; and AuthZEN
+identities are user attributes plus PEP-supplied `subject.properties`, which can carry both `act` and `jti`.
 
 Each decision is logged at INFO:
 `typed-authority policy 'typed-authority-kernel' request <uuid>: document:read on q3-report -> deny [no_grant_for_capability]`.
@@ -161,6 +184,16 @@ unstubbed non-default method throws, so the fakes also document which Keycloak s
   files hold the kernel's bytes, including a `malformed_request` verdict with `request_id` null.
 - `FactoryTest`: id, group, service registration, typed representation carries the config, SPI keys
   `kernel-path`, `timeout-ms` and `evidence-dir` take effect.
+- `BoundaryAttackTest` (adversarial review of the trust boundary): where `act` comes from (genuine delegated
+  token, mapper-made `act` on login/client-credentials/refresh tokens, impersonation, nested `act` from the actor
+  token, `act`/`jti` as user attributes); the shapes pushed claims can have when they reach a policy and those
+  Keycloak rejects first (`ResourcePermission`); the process protocol (partial output then hang, two documents,
+  allow without `authority` or with `reasons`, other spellings, nested duplicate keys, 16 MiB of stderr, BOM,
+  UTF-16/32 and overlong UTF-8, a grandchild holding stdout); nothing but `grant()` reaches the evaluation; what
+  Jackson makes of ambiguous ledger text (`test/boundary` feeds the same inputs to the kernel).
+- `BoundaryRoundTripTest`: the same inputs through the real kernel: ambiguous and re-spelled ledgers, pushed-claim
+  type confusion, a claim-sized object with 12.8k keys (decided within 1 s), an oversize request, a role name
+  outside the identifier syntax. Skipped unless `-Dtyped.authority.kernel` names an executable.
 - `KernelRoundTripTest`: the real kernel on scenario-01-like (agent's own token reads q3-report: allow
   through `g-agent-read`) and scenario-05-like (delegated token, expired delegation: deny) states, plus S5
   (the same delegated request, allowed and then denied after samantha loses the group that carries
@@ -175,10 +208,16 @@ token-exchange delegated token, and it probes non-list pushed claims. With `REAL
 the stand-in passes each request on to the real kernel, so the whole chain runs: the agent's own read is
 allowed (`g-agent-read`), and the delegated read is denied (`expired`).
 
+`REAL_KERNEL=<authority_kernel> ./verify-act-boundary.sh` (port 18380, under `target/live-boundary`; `ADAPTER_JAR`
+selects another build) runs five tokens through a live Keycloak and the real kernel: a genuine delegated token,
+samantha's login token carrying `act` from a hardcoded-claim mapper (JSON and String types), an impersonation
+token, and a delegated token whose actor token carried a mapper-made `act`.
+
 ## Size (hypothesis S4)
 
 Non-blank, non-comment lines of main Java, with `package` and `import` lines counted as code (397 when this
-README was written; budget 400):
+README was written; 404 after the boundary review added the `act` provenance check (+4) and the strict decision
+reading (+3); budget 400):
 
 ```sh
 awk 'FNR==1{inb=0} { l=$0; gsub(/^[ \t]+|[ \t]+$/,"",l) } inb { if (l ~ /\*\//) { inb=0; sub(/.*\*\//,"",l); gsub(/^[ \t]+/,"",l) } else next } l ~ /^\/\*/ { if (l !~ /\*\//) inb=1; next } l=="" || l ~ /^\/\// { next } { t++ } END { print t }' $(find src/main/java -name '*.java')
@@ -219,23 +258,23 @@ they can be counted either way.
 | 17 | Projection.java:140 | O | `UserModel.getUsername()` | user principal id |
 | 18 | Projection.java:142 | O | `RealmModel.getClientById(link)` | the service account's client |
 | 19 | Projection.java:146 | O | `ClientModel.getClientId()` | service principal id |
-| 20 | Projection.java:151 | K | `Identity.getAttributes()` | reads identity attribute `"act"` (the adapter's own constant: `IDToken.ACT` exists in this fork but not in Keycloak 26.7.4) |
-| 21 | Projection.java:155 | C | `Attributes.toMap()` value (`Collection<String>`) | `instanceof Collection<?>`, `size() == 1`, element `instanceof String`: does not trust the declared type |
-| 22 | Projection.java:159 | P | the `act` string | `JSON.readTree`: parses the RFC 8693 `act` claim, which `KeycloakIdentity` serialised from a JSON object into one string; follows nested `act` |
-| 23 | Projection.java:160 | C | parsed `act` | `isObject()`, `path("sub").isTextual()`: runtime JSON shape checks |
-| 24 | Projection.java:163 | P | parsed `act` | extracts `sub`, a user id interpreted at #13 |
-| 25 | Projection.java:174 | K | `Attributes.toMap()` | reads the pushed claim by name; values arrive through `AuthorizationTokenService`'s unchecked cast to `Map<String, List<String>>` |
-| 26 | Projection.java:176 | C | pushed claim value | `instanceof Collection<?>`: list, scalar (#27) or absent |
-| 27 | Projection.java:178 | C | pushed claim value | a non-null non-collection is taken as one value (not reachable through the UMA token endpoint in this fork, see "Sending ...") |
-| 28 | Projection.java:190 | C | pushed `effect` element | `instanceof String` |
-| 29 | Projection.java:191 | C | pushed `effect` element | `JSON.valueToTree(value)` for a non-string element (runtime-class dispatch) |
-| 30 | Projection.java:193–195 | P | pushed `effect` string | splits `kind:audience` at the first `:` |
-| 31 | Projection.java:204 | P | `config.ledger` string | strict `JSON.readTree` of the ledger |
-| 32 | Projection.java:205 | C | parsed ledger | `isMissingNode()`: empty or blank text is embedded as a string |
-| 33 | Kernel.java:106 | P | kernel stdout | strict `JSON.readTree` of the decision |
-| 34 | Kernel.java:110 | P, C | decision | `schema` must equal `typed-authority/decision/v1`; `decision` must be a string |
-| 35 | Kernel.java:111 | P | decision | `request_id` must equal the one sent ... |
-| 36 | Kernel.java:113 | P, C | decision | ... or be JSON `null` on a decision other than `"allow"` (the kernel's answer to a request it could not decode) |
+| 20 | Projection.java:157 | K | `Identity.getAttributes()` | reads identity attribute `"act"` (the adapter's own constant: `IDToken.ACT` exists in this fork but not in Keycloak 26.7.4) |
+| 21 | Projection.java:161 | C | `Attributes.toMap()` value (`Collection<String>`) | `instanceof Collection<?>`, `size() == 1`, element `instanceof String`: does not trust the declared type |
+| 22 | Projection.java:165 | P | the `act` string | `JSON.readTree`: parses the RFC 8693 `act` claim, which `KeycloakIdentity` serialised from a JSON object into one string; follows nested `act` |
+| 23 | Projection.java:166 | C | parsed `act` | `isObject()`, `path("sub").isTextual()`: runtime JSON shape checks |
+| 24 | Projection.java:169 | P | parsed `act` | extracts `sub`, a user id interpreted at #13 |
+| 25 | Projection.java:184 | K | `Attributes.toMap()` | reads the pushed claim by name; values arrive through `AuthorizationTokenService`'s unchecked cast to `Map<String, List<String>>` |
+| 26 | Projection.java:186 | C | pushed claim value | `instanceof Collection<?>`: list, scalar (#27) or absent |
+| 27 | Projection.java:188 | C | pushed claim value | a non-null non-collection is taken as one value (not reachable through the UMA token endpoint in this fork, see "Sending ...") |
+| 28 | Projection.java:200 | C | pushed `effect` element | `instanceof String` |
+| 29 | Projection.java:201 | C | pushed `effect` element | `JSON.valueToTree(value)` for a non-string element (runtime-class dispatch) |
+| 30 | Projection.java:203–205 | P | pushed `effect` string | splits `kind:audience` at the first `:` |
+| 31 | Projection.java:214 | P | `config.ledger` string | strict `JSON.readTree` of the ledger |
+| 32 | Projection.java:215 | C | parsed ledger | `isMissingNode()`: empty or blank text is embedded as a string |
+| 33 | Kernel.java:108 | P | kernel stdout | strict UTF-8 decoding, then strict `JSON.readTree` of the decision |
+| 34 | Kernel.java:113 | P, C | decision | `schema` must equal `typed-authority/decision/v1`; `decision` must be a string |
+| 35 | Kernel.java:114 | P | decision | `request_id` must equal the one sent ... |
+| 36 | Kernel.java:116 | P, C | decision | ... or be JSON `null` on a decision other than `"allow"` (the kernel's answer to a request it could not decode) |
 | 37 | TypedAuthorityPolicyProvider.java:40 | P | decision | reads the `decision` string |
 | 38 | TypedAuthorityPolicyProvider.java:42 | P | decision | reads `reasons[].code` (log only) |
 | 39 | TypedAuthorityPolicyProvider.java:46 | P | decision | `"allow".equals(verdict)`: the only string that can lead to `Evaluation.grant()` |
@@ -244,17 +283,20 @@ they can be counted either way.
 | 42 | TypedAuthorityPolicyProviderFactory.java:41 | O, P | `Config.Scope.getLong("timeout-ms")` | option string to `long` |
 | 43 | TypedAuthorityPolicyProviderFactory.java:46 | P | option strings | `Path.of(kernel)`, `Path.of(evidence)` |
 | 44 | TypedAuthorityPolicyProviderFactory.java:63 | O | `Policy.getConfig()` | copied into `PolicyRepresentation` (outside the slice) for the typed admin read |
+| 45 | Projection.java:171 | K | `Identity.getAttributes()` | reads identity attribute `"jti"` (only when `act` is present); added by the boundary review |
+| 46 | Projection.java:172 | P, O | the `jti` string | `matches("tr(rt\|lt)te:.+")`: interprets `DefaultTokenContextEncoderProvider`'s token-id encoding (session type, token type, grant type), a convention of `services`, outside the slice, to tell the delegation exchange's `act` from a mapper's or an impersonation's |
+| 47 | Kernel.java:112, 118 | P, C | decision | an `"allow"` must carry an `authority` object and a `reasons` array that is empty (wire-format.md) |
 
-Row counts: 44 rows. A row can carry several kinds, so the kind counts sum to more than 44. Rows carrying
-P: 17; C: 12; O: 19; K: 5; K only: 4 (#5, #7, #20, #25). Rows that touch the delegation chain, mandate or effect
-(the H2 prediction): #6, #7, #20–#30.
+Row counts: 47 rows (44 before the boundary review added #45–#47). A row can carry several kinds, so the kind
+counts sum to more than 47. Rows carrying P: 19; C: 13; O: 20; K: 6; K only: 5 (#5, #7, #20, #25, #45). Rows that
+touch the delegation chain, mandate or effect (the H2 prediction): #6, #7, #20–#30, #45, #46.
 
 Not glue sites (in-slice reads copied verbatim): TypedAuthorityPolicyProvider.java:30 `Policy.getName()`, :33
 `ResourcePermission.getScopes()`, :49 `Evaluation.grant()`; Projection.java:65 `EvaluationContext.getIdentity()`,
 :67 `Identity.getId()` (interpreted at #13/#14), :68 `Identity.getAttributes()`, :80 `Evaluation.getPolicy()`,
 :81 `ResourcePermission.getResource()`, :82 `EvaluationContext.getAttributes()`, :84 `ResourcePermission.getScopes()`,
 :91 `Resource.getType()`, :92 `Scope.getName()`, :93 `Resource.getName()`. The adapter's own JSON
-(Kernel.java:58, TypedAuthorityPolicyProvider.java:44–45) and the process boundary (Kernel.java:61–87) are
+(Kernel.java:59, TypedAuthorityPolicyProvider.java:44–45) and the process boundary (Kernel.java:61–92) are
 not Keycloak state.
 
 Outside-slice types that appear only in signatures the SPI requires, with no state read:

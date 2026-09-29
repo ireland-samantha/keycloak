@@ -41,7 +41,26 @@ experiment itself.
   and permission tickets are not projected as anchors.
 - **Only the UMA grant path carries verified delegation.** Through the
   AuthZEN endpoint the same policy runs, but the subject is a PEP-asserted id
-  with no token, so the actor chain is empty.
+  with no token. There, the attributes the adapter reads (including `act` and
+  `jti`) come from user attributes and PEP-supplied properties, not from a
+  token Keycloak issued. That path is not a supported source of delegation
+  evidence (see `adversarial-review.md`).
+- **Trusting `act` rests on an internal Keycloak convention.** The adapter
+  accepts `act` only when the token's `jti` shows it was issued by the token
+  exchange on a transient session. That encoding belongs to Keycloak's
+  `services` module and is not a published contract. A Keycloak upgrade could
+  change it, and the adapter would then fail closed on genuine delegated
+  tokens.
+- **A nested `act` is taken on trust.** Keycloak copies the actor token's own
+  `act` into the delegated token. If a mapper on the actor's client
+  pre-seeds that, the adapter sees a genuine outer token with a
+  mapper-written inner chain.
+- **User principals are usernames.** They are not Keycloak's stable user
+  ids. A deleted-and-recreated user, or a renamed one, inherits the ledger's
+  grants for that name.
+- **Role names must fit the kernel's id syntax.** A holder of a role such as
+  `Report Author` gets `malformed_request` on every decision. This fails
+  closed, but it is noisy.
 - **Scopes are evaluated one at a time.** A permission covering several
   scopes is allowed only if every scope is allowed. This is conservative, and
   it differs from how Keycloak's own scope permissions compose.
@@ -66,4 +85,8 @@ experiment itself.
 - The OCaml type system enforces the invariants listed under S3. Everything
   else is enforced by code and checked by tests, not proven.
 - The certificate checker shares the verdict rule table with the search. It
-  is independent of the search *procedure*, not of the rules.
+  is independent of the search *procedure*, not of the rules. It also does
+  not check optimality: a certificate for a worse encoding (more REFUTED) is
+  accepted. A REFUTED verdict is therefore only as good as the search that
+  produced it. The search is exact on small graphs (tested against brute
+  force), not on the real slice, which brute force cannot enumerate.

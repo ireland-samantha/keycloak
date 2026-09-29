@@ -50,7 +50,9 @@ against it are in `adversarial-review.md`.
 | Stale grants (role removed, delegation expired, grant revoked) | Roots are anchored in **live** role mappings, not token claims. Expiry and revocation are checked on every link. | S5; demo scenario 09 |
 | Right capability, wrong purpose or effect | The mandate bounds capabilities and effects independently of grants. The grant bounds effects too. | `effect_within_mandate`, `effect_within_grant` |
 | Undeclared intent | Missing mandate or effect → INDETERMINATE, never a default | well-formedness |
-| Parser differential between Java and OCaml | Both reject duplicate keys; OCaml also rejects unknown fields, invalid UTF-8 and excessive nesting | `wire-format.md` |
+| Parser differential between Java and OCaml | The adapter parses the ledger with Jackson in strict duplicate-detection mode and re-serialises it, so for the ledger Jackson's strictness is what counts. `tjson` rejects duplicate keys, unknown fields, invalid UTF-8 and excessive nesting in the request as a whole. The adapter reads the kernel's output as strict UTF-8. | `wire-format.md`, `adversarial-review.md` |
+| Forged or overloaded `act`: a protocol mapper named `act`, or admin impersonation | The adapter projects `act` only from tokens issued by the token exchange (recognised by `jti`); anything else carrying `act` fails closed | `adversarial-review.md` |
+| Hash-flooding or quadratic parsing through client-controlled pushed claims | Duplicate-key detection is O(n log n) with a balanced set; there is a 1 MiB request cap | `adversarial-review.md` |
 | Kernel failure used to get access | Every non-allow outcome, including crash or timeout, results in no grant | adapter |
 | ALLOW minted without evidence | `Authority.t` is abstract, and its constructor is private to the library; `Allow` without a verified chain does not type-check | S3; `test/authority/must-not-compile` |
 

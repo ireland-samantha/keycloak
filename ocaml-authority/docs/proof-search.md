@@ -356,8 +356,17 @@ Implementation note: the `java-source-graph/v1` schema is defined by
 `tools/java-graph/JavaGraph.java` and decoded strictly by
 `lib/proof/jgraph.ml`. A type reference is `void`, `primitive`, `array`,
 `type_var`, `wildcard` or `class`. A `class` reference carries `resolution`
-(`slice` | `jdk` | `external`), the resolved `name` (a slice id such as
-`Decision.Effect`, or a qualified name) and the resolution `basis`. Modifiers
+(`slice` | `jdk` | `external`), the resolved `name` and the resolution
+`basis`. The name is one of:
+
+- a slice id, such as `Decision.Effect`
+- a qualified name, for an imported or fully-qualified external
+- `*.N`, for an external whose package cannot be determined (a wildcard
+  import)
+
+The last form never collides with a slice id. `Jgraph.validate` rejects any
+external that shares a slice type's id. Both rules were added after the
+adversarial review. Modifiers
 are effective: those written, plus those the JLS implies for interface
 members, enum constants and nested types. Constructors are recorded with kind
 `constructor`.
