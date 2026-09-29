@@ -1,6 +1,6 @@
 {
   "schema": "typed-authority/decision/v1",
-  "request_id": "fb0aebe7-90dd-45f9-b1f2-16a409e15add",
+  "request_id": "c532b9a1-dc50-4e50-a692-2ed4c62f1fec",
   "decision": "allow",
   "acting": {
     "type": "service",

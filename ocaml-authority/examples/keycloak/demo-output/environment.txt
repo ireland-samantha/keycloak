@@ -1,5 +1,5 @@
 keycloak distribution: keycloak-999.0.0-SNAPSHOT (the script does not verify which commit it was built from)
-repository HEAD at run time: abf9bb3f8bfde4744d706b41c7897791114c6feb
+repository HEAD at run time: 46f64aafc346c0ee99bd967d0acfc80fb57e5d5e
 kernel:   /home/user/keycloak/ocaml-authority/_build/default/bin/authority_kernel/main.exe
 adapter:  typed-authority-keycloak-adapter-0.1.0-SNAPSHOT.jar
-date:     2026-09-29T19:18:59Z
+date:     2026-09-29T19:27:38Z
