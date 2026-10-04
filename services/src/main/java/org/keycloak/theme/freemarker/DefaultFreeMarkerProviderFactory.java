@@ -12,7 +12,7 @@ import freemarker.template.Template;
 public class DefaultFreeMarkerProviderFactory implements FreeMarkerProviderFactory {
 
     private volatile DefaultFreeMarkerProvider provider;
-    private ConcurrentHashMap<String, Template> cache;
+    private volatile ConcurrentHashMap<String, Template> cache;
     private KeycloakSanitizerMethod kcSanitizeMethod;
 
     @Override
@@ -37,6 +37,14 @@ public class DefaultFreeMarkerProviderFactory implements FreeMarkerProviderFacto
 
     @Override
     public void postInit(KeycloakSessionFactory factory) {
+    }
+
+    @Override
+    public void clearCache() {
+        ConcurrentHashMap<String, Template> cache = this.cache;
+        if (cache != null) {
+            cache.clear();
+        }
     }
 
     @Override
