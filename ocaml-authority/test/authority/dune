@@ -1,0 +1,35 @@
+(test
+ (name test_authority)
+ (libraries authority tjson))
+
+; demo.json with --check semantics: the CLI exits non-zero if any scenario
+; misses its expected decision or expected reason codes.
+(rule
+ (alias runtest)
+ (action
+  (run
+   %{dep:../../bin/authority_kernel/main.exe}
+   scenarios
+   %{dep:../../examples/scenarios/demo.json}
+   --check)))
+
+; Hypothesis S3. Each snippet in must-not-compile/ is type-checked with plain
+; ocamlc against the .cmi files dune exposes to other libraries
+; (.authority.objs/public_cmi, which omits the private module Mint). A snippet
+; passes only if compilation fails with the error its "(* expect: ... *)"
+; lines name; control.ml must compile with the same flags.
+(rule
+ (alias runtest)
+ (deps
+  must_not_compile.sh
+  (glob_files must-not-compile/*.ml)
+  (glob_files ../../lib/authority/.authority.objs/public_cmi/*.cmi)
+  (glob_files ../../lib/json/.tjson.objs/byte/*.cmi))
+ (action
+  (run
+   sh
+   must_not_compile.sh
+   %{ocamlc}
+   ../../lib/authority/.authority.objs/public_cmi
+   ../../lib/json/.tjson.objs/byte
+   must-not-compile)))

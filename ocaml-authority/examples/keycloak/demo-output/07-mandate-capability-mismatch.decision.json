@@ -1,0 +1,168 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "f93bb063-ec4c-4211-90b4-48d21ed59c01",
+  "decision": "deny",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "user",
+    "id": "samantha"
+  },
+  "actor_chain": [
+    {
+      "type": "service",
+      "id": "research-agent"
+    }
+  ],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "document",
+    "action": "publish"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "disclose",
+    "audience": "public"
+  },
+  "reasons": [
+    {
+      "code": "mandate_covers_capability",
+      "message": "mandate generate-report covers document:read, document:generate - not document:publish"
+    },
+    {
+      "code": "effect_within_mandate",
+      "message": "mandate generate-report bounds effects to observe, produce:organization - not disclose:public"
+    },
+    {
+      "code": "holder_is_actor",
+      "message": "g-samantha-publish: holder samantha (user) is not the acting principal research-agent (service)"
+    },
+    {
+      "code": "delegation_path_matches",
+      "message": "g-samantha-publish: ledger path [samantha] differs from token path [samantha > research-agent]"
+    },
+    {
+      "code": "mandate_permitted",
+      "message": "g-samantha-publish: usable only under publish-release - not generate-report"
+    },
+    {
+      "code": "delegation_path_matches",
+      "message": "u-agent-publish: ledger path [research-agent] differs from token path [samantha > research-agent]"
+    },
+    {
+      "code": "mandate_permitted",
+      "message": "u-agent-publish: usable only under publish-release - not generate-report"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "fail",
+        "detail": "mandate generate-report covers document:read, document:generate - not document:publish"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "fail",
+        "detail": "mandate generate-report bounds effects to observe, produce:organization - not disclose:public"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "g-samantha-publish",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "fail",
+            "detail": "holder samantha (user) is not the acting principal research-agent (service)"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [samantha] differs from token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "fail",
+            "detail": "usable only under publish-release - not generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "disclose:public is within grant effects disclose:public"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "fail",
+            "detail": "mandate generate-report covers document:read, document:generate - not document:publish"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "fail",
+            "detail": "mandate generate-report bounds effects to observe, produce:organization - not disclose:public"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-samantha-publish; root anchored in realm role document-publisher held by samantha (user)"
+          }
+        ]
+      },
+      {
+        "grant": "u-agent-publish",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [research-agent] differs from token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target q3-report covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "fail",
+            "detail": "usable only under publish-release - not generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "disclose:public is within grant effects disclose:public"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "fail",
+            "detail": "mandate generate-report covers document:read, document:generate - not document:publish"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "fail",
+            "detail": "mandate generate-report bounds effects to observe, produce:organization - not disclose:public"
+          },
+          {
+            "check": "provenance",
+            "outcome": "unknown",
+            "detail": "the ledger entry has no provenance (unanchored) and can never authorize"
+          }
+        ]
+      }
+    ]
+  }
+}

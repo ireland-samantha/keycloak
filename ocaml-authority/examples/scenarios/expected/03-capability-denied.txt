@@ -1,0 +1,7 @@
+DENY
+principal:  research-agent (service)
+mandate:    operate-realm
+capability: admin-surface:administer on realm-config
+effect:     administer
+reason:
+  no grant for admin-surface:administer is held by research-agent (service); the ledger's entries for research-agent (service) cover document:read, document:generate, document:publish

@@ -1,0 +1,10 @@
+; Adversarial tests of the trust boundary (wire format, strict JSON, CLI). The
+; base request is one the kernel allows; the CLI cases run the kernel binary.
+(test
+ (name test_boundary)
+ (libraries authority tjson)
+ (action
+  (run
+   %{test}
+   %{dep:../../examples/requests/02-delegated-generate.json}
+   %{dep:../../bin/authority_kernel/main.exe})))

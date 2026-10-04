@@ -1,0 +1,4072 @@
+{
+  "schema": "java-source-graph/v1",
+  "source": {
+    "commit": "6688a3d63f59e0c4a9131bfdd556c4312799f04e",
+    "extractor": "tools/java-graph/JavaGraph.java",
+    "resolution": "parse-only",
+    "files": [
+      {
+        "path": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+        "git_blob": "43f391262a738ad086ecffdc68563006054f3bff"
+      },
+      {
+        "path": "core/src/main/java/org/keycloak/representations/JsonWebToken.java",
+        "git_blob": "061b3f202fc9288e5f7cb9e3b29e799acf8686de"
+      },
+      {
+        "path": "core/src/main/java/org/keycloak/representations/idm/authorization/DecisionStrategy.java",
+        "git_blob": "1a4f2cf97bf65fba5f371179a49b1a70c97b272a"
+      },
+      {
+        "path": "core/src/main/java/org/keycloak/representations/idm/authorization/Logic.java",
+        "git_blob": "a50ea157d19034a3e8091a008311bede6780aaa8"
+      },
+      {
+        "path": "core/src/main/java/org/keycloak/representations/idm/authorization/PolicyEnforcementMode.java",
+        "git_blob": "871f7413d1ed02807f18884c0d1b2093eed62bef"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/Decision.java",
+        "git_blob": "f00d98dca9740bb3d555ce8ec4de78955a627fe8"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/attribute/Attributes.java",
+        "git_blob": "3e86a6985c22cc6a97f34aa30f429db5096776bb"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/identity/Identity.java",
+        "git_blob": "cb4b8a831ec1a6710c69192f8af218423d238b5e"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/model/PermissionTicket.java",
+        "git_blob": "2f6eaca450bdb68361cb32163efacda3ee45e51f"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java",
+        "git_blob": "4da8956ca13048586b9149c39e842487a7d405a3"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/model/Resource.java",
+        "git_blob": "514cf3f52abba9d836e9a7dc8f911a1265ecbdd9"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/model/ResourceServer.java",
+        "git_blob": "13b320e21d91a976ef48ebafe97c0e8a91faaddf"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/model/Scope.java",
+        "git_blob": "8c9c2ebe4b1f4871c5c86cbff5909421ab1def36"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/permission/ResourcePermission.java",
+        "git_blob": "bf0aa5e15e02d1491e2d6f5ad6bf7c5483fd6423"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Evaluation.java",
+        "git_blob": "b1eec18e7091dca4273d1b75a0699c48e22945bd"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/EvaluationContext.java",
+        "git_blob": "5c61794230267ba2de6be0ab9db433d61e313868"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Realm.java",
+        "git_blob": "b5d5dbb04a75be353919a01e137db696ea4f9f06"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProvider.java",
+        "git_blob": "2405c3b0b500aa1466fd5f61c6c700cd7a0155f6"
+      },
+      {
+        "path": "server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java",
+        "git_blob": "8eb4eee8d136d37e74c18e249a5ea1183af29d8b"
+      }
+    ]
+  },
+  "types": [
+    {
+      "id": "Attributes",
+      "qualified_name": "org.keycloak.authorization.attribute.Attributes",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/attribute/Attributes.java",
+      "line": 37,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "from",
+          "line": 39,
+          "modifiers": ["public", "static"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Attributes", "resolution": "slice", "name": "Attributes", "basis": "enclosing", "args": []},
+          "params": [
+            {
+              "name": "attributes",
+              "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "toMap",
+          "line": 48,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "exists",
+          "line": 56,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "containsValue",
+          "line": 67,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "value",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getValue",
+          "line": 78,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Entry", "resolution": "slice", "name": "Attributes.Entry", "basis": "enclosing", "args": []},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        }
+      ]
+    },
+    {"id": "Attributes.Entry", "qualified_name": "org.keycloak.authorization.attribute.Attributes.Entry", "kind": "class", "file": "server-spi-private/src/main/java/org/keycloak/authorization/attribute/Attributes.java", "line": 92, "enclosing": "Attributes", "modifiers": ["public", "static"], "annotations": [], "type_params": [], "extends": [], "implements": [], "constants": [], "members": [{"kind": "field", "name": "values", "line": 94, "modifiers": ["private", "final"], "annotations": [], "type_params": [], "type": {"kind": "array", "element": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "name", "line": 95, "modifiers": ["private", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "constructor", "name": "Entry", "line": 97, "modifiers": ["public"], "annotations": [], "type_params": [], "type": null, "params": [{"name": "name", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}, {"name": "values", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getName", "line": 102, "modifiers": ["private"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "size", "line": 106, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "int"}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isEmpty", "line": 110, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "asString", "line": 114, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [{"name": "idx", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "asInt", "line": 122, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "int"}, "params": [{"name": "idx", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "asDate", "line": 126, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Date", "resolution": "external", "name": "java.util.Date", "basis": "import", "args": []}, "params": [{"name": "idx", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}, {"name": "pattern", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "asInetAddress", "line": 134, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "InetAddress", "resolution": "external", "name": "java.net.InetAddress", "basis": "import", "args": []}, "params": [{"name": "idx", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "asLong", "line": 142, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "long"}, "params": [{"name": "idx", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "asDouble", "line": 146, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "double"}, "params": [{"name": "idx", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}]},
+    {"id": "AuthZen", "qualified_name": "org.keycloak.authorization.authzen.AuthZen", "kind": "class", "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java", "line": 29, "enclosing": null, "modifiers": ["public", "final"], "annotations": [], "type_params": [], "extends": [], "implements": [], "constants": [], "members": [{"kind": "field", "name": "AUTHZEN_ACCESS_PATH", "line": 31, "modifiers": ["public", "static", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "EVALUATION_PATH", "line": 32, "modifiers": ["public", "static", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "EVALUATIONS_PATH", "line": 33, "modifiers": ["public", "static", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "constructor", "name": "AuthZen", "line": 35, "modifiers": ["private"], "annotations": [], "type_params": [], "type": null, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}]},
+    {
+      "id": "AuthZen.Action",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.Action",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 77,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 76
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "name",
+          "line": 77,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.EvaluationItem",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.EvaluationItem",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 93,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 92
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "subject",
+          "line": 94,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Subject", "resolution": "slice", "name": "AuthZen.Subject", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "resource",
+          "line": 95,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "AuthZen.Resource", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "action",
+          "line": 96,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Action", "resolution": "slice", "name": "AuthZen.Action", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "context",
+          "line": 97,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.EvaluationRequest",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.EvaluationRequest",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 80,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 79
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "subject",
+          "line": 81,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 81
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Subject", "resolution": "slice", "name": "AuthZen.Subject", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "resource",
+          "line": 82,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 82
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "AuthZen.Resource", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "action",
+          "line": 83,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 83
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Action", "resolution": "slice", "name": "AuthZen.Action", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "context",
+          "line": 84,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.EvaluationResponse",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.EvaluationResponse",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 86,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "decision",
+          "line": 86,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "context",
+          "line": 86,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "EvaluationResponse",
+          "line": 87,
+          "modifiers": ["public"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "decision",
+              "type": {"kind": "primitive", "name": "boolean"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.EvaluationsRequest",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.EvaluationsRequest",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 115,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 114
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "subject",
+          "line": 116,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Subject", "resolution": "slice", "name": "AuthZen.Subject", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "resource",
+          "line": 117,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "AuthZen.Resource", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "action",
+          "line": 118,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Action", "resolution": "slice", "name": "AuthZen.Action", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "context",
+          "line": 119,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "options",
+          "line": 120,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Options", "resolution": "slice", "name": "AuthZen.Options", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "evaluations",
+          "line": 121,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "EvaluationItem", "resolution": "slice", "name": "AuthZen.EvaluationItem", "basis": "enclosing", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.EvaluationsResponse",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.EvaluationsResponse",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 124,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 123
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "evaluations",
+          "line": 124,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "EvaluationResponse", "resolution": "slice", "name": "AuthZen.EvaluationResponse", "basis": "enclosing", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.EvaluationsSemantic",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.EvaluationsSemantic",
+      "kind": "enum",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 99,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {
+          "name": "EXECUTE_ALL",
+          "line": 101,
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["\"execute_all\""],
+              "line": 100
+            }
+          ]
+        },
+        {
+          "name": "DENY_ON_FIRST_DENY",
+          "line": 104,
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["\"deny_on_first_deny\""],
+              "line": 103
+            }
+          ]
+        },
+        {
+          "name": "PERMIT_ON_FIRST_PERMIT",
+          "line": 107,
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["\"permit_on_first_permit\""],
+              "line": 106
+            }
+          ]
+        }
+      ],
+      "members": []
+    },
+    {
+      "id": "AuthZen.Options",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.Options",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 112,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 110
+        },
+        {
+          "name": "JsonNaming",
+          "qualified": "com.fasterxml.jackson.databind.annotation.JsonNaming",
+          "arguments": ["PropertyNamingStrategies.SnakeCaseStrategy.class"],
+          "line": 111
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "evaluationsSemantic",
+          "line": 112,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "EvaluationsSemantic", "resolution": "slice", "name": "AuthZen.EvaluationsSemantic", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.Resource",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.Resource",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 71,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 70
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "type",
+          "line": 72,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 72
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "id",
+          "line": 73,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 73
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "properties",
+          "line": 74,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.Subject",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.Subject",
+      "kind": "record",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 65,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static", "final"],
+      "annotations": [
+        {
+          "name": "JsonInclude",
+          "qualified": "com.fasterxml.jackson.annotation.JsonInclude",
+          "arguments": ["JsonInclude.Include.NON_NULL"],
+          "line": 64
+        }
+      ],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "component",
+          "name": "type",
+          "line": 66,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 66
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "SubjectType", "resolution": "slice", "name": "AuthZen.SubjectType", "basis": "enclosing", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "id",
+          "line": 67,
+          "modifiers": ["final"],
+          "annotations": [
+            {
+              "name": "JsonProperty",
+              "qualified": "com.fasterxml.jackson.annotation.JsonProperty",
+              "arguments": ["required = true"],
+              "line": 67
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "component",
+          "name": "properties",
+          "line": 68,
+          "modifiers": ["final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "AuthZen.SubjectType",
+      "qualified_name": "org.keycloak.authorization.authzen.AuthZen.SubjectType",
+      "kind": "enum",
+      "file": "authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java",
+      "line": 38,
+      "enclosing": "AuthZen",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {"name": "CLIENT", "line": 39, "annotations": []},
+        {"name": "USER", "line": 40, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "value",
+          "line": 42,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "SubjectType",
+          "line": 44,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "value",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getValue",
+          "line": 49,
+          "modifiers": ["public"],
+          "annotations": [
+            {
+              "name": "JsonValue",
+              "qualified": "com.fasterxml.jackson.annotation.JsonValue",
+              "arguments": [],
+              "line": 48
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "fromValue",
+          "line": 54,
+          "modifiers": ["public", "static"],
+          "annotations": [
+            {
+              "name": "JsonCreator",
+              "qualified": "com.fasterxml.jackson.annotation.JsonCreator",
+              "arguments": [],
+              "line": 53
+            }
+          ],
+          "type_params": [],
+          "type": {"kind": "class", "written": "SubjectType", "resolution": "slice", "name": "AuthZen.SubjectType", "basis": "enclosing", "args": []},
+          "params": [
+            {
+              "name": "value",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Decision",
+      "qualified_name": "org.keycloak.authorization.Decision",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/Decision.java",
+      "line": 27,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [
+        {
+          "name": "D",
+          "bounds": [
+            {"kind": "class", "written": "Evaluation", "resolution": "slice", "name": "Evaluation", "basis": "import", "args": []}
+          ]
+        }
+      ],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "onDecision",
+          "line": 34,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "evaluation",
+              "type": {"kind": "type_var", "name": "D"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onError",
+          "line": 36,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "cause",
+              "type": {"kind": "class", "written": "Throwable", "resolution": "external", "name": "java.lang.Throwable", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onComplete",
+          "line": 40,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onComplete",
+          "line": 43,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "permission",
+              "type": {"kind": "class", "written": "ResourcePermission", "resolution": "slice", "name": "ResourcePermission", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isEvaluated",
+          "line": 52,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "scope",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Decision.Effect",
+      "qualified_name": "org.keycloak.authorization.Decision.Effect",
+      "kind": "enum",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/Decision.java",
+      "line": 29,
+      "enclosing": "Decision",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {"name": "PERMIT", "line": 30, "annotations": []},
+        {"name": "DENY", "line": 31, "annotations": []}
+      ],
+      "members": []
+    },
+    {
+      "id": "DecisionStrategy",
+      "qualified_name": "org.keycloak.representations.idm.authorization.DecisionStrategy",
+      "kind": "enum",
+      "file": "core/src/main/java/org/keycloak/representations/idm/authorization/DecisionStrategy.java",
+      "line": 30,
+      "enclosing": null,
+      "modifiers": ["public"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [
+        {"kind": "class", "written": "EnumWithStableIndex", "resolution": "external", "name": "org.keycloak.util.EnumWithStableIndex", "basis": "import", "args": []}
+      ],
+      "constants": [
+        {"name": "AFFIRMATIVE", "line": 35, "annotations": []},
+        {"name": "UNANIMOUS", "line": 40, "annotations": []},
+        {"name": "CONSENSUS", "line": 46, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "stableIndex",
+          "line": 48,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "int"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "field",
+          "name": "BY_ID",
+          "line": 49,
+          "modifiers": ["private", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "Integer", "resolution": "jdk", "name": "java.lang.Integer", "basis": "java.lang", "args": []}, {"kind": "class", "written": "DecisionStrategy", "resolution": "slice", "name": "DecisionStrategy", "basis": "enclosing", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "DecisionStrategy",
+          "line": 51,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "stableIndex",
+              "type": {"kind": "primitive", "name": "int"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getStableIndex",
+          "line": 57,
+          "modifiers": ["public"],
+          "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 56}],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "int"},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "valueOfInteger",
+          "line": 61,
+          "modifiers": ["public", "static"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "DecisionStrategy", "resolution": "slice", "name": "DecisionStrategy", "basis": "enclosing", "args": []},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "Integer", "resolution": "jdk", "name": "java.lang.Integer", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        }
+      ]
+    },
+    {
+      "id": "Evaluation",
+      "qualified_name": "org.keycloak.authorization.policy.evaluation.Evaluation",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Evaluation.java",
+      "line": 34,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getPermission",
+          "line": 41,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "ResourcePermission", "resolution": "slice", "name": "ResourcePermission", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getContext",
+          "line": 48,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "EvaluationContext", "resolution": "slice", "name": "EvaluationContext", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getPolicy",
+          "line": 55,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getRealm",
+          "line": 62,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Realm", "resolution": "slice", "name": "Realm", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAuthorizationProvider",
+          "line": 64,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "grant",
+          "line": 69,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "deny",
+          "line": 74,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "denyIfNoEffect",
+          "line": 79,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getParentPolicy",
+          "line": 86,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getEffect",
+          "line": 88,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Effect", "resolution": "slice", "name": "Decision.Effect", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setEffect",
+          "line": 90,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "effect",
+              "type": {"kind": "class", "written": "Effect", "resolution": "slice", "name": "Decision.Effect", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isGranted",
+          "line": 99,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "grantedPolicy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "grantedScope",
+              "type": {"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isDenied",
+          "line": 110,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "deniedPolicy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "deniedScope",
+              "type": {"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "EvaluationContext",
+      "qualified_name": "org.keycloak.authorization.policy.evaluation.EvaluationContext",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/EvaluationContext.java",
+      "line": 30,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "field",
+          "name": "REALM_NAME_ATTRIBUTE",
+          "line": 32,
+          "modifiers": ["public", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "field",
+          "name": "CLIENT_ID_ATTRIBUTE",
+          "line": 33,
+          "modifiers": ["public", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getIdentity",
+          "line": 40,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Identity", "resolution": "slice", "name": "Identity", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAttributes",
+          "line": 47,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Attributes", "resolution": "slice", "name": "Attributes", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Identity",
+      "qualified_name": "org.keycloak.authorization.identity.Identity",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/identity/Identity.java",
+      "line": 31,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getId",
+          "line": 38,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAttributes",
+          "line": 45,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Attributes", "resolution": "slice", "name": "Attributes", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "hasRealmRole",
+          "line": 54,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "roleName",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "hasClientRole",
+          "line": 66,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "clientId",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "roleName",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "hasOneClientRole",
+          "line": 78,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "clientId",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "roleNames",
+              "type": {"kind": "array", "element": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}},
+              "varargs": true,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {"id": "JsonWebToken", "qualified_name": "org.keycloak.representations.JsonWebToken", "kind": "class", "file": "core/src/main/java/org/keycloak/representations/JsonWebToken.java", "line": 43, "enclosing": null, "modifiers": ["public"], "annotations": [], "type_params": [], "extends": [], "implements": [{"kind": "class", "written": "Serializable", "resolution": "external", "name": "java.io.Serializable", "basis": "import", "args": []}, {"kind": "class", "written": "Token", "resolution": "external", "name": "org.keycloak.Token", "basis": "import", "args": []}], "constants": [], "members": [{"kind": "field", "name": "AZP", "line": 44, "modifiers": ["public", "static", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "AUD", "line": 45, "modifiers": ["public", "static", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "SUBJECT", "line": 46, "modifiers": ["public", "static", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "id", "line": 49, "modifiers": ["protected"], "annotations": [{"name": "JsonProperty", "qualified": "com.fasterxml.jackson.annotation.JsonProperty", "arguments": ["\"jti\""], "line": 48}], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "exp", "line": 51, "modifiers": ["protected"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "nbf", "line": 52, "modifiers": ["protected"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "iat", "line": 53, "modifiers": ["protected"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "issuer", "line": 56, "modifiers": ["protected"], "annotations": [{"name": "JsonProperty", "qualified": "com.fasterxml.jackson.annotation.JsonProperty", "arguments": ["\"iss\""], "line": 55}], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "audience", "line": 59, "modifiers": ["protected"], "annotations": [{"name": "JsonProperty", "qualified": "com.fasterxml.jackson.annotation.JsonProperty", "arguments": ["AUD"], "line": 57}, {"name": "StringOrArray", "qualified": "org.keycloak.json.StringOrArray", "arguments": [], "line": 58}], "type_params": [], "type": {"kind": "array", "element": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "subject", "line": 61, "modifiers": ["protected"], "annotations": [{"name": "JsonProperty", "qualified": "com.fasterxml.jackson.annotation.JsonProperty", "arguments": ["SUBJECT"], "line": 60}], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "type", "line": 63, "modifiers": ["protected"], "annotations": [{"name": "JsonProperty", "qualified": "com.fasterxml.jackson.annotation.JsonProperty", "arguments": ["\"typ\""], "line": 62}], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "issuedFor", "line": 65, "modifiers": ["protected"], "annotations": [{"name": "JsonProperty", "qualified": "com.fasterxml.jackson.annotation.JsonProperty", "arguments": ["AZP"], "line": 64}], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "otherClaims", "line": 66, "modifiers": ["protected"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "method", "name": "getId", "line": 68, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "id", "line": 72, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "id", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getExp", "line": 77, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "exp", "line": 81, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "exp", "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isExpired", "line": 87, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 86}], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getNbf", "line": 91, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "nbf", "line": 95, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "nbf", "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isNotBefore", "line": 101, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 100}], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "allowedTimeSkew", "type": {"kind": "primitive", "name": "long"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isActive", "line": 120, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 119}], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isActive", "line": 125, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 124}], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "allowedTimeSkew", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isIssuedBeforeSessionStart", "line": 134, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 133}], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "sessionStarted", "type": {"kind": "primitive", "name": "long"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getIat", "line": 138, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "issuedNow", "line": 146, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 145}], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "issuedNowWithTTL", "line": 156, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 155}], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "ttl", "type": {"kind": "primitive", "name": "int"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "iat", "line": 162, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "iat", "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getIssuer", "line": 167, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "issuer", "line": 171, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "issuer", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getAudience", "line": 177, "modifiers": ["public"], "annotations": [{"name": "JsonIgnore", "qualified": "com.fasterxml.jackson.annotation.JsonIgnore", "arguments": [], "line": 176}], "type_params": [], "type": {"kind": "array", "element": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "hasAudience", "line": 181, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "audience", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "hasAnyAudience", "line": 191, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "audiences", "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "audience", "line": 207, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "audience", "type": {"kind": "array", "element": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}}, "varargs": true, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "addAudience", "line": 212, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "audience", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getSubject", "line": 230, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "subject", "line": 234, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "subject", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "setSubject", "line": 239, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "void"}, "params": [{"name": "subject", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getType", "line": 243, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "type", "line": 247, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "type", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getIssuedFor", "line": 257, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "issuedFor", "line": 261, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "JsonWebToken", "resolution": "slice", "name": "JsonWebToken", "basis": "enclosing", "args": []}, "params": [{"name": "issuedFor", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getOtherClaims", "line": 272, "modifiers": ["public"], "annotations": [{"name": "JsonAnyGetter", "qualified": "com.fasterxml.jackson.annotation.JsonAnyGetter", "arguments": [], "line": 271}], "type_params": [], "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}]}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "setOtherClaims", "line": 277, "modifiers": ["public"], "annotations": [{"name": "JsonAnySetter", "qualified": "com.fasterxml.jackson.annotation.JsonAnySetter", "arguments": [], "line": 276}], "type_params": [], "type": {"kind": "void"}, "params": [{"name": "name", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}, {"name": "value", "type": {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getCategory", "line": 282, "modifiers": ["public"], "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 281}], "type_params": [], "type": {"kind": "class", "written": "TokenCategory", "resolution": "external", "name": "org.keycloak.TokenCategory", "basis": "import", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "equals", "line": 287, "modifiers": ["public", "final"], "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 286}], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "o", "type": {"kind": "class", "written": "Object", "resolution": "jdk", "name": "java.lang.Object", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "hashCode", "line": 306, "modifiers": ["public"], "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 305}], "type_params": [], "type": {"kind": "primitive", "name": "int"}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "toString", "line": 321, "modifiers": ["public"], "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 320}], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}]},
+    {
+      "id": "Logic",
+      "qualified_name": "org.keycloak.representations.idm.authorization.Logic",
+      "kind": "enum",
+      "file": "core/src/main/java/org/keycloak/representations/idm/authorization/Logic.java",
+      "line": 30,
+      "enclosing": null,
+      "modifiers": ["public"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [
+        {"kind": "class", "written": "EnumWithStableIndex", "resolution": "external", "name": "org.keycloak.util.EnumWithStableIndex", "basis": "import", "args": []}
+      ],
+      "constants": [
+        {"name": "POSITIVE", "line": 35, "annotations": []},
+        {"name": "NEGATIVE", "line": 40, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "stableIndex",
+          "line": 42,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "int"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "field",
+          "name": "BY_ID",
+          "line": 43,
+          "modifiers": ["private", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "Integer", "resolution": "jdk", "name": "java.lang.Integer", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Logic", "resolution": "slice", "name": "Logic", "basis": "enclosing", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "Logic",
+          "line": 45,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "stableIndex",
+              "type": {"kind": "primitive", "name": "int"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getStableIndex",
+          "line": 51,
+          "modifiers": ["public"],
+          "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 50}],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "int"},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "valueOfInteger",
+          "line": 55,
+          "modifiers": ["public", "static"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Logic", "resolution": "slice", "name": "Logic", "basis": "enclosing", "args": []},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "Integer", "resolution": "jdk", "name": "java.lang.Integer", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        }
+      ]
+    },
+    {
+      "id": "PermissionTicket",
+      "qualified_name": "org.keycloak.authorization.model.PermissionTicket",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/PermissionTicket.java",
+      "line": 22,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getId",
+          "line": 57,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getOwner",
+          "line": 64,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getRequester",
+          "line": 66,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResource",
+          "line": 73,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getScope",
+          "line": 80,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isGranted",
+          "line": 82,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getCreatedTimestamp",
+          "line": 84,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getGrantedTimestamp",
+          "line": 86,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setGrantedTimestamp",
+          "line": 87,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "millis",
+              "type": {"kind": "class", "written": "Long", "resolution": "jdk", "name": "java.lang.Long", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResourceServer",
+          "line": 94,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getPolicy",
+          "line": 96,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setPolicy",
+          "line": 98,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "same_package", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "PermissionTicket.FilterOption",
+      "qualified_name": "org.keycloak.authorization.model.PermissionTicket.FilterOption",
+      "kind": "enum",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/PermissionTicket.java",
+      "line": 24,
+      "enclosing": "PermissionTicket",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {"name": "ID", "line": 25, "annotations": []},
+        {"name": "RESOURCE_ID", "line": 26, "annotations": []},
+        {"name": "RESOURCE_NAME", "line": 27, "annotations": []},
+        {"name": "SCOPE_ID", "line": 28, "annotations": []},
+        {"name": "SCOPE_IS_NULL", "line": 29, "annotations": []},
+        {"name": "OWNER", "line": 30, "annotations": []},
+        {"name": "GRANTED", "line": 31, "annotations": []},
+        {"name": "REQUESTER", "line": 32, "annotations": []},
+        {"name": "REQUESTER_IS_NULL", "line": 33, "annotations": []},
+        {"name": "POLICY_IS_NOT_NULL", "line": 34, "annotations": []},
+        {"name": "POLICY_ID", "line": 35, "annotations": []},
+        {"name": "IS_ADMIN", "line": 39, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "name",
+          "line": 41,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "FilterOption",
+          "line": 43,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 47,
+          "modifiers": ["public"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Policy",
+      "qualified_name": "org.keycloak.authorization.model.Policy",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java",
+      "line": 34,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "field",
+          "name": "CONFIG_SEPARATOR",
+          "line": 59,
+          "modifiers": ["public", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getId",
+          "line": 66,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getType",
+          "line": 73,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getDecisionStrategy",
+          "line": 80,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "DecisionStrategy", "resolution": "slice", "name": "DecisionStrategy", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setDecisionStrategy",
+          "line": 87,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "decisionStrategy",
+              "type": {"kind": "class", "written": "DecisionStrategy", "resolution": "slice", "name": "DecisionStrategy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getLogic",
+          "line": 94,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Logic", "resolution": "slice", "name": "Logic", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setLogic",
+          "line": 101,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "logic",
+              "type": {"kind": "class", "written": "Logic", "resolution": "slice", "name": "Logic", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getConfig",
+          "line": 108,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setConfig",
+          "line": 116,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "config",
+              "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "removeConfig",
+          "line": 118,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "putConfig",
+          "line": 119,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "value",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 126,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setName",
+          "line": 133,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getDescription",
+          "line": 140,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setDescription",
+          "line": 147,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "description",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResourceServer",
+          "line": 154,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAssociatedPolicies",
+          "line": 162,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "enclosing", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResources",
+          "line": 169,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "same_package", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResourceNames",
+          "line": 176,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getScopes",
+          "line": 185,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "same_package", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getOwner",
+          "line": 187,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setOwner",
+          "line": 189,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "owner",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "addScope",
+          "line": 191,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "scope",
+              "type": {"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "same_package", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "removeScope",
+          "line": 193,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "scope",
+              "type": {"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "same_package", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "addAssociatedPolicy",
+          "line": 195,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "associatedPolicy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "enclosing", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "removeAssociatedPolicy",
+          "line": 197,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "associatedPolicy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "enclosing", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "addResource",
+          "line": 199,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "resource",
+              "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "same_package", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "removeResource",
+          "line": 201,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "resource",
+              "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "same_package", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResourceType",
+          "line": 203,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setResourceType",
+          "line": 207,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "resourceType",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Policy.FilterOption",
+      "qualified_name": "org.keycloak.authorization.model.Policy.FilterOption",
+      "kind": "enum",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java",
+      "line": 36,
+      "enclosing": "Policy",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {"name": "ID", "line": 37, "annotations": []},
+        {"name": "PERMISSION", "line": 38, "annotations": []},
+        {"name": "OWNER", "line": 39, "annotations": []},
+        {"name": "ANY_OWNER", "line": 40, "annotations": []},
+        {"name": "RESOURCE_ID", "line": 41, "annotations": []},
+        {"name": "SCOPE_ID", "line": 42, "annotations": []},
+        {"name": "CONFIG", "line": 43, "annotations": []},
+        {"name": "TYPE", "line": 44, "annotations": []},
+        {"name": "NAME", "line": 45, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "EMPTY_FILTER",
+          "line": 47,
+          "modifiers": ["public", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "array", "element": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "field",
+          "name": "name",
+          "line": 48,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "FilterOption",
+          "line": 50,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 54,
+          "modifiers": ["public"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "PolicyEnforcementMode",
+      "qualified_name": "org.keycloak.representations.idm.authorization.PolicyEnforcementMode",
+      "kind": "enum",
+      "file": "core/src/main/java/org/keycloak/representations/idm/authorization/PolicyEnforcementMode.java",
+      "line": 29,
+      "enclosing": null,
+      "modifiers": ["public"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [
+        {"kind": "class", "written": "EnumWithStableIndex", "resolution": "external", "name": "org.keycloak.util.EnumWithStableIndex", "basis": "import", "args": []}
+      ],
+      "constants": [
+        {"name": "ENFORCING", "line": 34, "annotations": []},
+        {"name": "PERMISSIVE", "line": 39, "annotations": []},
+        {"name": "DISABLED", "line": 44, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "stableIndex",
+          "line": 46,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "int"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "field",
+          "name": "BY_ID",
+          "line": 47,
+          "modifiers": ["private", "static", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "Integer", "resolution": "jdk", "name": "java.lang.Integer", "basis": "java.lang", "args": []}, {"kind": "class", "written": "PolicyEnforcementMode", "resolution": "slice", "name": "PolicyEnforcementMode", "basis": "enclosing", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "PolicyEnforcementMode",
+          "line": 49,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "stableIndex",
+              "type": {"kind": "primitive", "name": "int"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getStableIndex",
+          "line": 55,
+          "modifiers": ["public"],
+          "annotations": [{"name": "Override", "qualified": null, "arguments": [], "line": 54}],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "int"},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "valueOfInteger",
+          "line": 59,
+          "modifiers": ["public", "static"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "PolicyEnforcementMode", "resolution": "slice", "name": "PolicyEnforcementMode", "basis": "enclosing", "args": []},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "Integer", "resolution": "jdk", "name": "java.lang.Integer", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        }
+      ]
+    },
+    {
+      "id": "PolicyProvider",
+      "qualified_name": "org.keycloak.authorization.policy.provider.PolicyProvider",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProvider.java",
+      "line": 26,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [
+        {"kind": "class", "written": "Provider", "resolution": "external", "name": "org.keycloak.provider.Provider", "basis": "import", "args": []}
+      ],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "evaluate",
+          "line": 28,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "evaluation",
+              "type": {"kind": "class", "written": "Evaluation", "resolution": "slice", "name": "Evaluation", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "PolicyProviderFactory",
+      "qualified_name": "org.keycloak.authorization.policy.provider.PolicyProviderFactory",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java",
+      "line": 31,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [
+        {
+          "name": "R",
+          "bounds": [
+            {"kind": "class", "written": "AbstractPolicyRepresentation", "resolution": "external", "name": "org.keycloak.representations.idm.authorization.AbstractPolicyRepresentation", "basis": "import", "args": []}
+          ]
+        }
+      ],
+      "extends": [
+        {"kind": "class", "written": "ProviderFactory", "resolution": "external", "name": "org.keycloak.provider.ProviderFactory", "basis": "import", "args": [{"kind": "class", "written": "PolicyProvider", "resolution": "slice", "name": "PolicyProvider", "basis": "same_package", "args": []}]}
+      ],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 33,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getGroup",
+          "line": 35,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getDescription",
+          "line": 37,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        },
+        {
+          "kind": "method",
+          "name": "getCode",
+          "line": 41,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        },
+        {
+          "kind": "method",
+          "name": "isInternal",
+          "line": 45,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "create",
+          "line": 49,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "PolicyProvider", "resolution": "slice", "name": "PolicyProvider", "basis": "same_package", "args": []},
+          "params": [
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "toRepresentation",
+          "line": 51,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "type_var", "name": "R"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getRepresentationType",
+          "line": 53,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Class", "resolution": "jdk", "name": "java.lang.Class", "basis": "java.lang", "args": [{"kind": "type_var", "name": "R"}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onCreate",
+          "line": 55,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "representation",
+              "type": {"kind": "type_var", "name": "R"},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onUpdate",
+          "line": 59,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "representation",
+              "type": {"kind": "type_var", "name": "R"},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onRemove",
+          "line": 63,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onImport",
+          "line": 67,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "representation",
+              "type": {"kind": "class", "written": "PolicyRepresentation", "resolution": "external", "name": "org.keycloak.representations.idm.authorization.PolicyRepresentation", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "onExport",
+          "line": 71,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "policy",
+              "type": {"kind": "class", "written": "Policy", "resolution": "slice", "name": "Policy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "representation",
+              "type": {"kind": "class", "written": "PolicyRepresentation", "resolution": "external", "name": "org.keycloak.representations.idm.authorization.PolicyRepresentation", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorizationProvider",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAdminResource",
+          "line": 74,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "PolicyProviderAdminService", "resolution": "external", "name": "org.keycloak.authorization.policy.provider.PolicyProviderAdminService", "basis": "assumed_same_package", "args": []},
+          "params": [
+            {
+              "name": "resourceServer",
+              "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "authorization",
+              "type": {"kind": "class", "written": "AuthorizationProvider", "resolution": "external", "name": "org.keycloak.authorization.AuthorizationProvider", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": true
+        }
+      ]
+    },
+    {
+      "id": "Realm",
+      "qualified_name": "org.keycloak.authorization.policy.evaluation.Realm",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Realm.java",
+      "line": 27,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "isUserInGroup",
+          "line": 40,
+          "modifiers": ["public", "default"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "group",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isUserInGroup",
+          "line": 52,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "group",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "checkParent",
+              "type": {"kind": "primitive", "name": "boolean"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isUserInRealmRole",
+          "line": 61,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "role",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isUserInClientRole",
+          "line": 71,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "clientId",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "role",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isGroupInRole",
+          "line": 80,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [
+            {
+              "name": "group",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "role",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getUserRealmRoles",
+          "line": 88,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getUserClientRoles",
+          "line": 97,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "clientId",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getUserGroups",
+          "line": 105,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getUserAttributes",
+          "line": 113,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]},
+          "params": [
+            {
+              "name": "id",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Resource",
+      "qualified_name": "org.keycloak.authorization.model.Resource",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/Resource.java",
+      "line": 30,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getId",
+          "line": 60,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 67,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setName",
+          "line": 74,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getDisplayName",
+          "line": 81,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setDisplayName",
+          "line": 88,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getUris",
+          "line": 95,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "updateUris",
+          "line": 102,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "uri",
+              "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getType",
+          "line": 110,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setType",
+          "line": 117,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "type",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getScopes",
+          "line": 124,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "same_package", "args": []}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getIconUri",
+          "line": 131,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setIconUri",
+          "line": 138,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "iconUri",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResourceServer",
+          "line": 145,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getOwner",
+          "line": 152,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isOwnerManagedAccess",
+          "line": 159,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setOwnerManagedAccess",
+          "line": 166,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "ownerManagedAccess",
+              "type": {"kind": "primitive", "name": "boolean"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "updateScopes",
+          "line": 173,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "scopes",
+              "type": {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "same_package", "args": []}]},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAttributes",
+          "line": 180,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getSingleAttribute",
+          "line": 188,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getAttribute",
+          "line": 196,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setAttribute",
+          "line": 204,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            },
+            {
+              "name": "values",
+              "type": {"kind": "class", "written": "List", "resolution": "jdk", "name": "java.util.List", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "removeAttribute",
+          "line": 206,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Resource.FilterOption",
+      "qualified_name": "org.keycloak.authorization.model.Resource.FilterOption",
+      "kind": "enum",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/Resource.java",
+      "line": 32,
+      "enclosing": "Resource",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {"name": "ID", "line": 33, "annotations": []},
+        {"name": "NAME", "line": 34, "annotations": []},
+        {"name": "EXACT_NAME", "line": 35, "annotations": []},
+        {"name": "OWNER", "line": 36, "annotations": []},
+        {"name": "TYPE", "line": 37, "annotations": []},
+        {"name": "URI", "line": 38, "annotations": []},
+        {"name": "URI_NOT_NULL", "line": 39, "annotations": []},
+        {"name": "OWNER_MANAGED_ACCESS", "line": 40, "annotations": []},
+        {"name": "SCOPE_ID", "line": 41, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "name",
+          "line": 43,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "FilterOption",
+          "line": 45,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 49,
+          "modifiers": ["public"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {"id": "ResourcePermission", "qualified_name": "org.keycloak.authorization.permission.ResourcePermission", "kind": "class", "file": "server-spi-private/src/main/java/org/keycloak/authorization/permission/ResourcePermission.java", "line": 39, "enclosing": null, "modifiers": ["public"], "annotations": [], "type_params": [], "extends": [], "implements": [], "constants": [], "members": [{"kind": "field", "name": "resource", "line": 41, "modifiers": ["private", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "scopes", "line": 42, "modifiers": ["private", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}]}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "resourceType", "line": 43, "modifiers": ["private", "final"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "resourceServer", "line": 44, "modifiers": ["private"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "claims", "line": 45, "modifiers": ["private"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "field", "name": "granted", "line": 46, "modifiers": ["private"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [], "throws": [], "has_body": false, "returns_null_literal": false}, {"kind": "constructor", "name": "ResourcePermission", "line": 48, "modifiers": ["public"], "annotations": [], "type_params": [], "type": null, "params": [{"name": "resource", "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "scopes", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}]}, "varargs": false, "annotations": []}, {"name": "resourceServer", "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "constructor", "name": "ResourcePermission", "line": 52, "modifiers": ["public"], "annotations": [], "type_params": [], "type": null, "params": [{"name": "resourceType", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}, {"name": "resource", "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "scopes", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}]}, "varargs": false, "annotations": []}, {"name": "resourceServer", "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "constructor", "name": "ResourcePermission", "line": 56, "modifiers": ["public"], "annotations": [], "type_params": [], "type": null, "params": [{"name": "resource", "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "resourceServer", "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "claims", "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "wildcard", "bound": {"relation": "extends", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}}}]}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "constructor", "name": "ResourcePermission", "line": 60, "modifiers": ["public"], "annotations": [], "type_params": [], "type": null, "params": [{"name": "resource", "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "scopes", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}]}, "varargs": false, "annotations": []}, {"name": "resourceServer", "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "claims", "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "wildcard", "bound": {"relation": "extends", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}}}]}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "constructor", "name": "ResourcePermission", "line": 64, "modifiers": ["public"], "annotations": [], "type_params": [], "type": null, "params": [{"name": "resourceType", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}, {"name": "resource", "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "scopes", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}]}, "varargs": false, "annotations": []}, {"name": "resourceServer", "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "varargs": false, "annotations": []}, {"name": "claims", "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "wildcard", "bound": {"relation": "extends", "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}}}]}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getResourceType", "line": 77, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getResource", "line": 86, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Resource", "resolution": "slice", "name": "Resource", "basis": "import", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getScopes", "line": 95, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Collection", "resolution": "jdk", "name": "java.util.Collection", "basis": "import", "args": [{"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}]}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getResourceServer", "line": 104, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "import", "args": []}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "getClaims", "line": 113, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "addClaim", "line": 128, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [{"name": "name", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}, {"name": "value", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "removeClaim", "line": 141, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "void"}, "params": [{"name": "name", "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "addScope", "line": 147, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "void"}, "params": [{"name": "scope", "type": {"kind": "class", "written": "Scope", "resolution": "slice", "name": "Scope", "basis": "import", "args": []}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "addClaims", "line": 159, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "void"}, "params": [{"name": "claims", "type": {"kind": "class", "written": "Map", "resolution": "jdk", "name": "java.util.Map", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}, {"kind": "class", "written": "Set", "resolution": "jdk", "name": "java.util.Set", "basis": "import", "args": [{"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []}]}]}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "setGranted", "line": 166, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "void"}, "params": [{"name": "granted", "type": {"kind": "primitive", "name": "boolean"}, "varargs": false, "annotations": []}], "throws": [], "has_body": true, "returns_null_literal": false}, {"kind": "method", "name": "isGranted", "line": 170, "modifiers": ["public"], "annotations": [], "type_params": [], "type": {"kind": "primitive", "name": "boolean"}, "params": [], "throws": [], "has_body": true, "returns_null_literal": false}]},
+    {
+      "id": "ResourceServer",
+      "qualified_name": "org.keycloak.authorization.model.ResourceServer",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/ResourceServer.java",
+      "line": 30,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getId",
+          "line": 37,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "isAllowRemoteResourceManagement",
+          "line": 44,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "primitive", "name": "boolean"},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setAllowRemoteResourceManagement",
+          "line": 51,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "allowRemoteResourceManagement",
+              "type": {"kind": "primitive", "name": "boolean"},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getPolicyEnforcementMode",
+          "line": 58,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "PolicyEnforcementMode", "resolution": "slice", "name": "PolicyEnforcementMode", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setPolicyEnforcementMode",
+          "line": 65,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "enforcementMode",
+              "type": {"kind": "class", "written": "PolicyEnforcementMode", "resolution": "slice", "name": "PolicyEnforcementMode", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setDecisionStrategy",
+          "line": 73,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "decisionStrategy",
+              "type": {"kind": "class", "written": "DecisionStrategy", "resolution": "slice", "name": "DecisionStrategy", "basis": "import", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getDecisionStrategy",
+          "line": 80,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "DecisionStrategy", "resolution": "slice", "name": "DecisionStrategy", "basis": "import", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getClientId",
+          "line": 86,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Scope",
+      "qualified_name": "org.keycloak.authorization.model.Scope",
+      "kind": "interface",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/Scope.java",
+      "line": 27,
+      "enclosing": null,
+      "modifiers": ["public", "abstract"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [],
+      "members": [
+        {
+          "kind": "method",
+          "name": "getId",
+          "line": 49,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 56,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setName",
+          "line": 63,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getDisplayName",
+          "line": 70,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setDisplayName",
+          "line": 77,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getIconUri",
+          "line": 84,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "setIconUri",
+          "line": 91,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "void"},
+          "params": [
+            {
+              "name": "iconUri",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getResourceServer",
+          "line": 98,
+          "modifiers": ["public", "abstract"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "ResourceServer", "resolution": "slice", "name": "ResourceServer", "basis": "same_package", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        }
+      ]
+    },
+    {
+      "id": "Scope.FilterOption",
+      "qualified_name": "org.keycloak.authorization.model.Scope.FilterOption",
+      "kind": "enum",
+      "file": "server-spi-private/src/main/java/org/keycloak/authorization/model/Scope.java",
+      "line": 29,
+      "enclosing": "Scope",
+      "modifiers": ["public", "static"],
+      "annotations": [],
+      "type_params": [],
+      "extends": [],
+      "implements": [],
+      "constants": [
+        {"name": "ID", "line": 30, "annotations": []},
+        {"name": "NAME", "line": 31, "annotations": []}
+      ],
+      "members": [
+        {
+          "kind": "field",
+          "name": "name",
+          "line": 33,
+          "modifiers": ["private", "final"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": false,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "constructor",
+          "name": "FilterOption",
+          "line": 35,
+          "modifiers": ["private"],
+          "annotations": [],
+          "type_params": [],
+          "type": null,
+          "params": [
+            {
+              "name": "name",
+              "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+              "varargs": false,
+              "annotations": []
+            }
+          ],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        },
+        {
+          "kind": "method",
+          "name": "getName",
+          "line": 39,
+          "modifiers": ["public"],
+          "annotations": [],
+          "type_params": [],
+          "type": {"kind": "class", "written": "String", "resolution": "jdk", "name": "java.lang.String", "basis": "java.lang", "args": []},
+          "params": [],
+          "throws": [],
+          "has_body": true,
+          "returns_null_literal": false
+        }
+      ]
+    }
+  ]
+}

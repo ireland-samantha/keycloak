@@ -1,0 +1,7 @@
+INDETERMINATE
+principal:  mallory (user)
+mandate:    generate-report
+capability: document:read on q3-report
+effect:     observe
+reason:
+  mallory (user) is not in ledger.principals

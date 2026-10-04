@@ -1,0 +1,93 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "90d94fb1-d5e6-41de-ab72-9453c74fdda5",
+  "decision": "deny",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "actor_chain": [],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "document",
+    "action": "generate"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "produce",
+    "audience": "organization"
+  },
+  "reasons": [
+    {
+      "code": "delegation_path_matches",
+      "message": "d-agent-generate: ledger path [samantha > research-agent] differs from token path [research-agent]"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate generate-report covers document:generate"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "pass",
+        "detail": "produce:organization is within mandate generate-report effects observe, produce:organization"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "d-agent-generate",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [samantha > research-agent] differs from token path [research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target q3-report covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "produce:organization is within grant effects produce:organization"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:generate"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "pass",
+            "detail": "produce:organization is within mandate generate-report effects observe, produce:organization"
+          },
+          {
+            "check": "provenance",
+            "outcome": "unknown",
+            "detail": "no_role_facts: root g-samantha-generate: samantha (user) is absent from facts.principals, so holding realm role report-author is unknown"
+          }
+        ]
+      }
+    ]
+  }
+}

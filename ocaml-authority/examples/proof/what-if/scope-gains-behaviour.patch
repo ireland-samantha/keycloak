@@ -1,0 +1,14 @@
+--- a/server-spi-private/src/main/java/org/keycloak/authorization/model/Scope.java
++++ b/server-spi-private/src/main/java/org/keycloak/authorization/model/Scope.java
+@@ -91,6 +91,11 @@
+     void setIconUri(String iconUri);
+ 
+     /**
++     * Copies the display name and icon of this scope onto {@code other}.
++     */
++    void copyDisplayTo(Scope other);
++
++    /**
+      * Returns the {@link ResourceServer} instance to where this scope belongs to.
+      *
+      * @return

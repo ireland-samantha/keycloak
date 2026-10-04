@@ -1,0 +1,9 @@
+INDETERMINATE
+principal:  research-agent (service)
+mandate:    publish-release
+capability: document:publish on q3-report
+effect:     disclose -> public
+reason:
+  u-agent-publish: provenance: the ledger entry has no provenance (unanchored) and can never authorize
+candidates:
+  u-agent-publish        undetermined  provenance unknown
