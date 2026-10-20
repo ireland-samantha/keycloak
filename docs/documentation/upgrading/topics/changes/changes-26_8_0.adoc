@@ -437,7 +437,11 @@ The Admin REST API endpoint for updating a credential label (`PUT /admin/realms/
 The label is now stored as sent, which is how the equivalent Account REST API endpoint has always behaved.
 
 This removes a long-standing inconsistency between the two APIs.
-The rule that two credentials of the same type cannot share a label is unchanged, so setting an empty label on a second credential of the same type still returns `409 Conflict`.
+Two credentials of the same type still cannot share a label.
+That comparison ignores leading and trailing whitespace on both the stored label and the new label, in either order.
+Setting `""` when another credential of the same type is already labeled `"   "` (or the reverse) returns `409 Conflict`.
+The stored value is still the label as sent, including surrounding whitespace.
+A `null` label is still exempt from the uniqueness check.
 
 If you relied on this endpoint returning `400` to keep credential labels non-blank, validate the label in your own client before calling the API.
 

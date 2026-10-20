@@ -146,9 +146,12 @@ public class JpaUserCredentialStore implements UserCredentialStore {
 
     private void validateDuplicateCredential(RealmModel realm, UserModel user, String credType, String userLabel, String credentialId) {
         if (userLabel != null) {
+            // Trim both sides. The incoming label was already trimmed, so "   " then ""
+            // (or the reverse) could otherwise store two blank labels of the same type.
+            String normalizedLabel = userLabel.trim();
             boolean exists = getStoredCredentialEntities(realm, user)
                     .anyMatch(existing -> existing.getUserLabel() != null
-                            && existing.getUserLabel().equalsIgnoreCase(userLabel.trim())
+                            && existing.getUserLabel().trim().equalsIgnoreCase(normalizedLabel)
                             && existing.getType().equals(credType)
                             && !existing.getId().equals(credentialId)); // Exclude self in update
 

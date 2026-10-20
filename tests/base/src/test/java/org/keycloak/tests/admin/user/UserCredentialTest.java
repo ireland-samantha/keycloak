@@ -181,6 +181,47 @@ public class UserCredentialTest extends AbstractUserTest {
         Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), ex.getResponse().getStatus());
     }
 
+    @Test
+    public void testBlankAndEmptyCredentialUserLabelsConflictInEitherOrder() {
+        UserResource user = userOtp2.admin();
+
+        List<CredentialRepresentation> credentials = user.credentials().stream()
+                .filter(c -> c.getType().equals(OTPCredentialModel.TYPE))
+                .toList();
+        Assertions.assertEquals(2, credentials.size());
+
+        String firstId = credentials.get(0).getId();
+        String secondId = credentials.get(1).getId();
+
+        // Shared user across the class: start from distinct labels so earlier tests cannot leak into this one.
+        user.setCredentialUserLabel(firstId, "Device A");
+        user.setCredentialUserLabel(secondId, "Device B");
+
+        user.setCredentialUserLabel(firstId, "   ");
+        Assertions.assertEquals("   ", getCredentialUserLabel(user, firstId));
+
+        ClientErrorException blankThenEmpty = Assertions.assertThrows(ClientErrorException.class, () -> {
+            user.setCredentialUserLabel(secondId, "");
+        });
+        Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), blankThenEmpty.getResponse().getStatus());
+        blankThenEmpty.getResponse().close();
+        Assertions.assertEquals("Device B", getCredentialUserLabel(user, secondId));
+
+        user.setCredentialUserLabel(firstId, "Device A");
+        user.setCredentialUserLabel(secondId, "");
+        Assertions.assertEquals("", getCredentialUserLabel(user, secondId));
+
+        ClientErrorException emptyThenBlank = Assertions.assertThrows(ClientErrorException.class, () -> {
+            user.setCredentialUserLabel(firstId, "   ");
+        });
+        Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), emptyThenBlank.getResponse().getStatus());
+        emptyThenBlank.getResponse().close();
+        Assertions.assertEquals("Device A", getCredentialUserLabel(user, firstId));
+
+        user.setCredentialUserLabel(firstId, "Device A");
+        user.setCredentialUserLabel(secondId, "Device B");
+    }
+
     private static String getCredentialUserLabel(UserResource user, String credentialId) {
         return user.credentials().stream().filter(cr -> cr.getId().equals(credentialId))
                 .findFirst().orElseThrow().getUserLabel();
