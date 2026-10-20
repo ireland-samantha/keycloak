@@ -1,0 +1,20 @@
+# The slice of docs/proof-search.md, paths relative to the repository root.
+server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java
+server-spi-private/src/main/java/org/keycloak/authorization/model/Resource.java
+server-spi-private/src/main/java/org/keycloak/authorization/model/ResourceServer.java
+server-spi-private/src/main/java/org/keycloak/authorization/model/Scope.java
+server-spi-private/src/main/java/org/keycloak/authorization/model/PermissionTicket.java
+server-spi-private/src/main/java/org/keycloak/authorization/identity/Identity.java
+server-spi-private/src/main/java/org/keycloak/authorization/attribute/Attributes.java
+server-spi-private/src/main/java/org/keycloak/authorization/permission/ResourcePermission.java
+server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Evaluation.java
+server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/EvaluationContext.java
+server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Realm.java
+server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProvider.java
+server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java
+server-spi-private/src/main/java/org/keycloak/authorization/Decision.java
+core/src/main/java/org/keycloak/representations/idm/authorization/DecisionStrategy.java
+core/src/main/java/org/keycloak/representations/idm/authorization/Logic.java
+core/src/main/java/org/keycloak/representations/idm/authorization/PolicyEnforcementMode.java
+core/src/main/java/org/keycloak/representations/JsonWebToken.java
+authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java

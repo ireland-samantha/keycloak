@@ -1,0 +1,33 @@
+adapter jar: ocaml-authority/keycloak-adapter/target/typed-authority-keycloak-adapter-0.1.0-SNAPSHOT.jar (2 jti references)
+realm import: HTTP 201
+== 1. genuine delegated token
+-- delegated (token exchange, samantha consented)
+   token:     {"sub":"cbc4b353-7583-41d1-9f3e-98f252b580f4","azp":"research-agent","jti":"trrtte:3a1b4727-c9ea-1c67-fdf8-dd9fecbd5c41","sid":null,"act":{"sub":"07d65e0a-8330-462e-b688-12548b917e7f","client_id":"research-agent"}}
+   response:  {"result":true}
+   projected: {"subject":"samantha","actor_chain":["research-agent"]}
+   kernel:    {"decision":"allow","reasons":[],"grant":"d-agent-read-for-samantha","chain":["samantha","research-agent"]}
+== 2. act from a hardcoded-claim mapper (JSON) on samantha-app
+   mapper: HTTP 201
+-- samantha's login token for samantha-app (no exchange, no delegation consent)
+   token:     {"sub":"cbc4b353-7583-41d1-9f3e-98f252b580f4","azp":"samantha-app","jti":"onrtac:4a16c2ae-c379-6d30-2885-6c8dc6af6915","sid":"8TEQ5-_ya5nkEvsB0ZC587Ja","act":{"sub":"07d65e0a-8330-462e-b688-12548b917e7f","client_id":"research-agent"}}
+   response:  {"error":"access_denied","error_description":"not_authorized"}
+   projected: (kernel not called) IllegalArgumentException: 'act' on a token no delegation exchange issued (jti [onrtac:4a16c2ae-c379-6d30-2885-6c8dc6af6915]): {"sub":"07d65e0a-8330-462e-b688-12548b917e7f","client_id":"research-agent"}
+== 3. the same mapper with JSON type String
+-- samantha's login token, act as a JSON string
+   token:     {"sub":"cbc4b353-7583-41d1-9f3e-98f252b580f4","azp":"samantha-app","jti":"onrtac:be31bd5f-7a77-ffe0-8e38-d87465aeeaa4","sid":"P8KoZf9SBC3rOD_b5nRSq_SB","act":"{\"sub\":\"07d65e0a-8330-462e-b688-12548b917e7f\",\"client_id\":\"research-agent\"}"}
+   response:  {"error":"access_denied","error_description":"not_authorized"}
+   projected: (kernel not called) IllegalArgumentException: 'act' on a token no delegation exchange issued (jti [onrtac:be31bd5f-7a77-ffe0-8e38-d87465aeeaa4]): {"sub":"07d65e0a-8330-462e-b688-12548b917e7f","client_id":"research-agent"}
+== 4. admin impersonation
+   impersonate: {"redirect":"http://localhost:18380/realms/typed-authority-demo/account","sameRealm":true}
+-- helpdesk impersonating samantha, token for samantha-app
+   token:     {"sub":"cbc4b353-7583-41d1-9f3e-98f252b580f4","azp":"samantha-app","jti":"onrtac:6fd20c6b-e35c-5fe7-ece4-4c06714d1d92","sid":"5II8nMHOw-IbAM7qrl8srZqC","act":{"sub":"e264d799-0ca4-4fc5-92fc-33eb2451e15c","preferred_username":"helpdesk"}}
+   response:  {"error":"access_denied","error_description":"not_authorized"}
+   projected: (kernel not called) IllegalArgumentException: 'act' on a token no delegation exchange issued (jti [onrtac:6fd20c6b-e35c-5fe7-ece4-4c06714d1d92]): {"sub":"e264d799-0ca4-4fc5-92fc-33eb2451e15c","preferred_username":"helpdesk"}
+== 5. act from a hardcoded-claim mapper on research-agent, nested by the delegation exchange
+   mapper: HTTP 201
+   actor token: {"sub":"07d65e0a-8330-462e-b688-12548b917e7f","azp":"research-agent","jti":"trrtcc:7a8abfda-a9d6-3692-caae-1c09c25e3672","act":{"sub":"b72f1d9c-dd69-4d5b-890c-bd3e80a21883"}}
+-- delegated token whose actor token carried a mapper-made act
+   token:     {"sub":"cbc4b353-7583-41d1-9f3e-98f252b580f4","azp":"research-agent","jti":"trrtte:6a6602f4-5930-abd0-d500-d306601777ca","sid":null,"act":{"sub":"07d65e0a-8330-462e-b688-12548b917e7f","client_id":"research-agent","act":{"sub":"b72f1d9c-dd69-4d5b-890c-bd3e80a21883"}}}
+   response:  {"error":"access_denied","error_description":"not_authorized"}
+   projected: {"subject":"samantha","actor_chain":["research-agent","document-service-rbac"]}
+   kernel:    {"decision":"indeterminate","reasons":["unknown_principal"],"grant":null,"chain":[]}

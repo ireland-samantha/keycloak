@@ -1,0 +1,20 @@
+--- a/authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java
++++ b/authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java
+@@ -65,7 +65,7 @@
+     public record Subject(
+             @JsonProperty(required = true) SubjectType type,
+             @JsonProperty(required = true) String id,
+-            Map<String, Object> properties) {}
++            Map<String, String> properties) {}
+ 
+     @JsonInclude(JsonInclude.Include.NON_NULL)
+     public record Resource(
+@@ -81,7 +81,7 @@
+             @JsonProperty(required = true) Subject subject,
+             @JsonProperty(required = true) Resource resource,
+             @JsonProperty(required = true) Action action,
+-            Map<String, Object> context) {}
++            Map<String, String> context) {}
+ 
+     public record EvaluationResponse(boolean decision, Map<String, Object> context) {
+         public EvaluationResponse(boolean decision) {

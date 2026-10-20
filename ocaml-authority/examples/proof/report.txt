@@ -1,0 +1,232 @@
+attempt_proof report
+====================
+
+graph        keycloak-authz.graph.json (java-source-graph/v1)
+commit       6688a3d63f59e0c4a9131bfdd556c4312799f04e
+digest       md5:d208acaa0dae3ac1ef242a2d5191d28b
+extractor    tools/java-graph/JavaGraph.java, parse-only name resolution, 19 source files
+slice        36 types: 13 interfaces, 4 classes, 10 enums, 9 records; 13 external types
+obligations  760
+
+result       REFUTED
+cost         (refuted 3, unknown 29, complexity 88)
+checker      accepted: 760 obligations re-derived, verdicts and cost recomputed
+
+Verdicts
+  PROVEN           721
+  STRENGTHENED       7
+  UNKNOWN           29
+  REFUTED            3
+  total            760
+
+Verdicts by obligation kind
+  kind          PROVEN  STRENGTHENED  UNKNOWN  REFUTED
+  Represent        305             0       16        0
+  Nullability      263             7        0        0
+  Closed            10             0        0        0
+  Open               2             0        0        0
+  Unique             5             0        2        2
+  Keyed             16             0        0        0
+  Command           29             0        0        0
+  Query             57             0        0        0
+  Mutable           33             0        0        0
+  Bounded            1             0        0        1
+  Dynamic            0             0       11        0
+
+Search (attempt_proof)
+  components (SCCs)     36
+  cyclic components     7 (JsonWebToken, Policy, PolicyEnforcementMode, Logic, DecisionStrategy, AuthZen.SubjectType, Attributes)
+  largest component     1 node (every component is a single type)
+  states explored       36
+  memo hits             27
+  branches pruned       18
+  infeasible rejected   2 (Module_type inside a cyclic component)
+  greedy per-node       (refuted 4, unknown 29, complexity 87)
+
+Encodings (search order: referrers first)
+    # type                           kind       encoding
+    1 Scope.FilterOption             enum       Variant
+    2 Resource.FilterOption          enum       Variant
+    3 PolicyProviderFactory          interface  Closures
+    4 PolicyProvider                 interface  Closures
+    5 Policy.FilterOption            enum       Variant
+    6 PermissionTicket.FilterOption  enum       Variant
+    7 PermissionTicket               interface  Record
+    8 JsonWebToken                   class      Closures  (cyclic)
+    9 Decision                       interface  Closures
+   10 Evaluation                     interface  Object
+   11 ResourcePermission             class      Closures
+   12 Realm                          interface  Closures
+   13 Policy                         interface  Closures  (cyclic)
+   14 Resource                       interface  Closures
+   15 Scope                          interface  Record
+   16 ResourceServer                 interface  Record
+   17 PolicyEnforcementMode          enum       Variant  (cyclic)
+   18 Logic                          enum       Variant  (cyclic)
+   19 DecisionStrategy               enum       Variant  (cyclic)
+   20 EvaluationContext              interface  Record
+   21 Identity                       interface  Closures
+   22 Decision.Effect                enum       Variant
+   23 AuthZen.EvaluationsResponse    record     Record
+   24 AuthZen.EvaluationsRequest     record     Record
+   25 AuthZen.Options                record     Record
+   26 AuthZen.EvaluationsSemantic    enum       Variant
+   27 AuthZen.EvaluationResponse     record     Record
+   28 AuthZen.EvaluationRequest      record     Record
+   29 AuthZen.EvaluationItem         record     Record
+   30 AuthZen.Subject                record     Record
+   31 AuthZen.SubjectType            enum       Variant  (cyclic)
+   32 AuthZen.Resource               record     Record
+   33 AuthZen.Action                 record     Record
+   34 AuthZen                        class      Record
+   35 Attributes                     interface  Closures  (cyclic)
+   36 Attributes.Entry               class      Closures
+
+External types (Abstract)
+  java.io.Serializable
+  java.lang.Throwable
+  java.net.InetAddress
+  java.util.Date
+  org.keycloak.Token
+  org.keycloak.TokenCategory
+  org.keycloak.authorization.AuthorizationProvider
+  org.keycloak.authorization.policy.provider.PolicyProviderAdminService
+  org.keycloak.provider.Provider
+  org.keycloak.provider.ProviderFactory
+  org.keycloak.representations.idm.authorization.AbstractPolicyRepresentation
+  org.keycloak.representations.idm.authorization.PolicyRepresentation
+  org.keycloak.util.EnumWithStableIndex
+
+REFUTED obligations (3)
+  Unique:Policy.getAssociatedPolicies()@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java:162
+    subject Policy.getAssociatedPolicies() : Set<Policy>
+    counterexample: Policy must be comparable because Policy.getAssociatedPolicies() : Set<Policy>, but as Record: Policy.removeConfig(String) needs a closure; Policy.putConfig(String,String) needs a closure; Policy.addScope(Scope) needs a closure; Policy.removeScope(Scope) needs a closure; and 4 more
+    conflicts: Command:Policy.removeConfig(String), Command:Policy.putConfig(String,String), Command:Policy.addScope(Scope), Command:Policy.removeScope(Scope), Command:Policy.addAssociatedPolicy(Policy), Command:Policy.removeAssociatedPolicy(Policy), Command:Policy.addResource(Resource), Command:Policy.removeResource(Resource)
+  Unique:Policy.getResources()@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java:169
+    subject Policy.getResources() : Set<Resource>
+    counterexample: Resource must be comparable because Policy.getResources() : Set<Resource>, but as Record: Resource.updateUris(Set) needs a closure; Resource.updateScopes(Set) needs a closure; Resource.getSingleAttribute(String) needs a closure; Resource.getAttribute(String) needs a closure; and 2 more
+    conflicts: Command:Resource.updateUris(Set), Command:Resource.updateScopes(Set), Query:Resource.getSingleAttribute(String), Query:Resource.getAttribute(String), Command:Resource.setAttribute(String,List), Command:Resource.removeAttribute(String)
+  Bounded:PolicyProviderFactory@<R extends AbstractPolicyRepresentation>
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:31
+    subject PolicyProviderFactory <R extends AbstractPolicyRepresentation>
+    counterexample: OCaml type parameters carry no bounds: AbstractPolicyRepresentation is outside the slice (Abstract), so R cannot be row-constrained
+
+UNKNOWN obligations (29)
+  Represent:Attributes.Entry.asDate(int,String)@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/attribute/Attributes.java:126
+    subject Attributes.Entry.asDate(int,String) : Date
+    reason: outside the slice (Abstract): java.util.Date
+  Represent:Attributes.Entry.asInetAddress(int)@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/attribute/Attributes.java:134
+    subject Attributes.Entry.asInetAddress(int) : InetAddress
+    reason: outside the slice (Abstract): java.net.InetAddress
+  Dynamic:AuthZen.EvaluationItem.context@type
+    at      authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java:97
+    subject AuthZen.EvaluationItem.context : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:AuthZen.EvaluationRequest.context@type
+    at      authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java:84
+    subject AuthZen.EvaluationRequest.context : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:AuthZen.EvaluationResponse.context@type
+    at      authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java:86
+    subject AuthZen.EvaluationResponse.context : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:AuthZen.EvaluationsRequest.context@type
+    at      authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java:119
+    subject AuthZen.EvaluationsRequest.context : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:AuthZen.Resource.properties@type
+    at      authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java:74
+    subject AuthZen.Resource.properties : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:AuthZen.Subject.properties@type
+    at      authzen/services/src/main/java/org/keycloak/authorization/authzen/AuthZen.java:68
+    subject AuthZen.Subject.properties : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Represent:Decision.onError(Throwable)@param:cause
+    at      server-spi-private/src/main/java/org/keycloak/authorization/Decision.java:36
+    subject Decision.onError(Throwable) [param:cause] : Throwable
+    reason: outside the slice (Abstract): java.lang.Throwable
+  Represent:Evaluation.getAuthorizationProvider()@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/evaluation/Evaluation.java:64
+    subject Evaluation.getAuthorizationProvider() : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Dynamic:JsonWebToken.otherClaims@type
+    at      core/src/main/java/org/keycloak/representations/JsonWebToken.java:66
+    subject JsonWebToken.otherClaims : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:JsonWebToken.getOtherClaims()@return
+    at      core/src/main/java/org/keycloak/representations/JsonWebToken.java:272
+    subject JsonWebToken.getOtherClaims() : Map<String, Object>
+    reason: Object: the Java type states no fact to preserve
+  Dynamic:JsonWebToken.setOtherClaims(String,Object)@param:value
+    at      core/src/main/java/org/keycloak/representations/JsonWebToken.java:277
+    subject JsonWebToken.setOtherClaims(String,Object) [param:value] : Object
+    reason: Object: the Java type states no fact to preserve
+  Represent:JsonWebToken.getCategory()@return
+    at      core/src/main/java/org/keycloak/representations/JsonWebToken.java:282
+    subject JsonWebToken.getCategory() : TokenCategory
+    reason: outside the slice (Abstract): org.keycloak.TokenCategory
+  Dynamic:JsonWebToken.equals(Object)@param:o
+    at      core/src/main/java/org/keycloak/representations/JsonWebToken.java:287
+    subject JsonWebToken.equals(Object) [param:o] : Object
+    reason: Object: the Java type states no fact to preserve
+  Unique:Policy.getScopes()@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/model/Policy.java:185
+    subject Policy.getScopes() : Set<Scope>
+    reason: Java equals of Scope is implementation-defined; structural compare may differ; Java equals of ResourceServer is implementation-defined; structural compare may differ
+  Represent:PolicyProviderFactory.create(AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:49
+    subject PolicyProviderFactory.create(AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Represent:PolicyProviderFactory.toRepresentation(Policy,AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:51
+    subject PolicyProviderFactory.toRepresentation(Policy,AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Dynamic:PolicyProviderFactory.getRepresentationType()@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:53
+    subject PolicyProviderFactory.getRepresentationType() : Class<R>
+    reason: Class<R>: the Java type states no fact to preserve
+  Represent:PolicyProviderFactory.onCreate(Policy,R,AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:55
+    subject PolicyProviderFactory.onCreate(Policy,R,AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Represent:PolicyProviderFactory.onUpdate(Policy,R,AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:59
+    subject PolicyProviderFactory.onUpdate(Policy,R,AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Represent:PolicyProviderFactory.onRemove(Policy,AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:63
+    subject PolicyProviderFactory.onRemove(Policy,AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Represent:PolicyProviderFactory.onImport(Policy,PolicyRepresentation,AuthorizationProvider)@param:representation
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:67
+    subject PolicyProviderFactory.onImport(Policy,PolicyRepresentation,AuthorizationProvider) [param:representation] : PolicyRepresentation
+    reason: outside the slice (Abstract): org.keycloak.representations.idm.authorization.PolicyRepresentation
+  Represent:PolicyProviderFactory.onImport(Policy,PolicyRepresentation,AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:67
+    subject PolicyProviderFactory.onImport(Policy,PolicyRepresentation,AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Represent:PolicyProviderFactory.onExport(Policy,PolicyRepresentation,AuthorizationProvider)@param:representation
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:71
+    subject PolicyProviderFactory.onExport(Policy,PolicyRepresentation,AuthorizationProvider) [param:representation] : PolicyRepresentation
+    reason: outside the slice (Abstract): org.keycloak.representations.idm.authorization.PolicyRepresentation
+  Represent:PolicyProviderFactory.onExport(Policy,PolicyRepresentation,AuthorizationProvider)@param:authorizationProvider
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:71
+    subject PolicyProviderFactory.onExport(Policy,PolicyRepresentation,AuthorizationProvider) [param:authorizationProvider] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Represent:PolicyProviderFactory.getAdminResource(ResourceServer,AuthorizationProvider)@return
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:74
+    subject PolicyProviderFactory.getAdminResource(ResourceServer,AuthorizationProvider) : PolicyProviderAdminService
+    reason: outside the slice (Abstract): org.keycloak.authorization.policy.provider.PolicyProviderAdminService
+  Represent:PolicyProviderFactory.getAdminResource(ResourceServer,AuthorizationProvider)@param:authorization
+    at      server-spi-private/src/main/java/org/keycloak/authorization/policy/provider/PolicyProviderFactory.java:74
+    subject PolicyProviderFactory.getAdminResource(ResourceServer,AuthorizationProvider) [param:authorization] : AuthorizationProvider
+    reason: outside the slice (Abstract): org.keycloak.authorization.AuthorizationProvider
+  Unique:Resource.updateScopes(Set)@param:scopes
+    at      server-spi-private/src/main/java/org/keycloak/authorization/model/Resource.java:173
+    subject Resource.updateScopes(Set) [param:scopes] : Set<Scope>
+    reason: Java equals of Scope is implementation-defined; structural compare may differ; Java equals of ResourceServer is implementation-defined; structural compare may differ

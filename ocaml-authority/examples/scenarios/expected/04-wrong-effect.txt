@@ -1,0 +1,14 @@
+DENY
+principal:  research-agent (service) acting for samantha (user)
+mandate:    generate-report
+capability: document:generate on q3-report
+effect:     produce -> public
+reason:
+  mandate generate-report bounds effects to observe, produce:organization - not produce:public
+  g-samantha-generate: holder samantha (user) is not the acting principal research-agent (service)
+  g-samantha-generate: ledger path [samantha] differs from token path [samantha > research-agent]
+  g-samantha-generate: grant bounds effects to produce:organization - not produce:public
+  d-agent-generate: grant bounds effects to produce:organization - not produce:public
+candidates:
+  g-samantha-generate    refuted       holder_is_actor fail, delegation_path_matches fail, effect_within_grant fail, effect_within_mandate fail
+  d-agent-generate       refuted       effect_within_grant fail, effect_within_mandate fail

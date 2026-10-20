@@ -1,0 +1,13 @@
+{
+  "sub": "64acadb5-bbf8-4b82-91dd-c9e48206e4ee",
+  "azp": "research-agent",
+  "act": {
+    "sub": "8c42d6e9-bff2-42f4-aed9-8378bf966ad6",
+    "client_id": "research-agent"
+  },
+  "realm_roles": [
+    "document-publisher",
+    "realm-operator",
+    "report-author"
+  ]
+}

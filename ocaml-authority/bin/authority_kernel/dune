@@ -1,0 +1,5 @@
+; authority_kernel: the kernel CLI. The Keycloak adapter and
+; examples/keycloak/run-demo.sh run _build/default/bin/authority_kernel/main.exe.
+(executable
+ (name main)
+ (libraries authority tjson))

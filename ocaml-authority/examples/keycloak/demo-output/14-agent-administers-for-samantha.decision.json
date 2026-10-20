@@ -1,0 +1,113 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "4ef1ceaf-d706-4394-8e51-b25fd36b22d1",
+  "decision": "deny",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "user",
+    "id": "samantha"
+  },
+  "actor_chain": [
+    {
+      "type": "service",
+      "id": "research-agent"
+    }
+  ],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "admin-surface",
+    "action": "administer"
+  },
+  "resource": "realm-config",
+  "effect": {
+    "kind": "administer"
+  },
+  "reasons": [
+    {
+      "code": "mandate_covers_capability",
+      "message": "mandate generate-report covers document:read, document:generate - not admin-surface:administer"
+    },
+    {
+      "code": "effect_within_mandate",
+      "message": "mandate generate-report bounds effects to observe, produce:organization - not administer"
+    },
+    {
+      "code": "holder_is_actor",
+      "message": "g-samantha-administer: holder samantha (user) is not the acting principal research-agent (service)"
+    },
+    {
+      "code": "delegation_path_matches",
+      "message": "g-samantha-administer: ledger path [samantha] differs from token path [samantha > research-agent]"
+    },
+    {
+      "code": "mandate_permitted",
+      "message": "g-samantha-administer: usable only under operate-realm - not generate-report"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "fail",
+        "detail": "mandate generate-report covers document:read, document:generate - not admin-surface:administer"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "fail",
+        "detail": "mandate generate-report bounds effects to observe, produce:organization - not administer"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "g-samantha-administer",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "fail",
+            "detail": "holder samantha (user) is not the acting principal research-agent (service)"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [samantha] differs from token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers realm-config"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "fail",
+            "detail": "usable only under operate-realm - not generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "administer is within grant effects administer"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "fail",
+            "detail": "mandate generate-report covers document:read, document:generate - not admin-surface:administer"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "fail",
+            "detail": "mandate generate-report bounds effects to observe, produce:organization - not administer"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-samantha-administer; root anchored in realm role realm-operator held by samantha (user)"
+          }
+        ]
+      }
+    ]
+  }
+}

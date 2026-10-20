@@ -1,0 +1,13 @@
+surface of demo.json at 2026-09-29T12:00:00Z
+subjects (ledger principals)      2
+actor chains (in scenarios)       2
+mandates (ledger)                 3
+capabilities (ledger)             4
+resources (in scenarios)          2
+effects                           8
+request tuples                    768
+allow                             18
+deny                              555
+indeterminate                     195
+compound roles for exact RBAC     18
+administered ledger objects       13 (principals 2, mandates 3, grants 8, revocations 0, prohibitions 0)

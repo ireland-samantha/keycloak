@@ -1,0 +1,9 @@
+DENY
+principal:  research-agent (service)
+mandate:    generate-report
+capability: document:generate on q3-report
+effect:     produce -> organization
+reason:
+  d-agent-generate: ledger path [samantha > research-agent] differs from token path [research-agent]
+candidates:
+  d-agent-generate       refuted       delegation_path_matches fail

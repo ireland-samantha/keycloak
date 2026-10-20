@@ -23,6 +23,8 @@ import org.keycloak.Config;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.ThemeManager;
+import org.keycloak.theme.freemarker.FreeMarkerProvider;
+import org.keycloak.theme.freemarker.FreeMarkerProviderFactory;
 
 import org.jboss.logging.Logger;
 
@@ -34,6 +36,8 @@ public class DefaultThemeManagerFactory implements ThemeManagerFactory {
     private static final Logger log = Logger.getLogger(DefaultThemeManagerFactory.class);
 
     private ConcurrentHashMap<ThemeKey, Theme> themeCache;
+
+    private volatile KeycloakSessionFactory sessionFactory;
 
     public DefaultThemeManagerFactory() {
         if(Config.scope("theme").getBoolean("cacheThemes", true)) {
@@ -52,6 +56,7 @@ public class DefaultThemeManagerFactory implements ThemeManagerFactory {
 
     @Override
     public void postInit(KeycloakSessionFactory factory) {
+        this.sessionFactory = factory;
     }
 
     @Override
@@ -98,6 +103,15 @@ public class DefaultThemeManagerFactory implements ThemeManagerFactory {
         if (themeCache != null) {
             themeCache.clear();
             log.info("Cleared theme cache");
+        }
+
+        // Templates are compiled from theme resources, so they must be dropped together with the themes
+        KeycloakSessionFactory sessionFactory = this.sessionFactory;
+        if (sessionFactory != null) {
+            sessionFactory.getProviderFactoriesStream(FreeMarkerProvider.class)
+                    .filter(FreeMarkerProviderFactory.class::isInstance)
+                    .map(FreeMarkerProviderFactory.class::cast)
+                    .forEach(FreeMarkerProviderFactory::clearCache);
         }
     }
 

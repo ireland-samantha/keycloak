@@ -1,0 +1,125 @@
+; Standalone request documents for scenarios 01-06 of ../scenarios/demo.json:
+; exactly what the adapter sends on the kernel's stdin (facts.source =
+; "fixture"). Each file must equal what `authority_kernel request` builds from
+; demo.json, and deciding it must give ../scenarios/expected/<name>.json.
+; Regenerate with `dune build @examples/requests/runtest` and `dune promote`.
+
+(rule
+ (with-stdout-to
+  01-direct-read.json.gen
+  (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:../scenarios/demo.json} 01-direct-read)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff 01-direct-read.json 01-direct-read.json.gen)))
+
+(rule
+ (with-stdout-to
+  01-direct-read.decision.out
+  (run %{dep:../../bin/authority_kernel/main.exe} eval %{dep:01-direct-read.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff %{dep:../scenarios/expected/01-direct-read.json} 01-direct-read.decision.out)))
+
+(rule
+ (with-stdout-to
+  02-delegated-generate.json.gen
+  (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:../scenarios/demo.json} 02-delegated-generate)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff 02-delegated-generate.json 02-delegated-generate.json.gen)))
+
+(rule
+ (with-stdout-to
+  02-delegated-generate.decision.out
+  (run %{dep:../../bin/authority_kernel/main.exe} eval %{dep:02-delegated-generate.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff %{dep:../scenarios/expected/02-delegated-generate.json} 02-delegated-generate.decision.out)))
+
+(rule
+ (with-stdout-to
+  03-capability-denied.json.gen
+  (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:../scenarios/demo.json} 03-capability-denied)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff 03-capability-denied.json 03-capability-denied.json.gen)))
+
+(rule
+ (with-stdout-to
+  03-capability-denied.decision.out
+  (run %{dep:../../bin/authority_kernel/main.exe} eval %{dep:03-capability-denied.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff %{dep:../scenarios/expected/03-capability-denied.json} 03-capability-denied.decision.out)))
+
+(rule
+ (with-stdout-to
+  04-wrong-effect.json.gen
+  (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:../scenarios/demo.json} 04-wrong-effect)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff 04-wrong-effect.json 04-wrong-effect.json.gen)))
+
+(rule
+ (with-stdout-to
+  04-wrong-effect.decision.out
+  (run %{dep:../../bin/authority_kernel/main.exe} eval %{dep:04-wrong-effect.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff %{dep:../scenarios/expected/04-wrong-effect.json} 04-wrong-effect.decision.out)))
+
+(rule
+ (with-stdout-to
+  05-expired-delegation.json.gen
+  (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:../scenarios/demo.json} 05-expired-delegation)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff 05-expired-delegation.json 05-expired-delegation.json.gen)))
+
+(rule
+ (with-stdout-to
+  05-expired-delegation.decision.out
+  (run %{dep:../../bin/authority_kernel/main.exe} eval %{dep:05-expired-delegation.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff %{dep:../scenarios/expected/05-expired-delegation.json} 05-expired-delegation.decision.out)))
+
+(rule
+ (with-stdout-to
+  06-missing-provenance.json.gen
+  (run %{dep:../../bin/authority_kernel/main.exe} request %{dep:../scenarios/demo.json} 06-missing-provenance)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff 06-missing-provenance.json 06-missing-provenance.json.gen)))
+
+(rule
+ (with-stdout-to
+  06-missing-provenance.decision.out
+  (run %{dep:../../bin/authority_kernel/main.exe} eval %{dep:06-missing-provenance.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff %{dep:../scenarios/expected/06-missing-provenance.json} 06-missing-provenance.decision.out)))

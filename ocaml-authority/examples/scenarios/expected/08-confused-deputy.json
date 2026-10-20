@@ -1,0 +1,201 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "demo-08-confused-deputy",
+  "decision": "deny",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "user",
+    "id": "samantha"
+  },
+  "actor_chain": [
+    {
+      "type": "service",
+      "id": "research-agent"
+    }
+  ],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "document",
+    "action": "read"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "observe"
+  },
+  "reasons": [
+    {
+      "code": "holder_is_actor",
+      "message": "g-samantha-read: holder samantha (user) is not the acting principal research-agent (service)"
+    },
+    {
+      "code": "delegation_path_matches",
+      "message": "g-samantha-read: ledger path [samantha] differs from token path [samantha > research-agent]"
+    },
+    {
+      "code": "delegation_path_matches",
+      "message": "g-agent-read: ledger path [research-agent] differs from token path [samantha > research-agent]"
+    },
+    {
+      "code": "not_yet_valid",
+      "message": "d-agent-read is not valid before 2026-04-01T00:00:00Z"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate generate-report covers document:read"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "pass",
+        "detail": "observe is within mandate generate-report effects observe, produce:organization"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "g-samantha-read",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "fail",
+            "detail": "holder samantha (user) is not the acting principal research-agent (service)"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [samantha] differs from token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "observe is within grant effects observe"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:read"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "pass",
+            "detail": "observe is within mandate generate-report effects observe, produce:organization"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-samantha-read; root anchored in realm role report-author held by samantha (user)"
+          }
+        ]
+      },
+      {
+        "grant": "g-agent-read",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "fail",
+            "detail": "ledger path [research-agent] differs from token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target any covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "observe is within grant effects observe"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:read"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "pass",
+            "detail": "observe is within mandate generate-report effects observe, produce:organization"
+          },
+          {
+            "check": "provenance",
+            "outcome": "pass",
+            "detail": "verified g-agent-read; root anchored in client role document-service:reader held by research-agent (service)"
+          }
+        ]
+      },
+      {
+        "grant": "d-agent-read",
+        "status": "refuted",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "pass",
+            "detail": "ledger path [samantha > research-agent] matches token path [samantha > research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target q3-report covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under generate-report"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "observe is within grant effects observe"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate generate-report covers document:read"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "pass",
+            "detail": "observe is within mandate generate-report effects observe, produce:organization"
+          },
+          {
+            "check": "provenance",
+            "outcome": "fail",
+            "detail": "not_yet_valid: d-agent-read is not valid before 2026-04-01T00:00:00Z"
+          }
+        ]
+      }
+    ]
+  }
+}

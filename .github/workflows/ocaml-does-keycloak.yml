@@ -1,0 +1,67 @@
+name: OCaml does Keycloak
+
+# Keycloak files its authorization types with OCaml. Whenever the Authorization
+# Services SPI, the token representations or AuthZEN change, ocaml-authority/prove-it.sh
+# re-extracts them, re-proves them with attempt_proof and posts OCaml's review
+# to the job summary. A change that gains a REFUTED obligation fails the check.
+# See ocaml-authority/README.md.
+
+on:
+  pull_request:
+    paths:
+      - 'ocaml-authority/**'
+      - 'server-spi-private/src/main/java/org/keycloak/authorization/**'
+      - 'core/src/main/java/org/keycloak/representations/**'
+      - 'authzen/services/src/main/java/**'
+      - '.github/workflows/ocaml-does-keycloak.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'ocaml-authority/**'
+      - 'server-spi-private/src/main/java/org/keycloak/authorization/**'
+      - 'core/src/main/java/org/keycloak/representations/**'
+      - 'authzen/services/src/main/java/**'
+      - '.github/workflows/ocaml-does-keycloak.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ocaml-does-keycloak-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  prove-it:
+    name: "Java says this is how authorization works; OCaml says prove it"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/java-setup
+        with:
+          java-version: "21"
+
+      - name: Install OCaml 4.14 and dune
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ocaml ocaml-dune
+          ocamlc -version && dune --version
+
+      - name: Kernel, attempt_proof and their adversarial suites
+        working-directory: ocaml-authority
+        run: dune build && dune test
+
+      - name: OCaml reviews Keycloak's authorization types
+        working-directory: ocaml-authority
+        run: ./prove-it.sh
+
+      - name: Java adapter against the real kernel (Keycloak 26.7.4 SPI from Maven Central)
+        working-directory: ocaml-authority/keycloak-adapter
+        run: mvn -B -q test -Dkeycloak.version=26.7.4 -Dtyped.authority.kernel="$PWD/../_build/default/bin/authority_kernel/main.exe"

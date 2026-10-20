@@ -1,0 +1,13 @@
+ALLOW
+principal:  research-agent (service) acting for samantha (user)
+mandate:    generate-report
+capability: document:generate on q3-report
+effect:     produce -> organization
+authority:
+  g-samantha-generate    samantha (user)            root: realm role report-author
+  d-agent-generate       research-agent (service)   delegated by samantha (user) from g-samantha-generate
+  anchor: samantha holds realm role report-author (facts.source = fixture)
+checks:     all 8 passed
+candidates:
+  g-samantha-generate    refuted       holder_is_actor fail, delegation_path_matches fail
+  d-agent-generate       authorizes

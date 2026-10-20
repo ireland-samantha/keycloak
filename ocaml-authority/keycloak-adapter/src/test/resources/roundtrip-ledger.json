@@ -1,0 +1,41 @@
+{
+  "schema": "typed-authority/ledger/v1",
+  "principals": [
+    { "type": "user", "id": "samantha" },
+    { "type": "service", "id": "research-agent" }
+  ],
+  "mandates": [
+    { "id": "generate-report",
+      "purpose": "Produce the quarterly report for internal review",
+      "capabilities": [ { "resource_type": "document", "action": "read" },
+                        { "resource_type": "document", "action": "generate" } ],
+      "effects": [ { "kind": "observe" },
+                   { "kind": "produce", "audience": "organization" } ] }
+  ],
+  "grants": [
+    { "id": "g-agent-read",
+      "holder": { "type": "service", "id": "research-agent" },
+      "capability": { "resource_type": "document", "action": "read" },
+      "target": "any",
+      "mandates": ["generate-report"],
+      "effects": [ { "kind": "observe" } ],
+      "provenance": { "kind": "root", "anchor": { "client_role": { "client": "document-service", "role": "reader" } } } },
+    { "id": "g-samantha-read",
+      "holder": { "type": "user", "id": "samantha" },
+      "capability": { "resource_type": "document", "action": "read" },
+      "target": "any",
+      "mandates": ["generate-report"],
+      "effects": [ { "kind": "observe" } ],
+      "delegable_depth": 1,
+      "provenance": { "kind": "root", "anchor": { "realm_role": "report-author" } } },
+    { "id": "d-agent-read-for-samantha",
+      "holder": { "type": "service", "id": "research-agent" },
+      "capability": { "resource_type": "document", "action": "read" },
+      "target": { "resource": "q3-report" },
+      "mandates": ["generate-report"],
+      "effects": [ { "kind": "observe" } ],
+      "valid_until": "2026-09-01T00:00:00Z",
+      "provenance": { "kind": "delegated", "parent": "g-samantha-read",
+                      "delegator": { "type": "user", "id": "samantha" } } }
+  ]
+}

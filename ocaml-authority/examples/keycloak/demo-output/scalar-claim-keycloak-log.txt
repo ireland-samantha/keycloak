@@ -1,0 +1,2 @@
+java.lang.ClassCastException: class java.lang.String cannot be cast to class java.util.Collection (java.lang.String and java.util.Collection are in module java.base of loader 'bootstrap')
+no policy evaluation reached the kernel

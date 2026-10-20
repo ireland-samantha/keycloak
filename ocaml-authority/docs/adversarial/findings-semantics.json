@@ -1,0 +1,207 @@
+{
+  "lens": "semantics",
+  "findings": [
+    {
+      "id": "prohibition-kind-confusion",
+      "category": "contradictory-grants",
+      "severity": "medium",
+      "attack": "The ledger registers ops-bot (and research-agent) as a service. A prohibition names the same id with the user kind: {type:user,id:ops-bot} forbidding administer (\"frozen during the audit\"). ops-bot, with a valid root grant, administers realm-config. A variant: research-agent acts for samantha with its read delegation while a prohibition on {user,research-agent} forbids observe. Goal: keep acting through a deny-override because of a kind label, whether that is an admin typo or planted. prohibition_checks matched the holder with Principal.equal (kind + id), so the prohibition applied to nobody.",
+      "initial_result": "FAILED (real weakness): the kernel ALLOWed. `./_build-attack-sem/default/test/authority/adversarial/test_adversarial.exe examples/scenarios/demo.json` gave `FAIL contradictory-grants: prohibition holder named with the wrong kind still binds (deny-overrides): verdict: expected deny, got allow []` and the evidence oracle failed with `binding: no prohibition on anyone in the token path covers the effect` (355 tests, 3 failed). `main.exe scenarios examples/scenarios/adversarial.json --check` gave `FAIL a31-contra-prohibition-kind-confusion allow (expected deny [prohibited])`, 42 of 43 as expected, exit 1.",
+      "outcome": "fixed",
+      "fix": "lib/authority/evaluate.ml, prohibition_checks: the holder is now matched by id (Principal.same_id). Ledger principal ids are unique across kinds (a duplicate id is inconsistent_ledger), and the model says honoring an unverified deny is always safe. After the fix both cases DENY `prohibited`, and ablation shows a31 decided by effect/prohibition alone. authority-model.md should say that prohibitions match their holder by id; I do not own docs.",
+      "test": "test/authority/adversarial/test_adversarial.ml: \"contradictory-grants: prohibition holder named with the wrong kind still binds (deny-overrides)\" plus the \"binding:\" oracle; examples/scenarios/adversarial.json: a31-contra-prohibition-kind-confusion"
+    },
+    {
+      "id": "decision-authority-binding",
+      "category": "forgery",
+      "severity": "medium",
+      "attack": "Decision.t had public fields. Code outside lib/authority takes the Authority.t from a real ALLOW (demo 01: research-agent document:read, grant g-agent-read) and writes `{ deny_03 with verdict = Allow a }`, where deny_03 is the DENY for research-agent admin-surface:administer on realm-config. Codec.decision_to_json then emits a well-formed \"decision\": \"allow\" for administer whose authority is a read grant. It can also be written as a record literal from scratch.",
+      "initial_result": "FAILED (real weakness). Runtime: a scratch program (forge.ml) compiled with `ocamlc -I _build-attack-sem/default/lib/authority/.authority.objs/byte ... tjson.cma authority.cma forge.ml` printed `\"decision\": \"allow\"`, `\"capability\": {admin-surface, administer}`, `\"authority\": {\"grant\": \"g-agent-read\" ...}`. Static: `sh test/authority/must_not_compile.sh ocamlc _build-attack-sem/default/lib/authority/.authority.objs/public_cmi _build-attack-sem/default/lib/json/.tjson.objs/byte <snippets>` gave `FAIL allow_in_foreign_decision.ml compiled; it must not` and `FAIL decision_from_scratch.ml compiled; it must not`, exit 1.",
+      "outcome": "fixed",
+      "fix": "The fix is cheap and leaves the wire format unchanged. New lib/authority/decision.mli declares `type t = private {...}`: fields stay readable and matchable, but construction and `{d with ...}` are rejected outside the module. The only constructor is `Decision.make : Mint.seal -> ...`. lib/authority/mint.ml/.mli add an abstract `seal`, and Mint is already a private module, so outside code cannot name Authority__Mint.seal. lib/authority/evaluate.ml builds both decisions through `make Mint.seal`. The verdict type stays public, so the existing must-not-compile expectations are unchanged. After the fix: must_not_compile.sh prints `rejected: Cannot create values of the private type Authority.Decision.t` for both snippets and `Unbound module Authority__Mint` for the seal snippet, and forge.ml no longer compiles against public_cmi. The whole tree still builds and tests (`dune test --force --build-dir _build-attack-sem`, exit 0). Obj.magic remains out of scope.",
+      "test": "test/authority/must-not-compile/allow_in_foreign_decision.ml, decision_from_scratch.ml, decision_make_without_seal.ml (the last was added after the fix, because Decision.make did not exist before). Runtime half: the \"binding:\" assertions in test_adversarial.ml's allow_oracle check every ALLOW: leaf holder = acting, ledger path = token path, capability/target/mandate/effect covered, no prohibition applies."
+    },
+    {
+      "id": "kind-mismatch-order-dependent",
+      "category": "unknown-principal",
+      "severity": "low",
+      "attack": "The ledger registers one id twice with different kinds ({user,research-agent} and {service,research-agent}), and the token names the service. The well-formedness kind check used find_principal, which takes the first match, so the reason set depended on ledger order. Permuting the ledger dropped principal_kind_mismatch. The verdict was INDETERMINATE either way.",
+      "initial_result": "FAILED: `test_adversarial.exe examples/scenarios/demo.json` gave `FAIL determinism: permuted ledger, same decision: unknown-principal: the ledger registers one id as both user and service: reason codes (as a set): expected [inconsistent_ledger; principal_kind_mismatch], got [inconsistent_ledger]`.",
+      "outcome": "fixed",
+      "fix": "lib/authority/evaluate.ml, well_formedness: a request or fact principal is compared with every ledger principal that has its id, not only the first. The reasons no longer depend on order. The demo captured outputs are unchanged (@examples/runtest diffs pass).",
+      "test": "test_adversarial.ml: \"unknown-principal: the ledger registers one id as both user and service\" together with the \"determinism: permuted ledger, same decision: ...\" property case for it"
+    },
+    {
+      "id": "underdeclared-effect-evades-prohibition",
+      "category": "downstream-effect",
+      "severity": "medium",
+      "attack": "publisher-bot (or research-agent) holds a document:publish grant with effects [disclose:public] and is prohibited from disclose:public (\"automated agents never publish externally\"). It publishes q3-report but declares effect disclose:self. A capability has no effect floor, so disclose:self passes the grant bound, the mandate bound and the prohibition, which only covers effects at or above disclose:public. The claim that delegated authority cannot escape a restriction holds only under effect honesty (A1).",
+      "initial_result": "Pinned test passed: the kernel ALLOWs. `test_adversarial.exe ...` case known_weakness_underdeclared_effect_evades_prohibition gives allow via g-agent-publish. `main.exe scenarios examples/scenarios/adversarial.json --check` gives `ok a43-known_weakness-underdeclared-effect allow`. Declared honestly (disclose:public), the same request is DENY prohibited (a27 and the \"downstream-effect: publish declared as disclose:public is prohibited\" case).",
+      "outcome": "open",
+      "fix": "Not fixed. It is out of reach by construction (threat-model A1, effect honesty). A mitigation such as a per-capability effect floor, or tying an effect to capability or mandate, would change the model and the wire format. Recorded as a known weakness.",
+      "test": "test_adversarial.ml: \"known_weakness_underdeclared_effect_evades_prohibition: publish declared as disclose:self\"; adversarial.json: a43-known_weakness-underdeclared-effect"
+    },
+    {
+      "id": "downstream-effect-invisible",
+      "category": "downstream-effect",
+      "severity": "medium",
+      "attack": "research-agent acts for samantha and generates q3-report, declared as produce:organization. research-agent is prohibited from disclose:public. The real consequence of generating is public disclosure (the generator writes to a public location). A request carries exactly one effect, and there is no field for downstream effects: the codec rejects an array of two effects as malformed_request. So the kernel cannot see or refuse the downstream disclosure. Only a separate, honestly declared request (disclose:public) would be denied.",
+      "initial_result": "Pinned test passed: the kernel ALLOWs via d-agent-generate. `test_adversarial.exe` case known_weakness_downstream_effect_invisible; CLI `ok a42-known_weakness-downstream-effect allow`. The honest declaration gives DENY prohibited. `\"effect\": [ {...}, {...} ]` gives INDETERMINATE malformed_request (case \"downstream-effect: a request cannot declare two effects\").",
+      "outcome": "open",
+      "fix": "Not fixed. It is out of reach by construction (threat-model: downstream effects, A1). Declaring downstream effects would need a list of effects, or effect composition in the model and wire format.",
+      "test": "test_adversarial.ml: \"known_weakness_downstream_effect_invisible: ...\", \"downstream-effect: declared honestly, the same step is prohibited\", \"downstream-effect: a request cannot declare two effects\"; adversarial.json: a42-known_weakness-downstream-effect"
+    },
+    {
+      "id": "mandate-is-pushed-claim",
+      "category": "mandate-capability-mismatch",
+      "severity": "low",
+      "attack": "A purpose-limited grant: research-agent's read grant is usable only under generate-report. A request claiming security-audit (which covers read/observe) is denied with mandate_permitted as the only failed check (a39). But the requester chooses the claim: the same agent asking the same thing and claiming generate-report is ALLOWed. The mandate check therefore binds only an honest client. It is an audit record and an honest-mistake guard, not a control against a dishonest agent.",
+      "initial_result": "Passed as expected. The model-conforming DENY for the wrong purpose held (\"mandate-capability-mismatch: purpose-limited grant claimed under another fitting mandate\", deny with only mandate_permitted). The pinned case known_weakness_mandate_is_a_pushed_claim ALLOWs via g-agent-read, which is the documented behaviour (limitations.md: mandate is a pushed claim).",
+      "outcome": "open",
+      "fix": "Not fixed. Binding the mandate at consent or token issuance is future work outside the kernel (limitations.md).",
+      "test": "test_adversarial.ml: \"known_weakness_mandate_is_a_pushed_claim: the same agent simply claims the permitted mandate\"; adversarial.json: a39-mandate-purpose-limited"
+    },
+    {
+      "id": "prohibited-deny-literal-s2",
+      "category": "evidence",
+      "severity": "low",
+      "attack": "Hypothesis S2 reads: \"Every DENY names at least one failed check per candidate grant it considered.\" In a DENY by prohibition, a candidate that would otherwise authorize carries status \"authorizes\" and zero failed checks. The failed check is in evidence.prohibitions, at request level. An auditor reading the candidate list sees \"authorizes\" inside a DENY.",
+      "initial_result": "The strict property fails for prohibition DENYs only. `test_adversarial.exe examples/scenarios/demo.json examples/scenarios/adversarial.json` reports `8 prohibition denies break literal S2` before the fix and `10` after it (the kind-confusion cases became prohibition DENYs). Every such case is a prohibition DENY, which the pinned case asserts. All other DENYs (every candidate refuted with at least one failed check) and all INDETERMINATEs pass the oracle.",
+      "outcome": "open",
+      "fix": "Not fixed. Giving each candidate a failed check or a status of its own would change the wire format (new check name or status) and the existing test that every candidate carries exactly 8 checks. The lead can instead read S2 as satisfied by the request-level prohibition check.",
+      "test": "test_adversarial.ml: \"known_weakness_prohibited_deny_has_candidates_without_failed_check: only prohibition denies break literal S2\""
+    },
+    {
+      "id": "evidence-order-follows-ledger-order",
+      "category": "determinism",
+      "severity": "info",
+      "attack": "Permute the ledger: reverse grants, principals, mandates, revocations, prohibitions and facts.principals. Does the decision change?",
+      "initial_result": "The verdict, the reason-code set, the allowing grant and the candidate/status set were identical for every one of the 131 decisions (property cases pass; failing pre-fix only for kind-mismatch-order-dependent). CLI cross-check: for each of the 43 adversarial scenarios, `main.exe request ... | eval` against a python-reversed ledger showed no decision change. The bytes differ: 96 of 131 documents change, because candidates, reasons and prohibitions are listed in ledger order. Example a02: candidates [g-agent-own-read, d-agent-read-sam, ...] become [d-agent-read3, d-agent-read-bob-q3, ...].",
+      "outcome": "open",
+      "fix": "Not changed. Sorting the evidence would change every captured demo output under examples/scenarios/expected (not mine), and the order does not affect decisions. Recorded for the lead.",
+      "test": "test_adversarial.ml: \"determinism: permuted ledger, same decision: <each decision>\" and \"known_weakness_evidence_order_follows_ledger_order: some permuted ledgers change the document bytes\""
+    },
+    {
+      "id": "determinism-same-request",
+      "category": "determinism",
+      "severity": "info",
+      "attack": "Evaluate the same request twice, in memory and through the CLI (from a file and from stdin); compare the bytes.",
+      "initial_result": "Passed: every one of the 131 decisions was byte-identical when re-evaluated (property cases). CLI: 43 adversarial scenarios, `main.exe eval FILE` and `main.exe eval < FILE` gave 0 differences (cmp). The document decoded from the file equals the in-memory decision for all 56 scenario-file requests.",
+      "outcome": "held",
+      "fix": "None needed.",
+      "test": "test_adversarial.ml: \"determinism: same request twice, byte-identical: <each>\" and \"<file>/<scenario>: the document decision equals the in-memory one\""
+    },
+    {
+      "id": "confused-deputy-matrix",
+      "category": "confused-deputy",
+      "severity": "info",
+      "attack": "research-agent holds its own grants (read and index under agent-maintenance, purpose A) and delegations from samantha and from bob (read under generate-report, purpose B). Tried every combination: own token or token for samantha or bob; purpose A or B; own grant, the subject's root, or each delegation. This includes the pure deputy (acting for samantha on document:index, which only the agent holds) and cross-subject substitution (bob's q3 delegation revoked while samantha's live one exists).",
+      "initial_result": "Passed pre-fix: every combination decided as the model requires. Own token + A gives ALLOW g-agent-own-read. Own token + B gives DENY {mandate_permitted, delegation_path_matches}. For samantha + B gives ALLOW d-agent-read-sam. For samantha + A gives DENY. Pure deputy gives DENY, with delegation_path_matches the only reason. For bob gives ALLOW d-agent-read-bob, never samantha's. Revoked bob delegation gives DENY; samantha's is refuted and does not substitute. The subject's own root while an agent acts gives DENY holder_is_actor + delegation_path_matches. CLI a01-a07 all ok.",
+      "outcome": "held",
+      "fix": "None needed.",
+      "test": "test_adversarial.ml section 1 (\"confused-deputy: ...\", 9 cases); adversarial.json a01-a07"
+    },
+    {
+      "id": "stale-grants",
+      "category": "stale-grant",
+      "severity": "info",
+      "attack": "An expired parent with an unexpired child. A child whose valid_from is before its parent's. A revoked root with a live delegation. A revoked middle link of a depth-3 chain. The anchor role removed under a depth-3 chain. Revoking an unrelated sibling. Two revocations of one grant with different dates. Boundary instants: exactly valid_from, 1 s before it, 1 s before valid_until, exactly valid_until.",
+      "initial_result": "Passed pre-fix. The delegated leaf is refuted with exactly: expired+validity_extended; validity_extended; revoked; revoked; anchor_missing. A sibling revocation leaves the chain ALLOWed. valid_from is inclusive (ALLOW at the instant, not_yet_valid 1 s earlier); valid_until is exclusive (ALLOW 1 s before, expired at the instant). CLI a08-a12 and a14-a17 all ok.",
+      "outcome": "held",
+      "fix": "None needed.",
+      "test": "test_adversarial.ml section 2 (\"stale-grant: ...\", 11 cases); adversarial.json a08-a17"
+    },
+    {
+      "id": "future-dated-revocation",
+      "category": "stale-grant",
+      "severity": "info",
+      "attack": "A revocation whose `at` (2027-01-01) is after evaluated_at (2026-09-29). Should it already revoke? The model says a revoked grant is invalid and does not mention `at`.",
+      "initial_result": "Passed as the model is written: DENY, and the leaf is refuted with only `revoked`. `at` is never consulted, only printed (the detail reads \"was revoked at 2027-01-01T00:00:00Z\"). CLI a13 ok.",
+      "outcome": "held",
+      "fix": "No change. Ignoring `at` fails closed: an admin typo or wrong timezone in `at` cannot keep a grant alive. Scheduled expiry is expressible with valid_until. A scheduled revocation cannot be expressed as a revocation, and the evidence's \"revoked at <future>\" wording can puzzle an auditor. The model text should say that `at` is informational.",
+      "test": "test_adversarial.ml: \"stale-grant: a revocation dated in the future already revokes (at is not consulted)\"; adversarial.json a13-stale-future-dated-revocation"
+    },
+    {
+      "id": "delegation-chains",
+      "category": "delegation-chain",
+      "severity": "info",
+      "attack": "The chain carol -> planner-agent -> summarizer-agent -> research-agent, tested at depth 2 and 3 with the actor chain: matching; reversed; skipping the middle or the first hop; adding a hop the ledger lacks. delegable_depth off-by-one: root 1 reaching a grandchild; a child keeping its parent's depth; root 2 -> 1 -> 0 exactly. A cycle A->B->A with no root. A self-parent grant. An 18-link chain. A middle holder (ghost-agent) that is not in ledger.principals, named in the token or omitted from it.",
+      "initial_result": "Passed pre-fix. Matching depth 2 and 3 ALLOW via the right leaf. Reversed, skipped and added hops DENY, with delegation_path_matches the only failed check of the leaf. Depth 1 to grandchild and equal depth give delegation_depth_exceeded; 2->1->0 ALLOWs. The cycle gives cycle, plus delegation_depth_exceeded because depth cannot decrease around a cycle. The self-parent gives cycle. 18 links give chain_too_long, with the path check unknown. The ghost middle gives INDETERMINATE unknown_principal when named and DENY delegation_path_matches when omitted, so an unregistered holder can never sit in a usable chain. CLI a18-a25 ok.",
+      "outcome": "held",
+      "fix": "None needed. Question for the lead: depth-2+ chains need nested `act` claims from Keycloak; whether the live token exchange can produce them is outside this lens.",
+      "test": "test_adversarial.ml section 3 (\"delegation-chain: ...\", 15 cases); adversarial.json a18-a25"
+    },
+    {
+      "id": "contradictory-grants",
+      "category": "contradictory-grants",
+      "severity": "info",
+      "attack": "Two grants for one capability, one revoked and one live (permissive union). A prohibition against a valid grant. A prohibition held by the subject, by the actor, and by the middle actor of a depth-3 chain. A prohibition on disclose:organization against requests for disclose:public and disclose:self. A prohibition on an unregistered principal. Duplicate grant ids, one of them revoked.",
+      "initial_result": "Passed pre-fix. A live twin ALLOWs, and the revoked twin is listed as refuted. Every prohibition on anyone in the token path (subject, actor, middle actor) DENYs with only `prohibited`. disclose:organization covers disclose:public and leaves disclose:self (ALLOW). A prohibition on an unregistered principal binds nobody. Duplicate grant ids give INDETERMINATE inconsistent_ledger only. CLI a26-a30 ok. The kind-confusion variant failed: see prohibition-kind-confusion.",
+      "outcome": "held",
+      "fix": "None needed. The kind-confusion variant was fixed separately.",
+      "test": "test_adversarial.ml section 4; adversarial.json a26-a30"
+    },
+    {
+      "id": "privilege-escalation",
+      "category": "privilege-escalation",
+      "severity": "info",
+      "attack": "Delegated children that break each attenuation rule: effects wider than the parent's; target any below a single-resource parent; an added mandate, used under the added one and under the parent's; delegator not the parent's holder (the agent delegates to itself); a parent with delegable_depth 0; a child outliving its parent; a parent of a different capability. Also: self-delegation (samantha -> samantha); a root whose anchor role is held by someone else; an anchored child below an unanchored parent claiming administer. In the JSON, five flawed children of one export grant in a single request.",
+      "initial_result": "Passed pre-fix: every flaw refutes the leaf with exactly one fault code: effect_amplified, target_amplified, mandate_amplified (both uses), forged_delegation, delegation_depth_exceeded, validity_extended, capability_amplified, anchor_missing. The self-delegated grant is refuted by delegation_path_matches ([samantha; samantha] vs [samantha]) and never chosen. An unanchored parent gives INDETERMINATE insufficient_evidence, never ALLOW. CLI a32-a34 ok.",
+      "outcome": "held",
+      "fix": "None needed.",
+      "test": "test_adversarial.ml section 5 (\"privilege-escalation: ...\", 12 cases); adversarial.json a32-a34"
+    },
+    {
+      "id": "unknown-principals-kind-confusion",
+      "category": "unknown-principal",
+      "severity": "info",
+      "attack": "Tried: an unknown actor (ghost-agent); an unknown subject (mallory); a ledger registering one id as both user and service; a token naming a service id as a user; role facts naming a service id as a user; a grant holder written with the wrong kind.",
+      "initial_result": "Passed pre-fix (except the permutation variant: see kind-mismatch-order-dependent). Unknown actor or subject gives INDETERMINATE unknown_principal only. The dual registration gives inconsistent_ledger (+ principal_kind_mismatch). The token kind mismatch gives principal_kind_mismatch only. The role-facts mismatch gives principal_kind_mismatch. A wrong-kind grant holder is not even a candidate: DENY no_grant_for_capability, failing closed. CLI a35-a36 ok.",
+      "outcome": "held",
+      "fix": "None needed. Kind mismatches inside the ledger (grant holders, delegators) are not flagged as inconsistent_ledger but always fail closed; only prohibitions failed open, and that is fixed.",
+      "test": "test_adversarial.ml section 6; adversarial.json a35-a36"
+    },
+    {
+      "id": "missing-evidence",
+      "category": "missing-evidence",
+      "severity": "info",
+      "attack": "A grant without provenance that is perfect in every other respect. An unanchored ancestor. A root holder missing from facts.principals. An unanchored twin next to an anchored grant.",
+      "initial_result": "Passed pre-fix. The first three give INDETERMINATE with only insufficient_evidence, never ALLOW. The anchored grant ALLOWs, and the unanchored twin is listed as undetermined. CLI a37-a38 ok.",
+      "outcome": "held",
+      "fix": "None needed.",
+      "test": "test_adversarial.ml section 7; adversarial.json a34, a37, a38"
+    },
+    {
+      "id": "mandate-vs-capability-effect",
+      "category": "mandate-capability-mismatch",
+      "severity": "info",
+      "attack": "A mandate that covers the capability but not the effect: samantha's generate grant allows produce:public, and generate-report stops at produce:organization. A mandate that covers the effect but not the capability: the agent's generate grant lists agent-maintenance, which no longer covers document:generate (narrowed mandate). A purpose-limited grant claimed under another fitting mandate. An undeclared mandate.",
+      "initial_result": "Passed pre-fix. DENY with only effect_within_mandate; only mandate_covers_capability; only mandate_permitted; INDETERMINATE unknown_mandate. CLI a39-a41 ok.",
+      "outcome": "held",
+      "fix": "None needed.",
+      "test": "test_adversarial.ml section 8; adversarial.json a39-a41"
+    },
+    {
+      "id": "evidence-integrity-oracle",
+      "category": "evidence",
+      "severity": "info",
+      "attack": "A property oracle over 131 decisions: 75 built by the attacks plus the 13 demo and 43 adversarial scenarios (56 file requests). It re-derives each answer from the request, not from kernel code. For every ALLOW: all five questions named; the chain starts at a Root whose holder holds the anchor in facts; each link names its parent and its delegator is the parent's holder; each link attenuates (restated independently); every link is within its window and not revoked; the binding assertions; all 8 checks pass; the anchor statement names the root holder. For every decision: the candidate set equals the model's (capability equal, holder is the acting principal or the subject), each candidate has the 8 checks, and its status agrees with its checks. For DENY: prohibited, or no_grant_for_capability, or every candidate refuted with at least one failed check. For insufficient_evidence: no candidate authorizes and one is undetermined. Also, the ablation's reproduction check runs on adversarial.json.",
+      "initial_result": "Before the fix the only oracle failures were the kind-confusion ALLOWs: `evidence: contradictory-grants: prohibition holder named with the wrong kind ...` and `evidence: adversarial/a31-contra-prohibition-kind-confusion`, both failing on `binding: no prohibition on anyone in the token path covers the effect` (527 tests, 4 failed with both files). `main.exe ablate examples/scenarios/adversarial.json` exited 0: the empty ablation reproduced every verdict from evidence alone.",
+      "outcome": "held",
+      "fix": "None beyond prohibition-kind-confusion. After it, all oracle cases pass (527 tests, 0 failed).",
+      "test": "test_adversarial.ml property section (\"evidence: <each decision>\"); test/authority/adversarial/dune ablation rule (expected/ablation.md)"
+    },
+    {
+      "id": "mandate-sole-decisive",
+      "category": "mandate-capability-mismatch",
+      "severity": "info",
+      "attack": "Build realistic cases where mandate is the only dimension whose ablation flips the decision, since in the demo set mandate was never solely decisive. Then run `authority_kernel ablate` on adversarial.json.",
+      "initial_result": "`main.exe ablate examples/scenarios/adversarial.json` (after the fix) finds mandate decisive on its own in 4 scenarios: a02, a04, a39, a40. It is the sole minimal flip set only in a39-mandate-purpose-limited and a40-mandate-narrowed; in a02 and a04, {who} flips as well.",
+      "outcome": "held",
+      "fix": "None needed. On realism: a39 is ordinary purpose limitation (a maintenance-read grant claimed for a security audit), but mandate is a pushed claim, so it is decisive only against an honest or mistaken client (see mandate-is-pushed-claim). a40 is a mandate narrowed after grants were issued; that is realistic as administrative drift, but it is a ledger inconsistency a lint would catch.",
+      "test": "test/authority/adversarial/expected/ablation.md (diffed by test/authority/adversarial/dune); adversarial.json a39, a40"
+    }
+  ],
+  "final_test_run": "cd /home/user/keycloak/ocaml-authority && dune build --force --build-dir _build-attack-sem @test/authority/runtest @examples/runtest gave exit 0 with: test_authority 135 tests, 0 failed. test_adversarial (run on demo.json and adversarial.json) 527 tests, 0 failed, oracles over 131 decisions (56 from scenario files, 31 allow). `scenarios demo.json --check` 13/13 (run twice, once from test/authority and once from examples). `scenarios adversarial.json --check` 43/43. must_not_compile.sh: all 12 snippets ok (the control compiles; the 3 new ones are rejected with 'Cannot create values of the private type Authority.Decision.t' x2 and 'Unbound module Authority__Mint'). Adversarial ablation matches expected/ablation.md, and the demo captured-output diffs are unchanged. Whole tree: dune test --force --build-dir _build-attack-sem gave exit 0 (test_scc 912/0, test_rules 110/0, test_p2 1007/0, test_certificate 17/0, test_emit 242/0 as well). Java adapter: a scratch copy of keycloak-adapter (so the shared target/ is untouched), `mvn -q -o test -Dtyped.authority.kernel=/home/user/keycloak/ocaml-authority/_build-attack-sem/default/bin/authority_kernel/main.exe`, gave exit 0: FactoryTest 6, FailClosedTest 21, KernelRoundTripTest 5, ProjectionTest 16; 48 run, 0 failures, 0 errors, 0 skipped. Pre-fix baselines: test_adversarial.exe on demo.json alone gave 355 tests, 3 failed; on both files, 527 tests, 4 failed. `scenarios adversarial.json --check` gave 42/43, exit 1. must_not_compile.sh on the new snippets gave 2 FAIL 'compiled; it must not', exit 1.",
+  "notes": "No attack produced a \"high\" finding: no ALLOW that the model as written forbids. The one fail-open ALLOW, the kind-confused prohibition, is rated medium. It needs a ledger whose prohibition holder has the wrong kind (a trusted admin writes the ledger), and a literal reading of the model says that holder names a different principal. It is fixed.\n\nFixed within the design:\n(1) Prohibition holders now match by id (evaluate.ml).\n(2) The principal_kind_mismatch check no longer depends on ledger order (evaluate.ml).\n(3) Decision.t is private and its only constructor needs Mint.seal (decision.mli new; decision.ml, mint.ml/.mli, evaluate.ml). The wire format is unchanged, and the verdict type stays public so the existing must-not-compile expectations are untouched. Anyone constructing Decision.t outside lib/authority must now go through Evaluate; nothing in bin/, test/ or the other reviewers' dirs did, and the whole tree builds and tests.\n\nlib/authority excluding the codec grew from 996 to 1070 lines (W6 limit 1500).\n\nOpen (pinned as known_weakness_*):\n- Under-declared effects escape prohibitions: a capability has no effect floor.\n- Downstream effects are invisible: one declared effect per request, and an array of effects is malformed.\n- The mandate is a pushed claim.\n- Literal S2 fails for prohibition DENYs: the overridden candidates show \"authorizes\" with no failed check.\n- Evidence order follows ledger order. Decisions are permutation-invariant, but 96 of 131 documents change bytes.\n\nRevocation `at`: it is never consulted, so a future-dated revocation revokes now. This fails closed and I kept it; the model should say that `at` is informational.\n\nDoc updates for the lead (not in my paths):\n- authority-model.md: prohibitions match their holder by id; Decision.t is private and built only by Evaluate; revocation `at` is informational; clarify how S2 applies to prohibition DENYs.\n- threat-model.md and limitations.md refer to docs/adversarial-review.md, which does not exist.\n\nAblation on adversarial.json (after the fix). 43 scenarios; 40 ablated (3 are well-formedness INDETERMINATE: a24, a35, a36); 29 of those are not allowed.\n- who: 15 scenarios, among them a05 (pure deputy), a20 and a21 (reversed or skipped hop), a25, and time or chain cases where the agent's own grant is refuted only by path.\n- mandate: 4 scenarios (a02, a04, a39, a40). It is the only flip only in a39 (purpose-limited) and a40 (narrowed mandate).\n- effect: 5 scenarios (a27, a28, a29, a31 = prohibitions; a41 = mandate effect bound).\n- target: 1 scenario (a07).\n- provenance: 15 scenarios (a07-a13, a15, a17, a22, a32-a34, a37, a38).\n- a23 (cycle) is flipped only by {who, provenance}.\nRealism of mandate as sole decider: a39 is ordinary purpose limitation, but the requester picks the claim, so it only stops honest or mistaken clients. a40 is administrative drift that a ledger lint would catch.\n\nBuild isolation: every dune command used --build-dir _build-attack-sem. The Maven run used a scratch copy of keycloak-adapter, so the shared keycloak-adapter/target stayed untouched. During my work test/boundary/dune (the other reviewer) was briefly unbuildable ('Module Test_boundary doesn't exist'), so I built only ./lib ./bin ./test/authority ./examples until the whole tree built again.\n\nadversarial.json was generated by a scratch Python script (not in the repo); the JSON is the source of truth. I ran no git commit, add, stash, checkout or reset, and did not edit docs/hypothesis.md or codec.ml."
+}

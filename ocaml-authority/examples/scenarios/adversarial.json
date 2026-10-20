@@ -1,0 +1,3217 @@
+{
+  "schema": "typed-authority/scenarios/v1",
+  "ledger": {
+    "schema": "typed-authority/ledger/v1",
+    "principals": [
+      {
+        "type": "user",
+        "id": "samantha"
+      },
+      {
+        "type": "user",
+        "id": "bob"
+      },
+      {
+        "type": "user",
+        "id": "carol"
+      },
+      {
+        "type": "service",
+        "id": "research-agent"
+      },
+      {
+        "type": "service",
+        "id": "planner-agent"
+      },
+      {
+        "type": "service",
+        "id": "summarizer-agent"
+      },
+      {
+        "type": "service",
+        "id": "publisher-bot"
+      },
+      {
+        "type": "service",
+        "id": "ops-bot"
+      }
+    ],
+    "mandates": [
+      {
+        "id": "generate-report",
+        "purpose": "Produce the quarterly report for internal review",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "read"
+          },
+          {
+            "resource_type": "document",
+            "action": "generate"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          },
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ]
+      },
+      {
+        "id": "publish-release",
+        "purpose": "Publish an approved release to the public",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "publish"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ]
+      },
+      {
+        "id": "agent-maintenance",
+        "purpose": "The agent's own upkeep: index and read documents it maintains",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "read"
+          },
+          {
+            "resource_type": "document",
+            "action": "index"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ]
+      },
+      {
+        "id": "security-audit",
+        "purpose": "Read documents to audit access",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "read"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ]
+      },
+      {
+        "id": "review-draft",
+        "purpose": "Annotate, summarize or translate a draft for oneself",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "annotate"
+          },
+          {
+            "resource_type": "document",
+            "action": "summarize"
+          },
+          {
+            "resource_type": "document",
+            "action": "translate"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          },
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ]
+      },
+      {
+        "id": "export-archive",
+        "purpose": "Export or archive a document for oneself",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "export"
+          },
+          {
+            "resource_type": "document",
+            "action": "archive"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          },
+          {
+            "kind": "disclose",
+            "audience": "self"
+          }
+        ]
+      },
+      {
+        "id": "share-document",
+        "purpose": "Share a document",
+        "capabilities": [
+          {
+            "resource_type": "document",
+            "action": "share"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ]
+      },
+      {
+        "id": "operate-realm",
+        "purpose": "Change the configuration of the realm",
+        "capabilities": [
+          {
+            "resource_type": "admin-surface",
+            "action": "administer"
+          }
+        ],
+        "effects": [
+          {
+            "kind": "administer"
+          }
+        ]
+      }
+    ],
+    "grants": [
+      {
+        "id": "g-sam-read",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 2,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "g-agent-own-read",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "agent-maintenance"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "client_role": {
+              "client": "document-service",
+              "role": "reader"
+            }
+          }
+        }
+      },
+      {
+        "id": "g-agent-own-index",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "index"
+        },
+        "target": "any",
+        "mandates": [
+          "agent-maintenance"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "client_role": {
+              "client": "document-service",
+              "role": "reader"
+            }
+          }
+        }
+      },
+      {
+        "id": "d-agent-read-sam",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "valid_from": "2026-09-01T00:00:00Z",
+        "valid_until": "2026-12-31T23:59:59Z",
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-read",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "g-bob-read",
+        "holder": {
+          "type": "user",
+          "id": "bob"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-read-bob",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": {
+          "resource": "bob-notes"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-bob-read",
+          "delegator": {
+            "type": "user",
+            "id": "bob"
+          }
+        }
+      },
+      {
+        "id": "d-agent-read-bob-q3",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-bob-read",
+          "delegator": {
+            "type": "user",
+            "id": "bob"
+          }
+        }
+      },
+      {
+        "id": "g-sam-annotate",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "valid_until": "2026-09-01T00:00:00Z",
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-annotate",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "valid_until": "2026-12-31T00:00:00Z",
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-annotate",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "g-sam-summarize",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "valid_from": "2026-06-01T00:00:00Z",
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-summarize",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "valid_from": "2026-05-01T00:00:00Z",
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-summarize",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "g-bob-generate",
+        "holder": {
+          "type": "user",
+          "id": "bob"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-generate-bob",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": {
+          "resource": "bob-notes"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-bob-generate",
+          "delegator": {
+            "type": "user",
+            "id": "bob"
+          }
+        }
+      },
+      {
+        "id": "g-bob-annotate",
+        "holder": {
+          "type": "user",
+          "id": "bob"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-annotate-bob",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": {
+          "resource": "bob-notes"
+        },
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-bob-annotate",
+          "delegator": {
+            "type": "user",
+            "id": "bob"
+          }
+        }
+      },
+      {
+        "id": "g-carol-read",
+        "holder": {
+          "type": "user",
+          "id": "carol"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 3,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-planner-read",
+        "holder": {
+          "type": "service",
+          "id": "planner-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 2,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-carol-read",
+          "delegator": {
+            "type": "user",
+            "id": "carol"
+          }
+        }
+      },
+      {
+        "id": "d-summarizer-read",
+        "holder": {
+          "type": "service",
+          "id": "summarizer-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-planner-read",
+          "delegator": {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        }
+      },
+      {
+        "id": "d-agent-read3",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-summarizer-read",
+          "delegator": {
+            "type": "service",
+            "id": "summarizer-agent"
+          }
+        }
+      },
+      {
+        "id": "g-carol-generate",
+        "holder": {
+          "type": "user",
+          "id": "carol"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "delegable_depth": 2,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-planner-generate",
+        "holder": {
+          "type": "service",
+          "id": "planner-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-carol-generate",
+          "delegator": {
+            "type": "user",
+            "id": "carol"
+          }
+        }
+      },
+      {
+        "id": "d-summarizer-generate",
+        "holder": {
+          "type": "service",
+          "id": "summarizer-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-planner-generate",
+          "delegator": {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        }
+      },
+      {
+        "id": "g-carol-annotate",
+        "holder": {
+          "type": "user",
+          "id": "carol"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-planner-annotate",
+        "holder": {
+          "type": "service",
+          "id": "planner-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-carol-annotate",
+          "delegator": {
+            "type": "user",
+            "id": "carol"
+          }
+        }
+      },
+      {
+        "id": "d-summarizer-annotate",
+        "holder": {
+          "type": "service",
+          "id": "summarizer-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-planner-annotate",
+          "delegator": {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        }
+      },
+      {
+        "id": "d-cycle-a",
+        "holder": {
+          "type": "service",
+          "id": "planner-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "index"
+        },
+        "target": "any",
+        "mandates": [
+          "agent-maintenance"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-cycle-b",
+          "delegator": {
+            "type": "service",
+            "id": "summarizer-agent"
+          }
+        }
+      },
+      {
+        "id": "d-cycle-b",
+        "holder": {
+          "type": "service",
+          "id": "summarizer-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "index"
+        },
+        "target": "any",
+        "mandates": [
+          "agent-maintenance"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-cycle-a",
+          "delegator": {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        }
+      },
+      {
+        "id": "g-carol-summarize",
+        "holder": {
+          "type": "user",
+          "id": "carol"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "delegable_depth": 2,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-ghost-summarize",
+        "holder": {
+          "type": "service",
+          "id": "ghost-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-carol-summarize",
+          "delegator": {
+            "type": "user",
+            "id": "carol"
+          }
+        }
+      },
+      {
+        "id": "d-agent-summarize-ghost",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "d-ghost-summarize",
+          "delegator": {
+            "type": "service",
+            "id": "ghost-agent"
+          }
+        }
+      },
+      {
+        "id": "g-sam-publish",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "target": "any",
+        "mandates": [
+          "publish-release"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "document-publisher"
+          }
+        }
+      },
+      {
+        "id": "g-sam-publish-old",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "target": "any",
+        "mandates": [
+          "publish-release"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "document-publisher"
+          }
+        }
+      },
+      {
+        "id": "g-bot-publish",
+        "holder": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "target": "any",
+        "mandates": [
+          "publish-release"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "client_role": {
+              "client": "document-service",
+              "role": "publisher"
+            }
+          }
+        }
+      },
+      {
+        "id": "g-carol-share",
+        "holder": {
+          "type": "user",
+          "id": "carol"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "share"
+        },
+        "target": "any",
+        "mandates": [
+          "share-document"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-share-carol",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "share"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "share-document"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-carol-share",
+          "delegator": {
+            "type": "user",
+            "id": "carol"
+          }
+        }
+      },
+      {
+        "id": "g-ops-admin",
+        "holder": {
+          "type": "service",
+          "id": "ops-bot"
+        },
+        "capability": {
+          "resource_type": "admin-surface",
+          "action": "administer"
+        },
+        "target": "any",
+        "mandates": [
+          "operate-realm"
+        ],
+        "effects": [
+          {
+            "kind": "administer"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "client_role": {
+              "client": "realm-management",
+              "role": "manage-realm"
+            }
+          }
+        }
+      },
+      {
+        "id": "g-sam-export",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "export-archive"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "self"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-exp-target-any",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "target": "any",
+        "mandates": [
+          "export-archive"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-export",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "d-exp-effect-wide",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "export-archive"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-export",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "d-exp-mandate-extra",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "export-archive",
+          "publish-release"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-export",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "d-exp-forged",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "export-archive"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-export",
+          "delegator": {
+            "type": "service",
+            "id": "research-agent"
+          }
+        }
+      },
+      {
+        "id": "d-exp-deep",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "export-archive"
+        ],
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "self"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-export",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "g-bot-archive",
+        "holder": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "archive"
+        },
+        "target": "any",
+        "mandates": [
+          "export-archive"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "document-publisher"
+          }
+        }
+      },
+      {
+        "id": "u-sam-translate",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "translate"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          },
+          {
+            "kind": "administer"
+          }
+        ],
+        "delegable_depth": 5
+      },
+      {
+        "id": "d-agent-translate",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "translate"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "u-sam-translate",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      },
+      {
+        "id": "u-bot-translate",
+        "holder": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "translate"
+        },
+        "target": "any",
+        "mandates": [
+          "review-draft"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "self"
+          }
+        ]
+      },
+      {
+        "id": "g-agent-generate-maint",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": "any",
+        "mandates": [
+          "agent-maintenance"
+        ],
+        "effects": [
+          {
+            "kind": "observe"
+          }
+        ],
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "client_role": {
+              "client": "document-service",
+              "role": "reader"
+            }
+          }
+        }
+      },
+      {
+        "id": "g-sam-generate",
+        "holder": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": "any",
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "public"
+          }
+        ],
+        "delegable_depth": 1,
+        "provenance": {
+          "kind": "root",
+          "anchor": {
+            "realm_role": "report-author"
+          }
+        }
+      },
+      {
+        "id": "d-agent-generate-sam",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "target": {
+          "resource": "q3-report"
+        },
+        "mandates": [
+          "generate-report"
+        ],
+        "effects": [
+          {
+            "kind": "produce",
+            "audience": "organization"
+          }
+        ],
+        "provenance": {
+          "kind": "delegated",
+          "parent": "g-sam-generate",
+          "delegator": {
+            "type": "user",
+            "id": "samantha"
+          }
+        }
+      }
+    ],
+    "revocations": [
+      {
+        "grant": "d-agent-read-bob-q3",
+        "reason": "bob withdrew access to q3-report",
+        "at": "2026-09-01T00:00:00Z"
+      },
+      {
+        "grant": "g-bob-generate",
+        "reason": "bob's authoring right was rotated",
+        "at": "2026-09-15T00:00:00Z"
+      },
+      {
+        "grant": "d-planner-generate",
+        "reason": "planner-agent decommissioned",
+        "at": "2026-09-20T00:00:00Z"
+      },
+      {
+        "grant": "d-agent-annotate-bob",
+        "reason": "scheduled end of bob's annotation delegation",
+        "at": "2027-01-01T00:00:00Z"
+      },
+      {
+        "grant": "g-sam-publish-old",
+        "reason": "superseded by g-sam-publish",
+        "at": "2026-01-01T00:00:00Z"
+      }
+    ],
+    "prohibitions": [
+      {
+        "id": "p-bot-no-public",
+        "holder": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "reason": "the publishing bot may only stage, never release publicly"
+      },
+      {
+        "id": "p-agent-no-public",
+        "holder": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "public"
+          }
+        ],
+        "reason": "automated agents never publish externally"
+      },
+      {
+        "id": "p-carol-no-org-disclosure",
+        "holder": {
+          "type": "user",
+          "id": "carol"
+        },
+        "effects": [
+          {
+            "kind": "disclose",
+            "audience": "organization"
+          }
+        ],
+        "reason": "carol's documents are under legal hold"
+      },
+      {
+        "id": "p-ops-kind",
+        "holder": {
+          "type": "user",
+          "id": "ops-bot"
+        },
+        "effects": [
+          {
+            "kind": "administer"
+          }
+        ],
+        "reason": "ops-bot is frozen during the audit (written with the wrong principal kind)"
+      }
+    ]
+  },
+  "defaults": {
+    "facts": {
+      "source": "fixture",
+      "realm": "typed-authority-demo",
+      "evaluated_at": "2026-09-29T12:00:00Z",
+      "subject": {
+        "type": "service",
+        "id": "research-agent"
+      },
+      "actor_chain": [],
+      "principals": [
+        {
+          "type": "user",
+          "id": "samantha",
+          "realm_roles": [
+            "report-author",
+            "document-publisher"
+          ],
+          "client_roles": {}
+        },
+        {
+          "type": "user",
+          "id": "bob",
+          "realm_roles": [
+            "report-author"
+          ],
+          "client_roles": {}
+        },
+        {
+          "type": "user",
+          "id": "carol",
+          "realm_roles": [
+            "report-author"
+          ],
+          "client_roles": {}
+        },
+        {
+          "type": "service",
+          "id": "research-agent",
+          "realm_roles": [],
+          "client_roles": {
+            "document-service": [
+              "reader"
+            ]
+          }
+        },
+        {
+          "type": "service",
+          "id": "planner-agent",
+          "realm_roles": [],
+          "client_roles": {}
+        },
+        {
+          "type": "service",
+          "id": "summarizer-agent",
+          "realm_roles": [],
+          "client_roles": {}
+        },
+        {
+          "type": "service",
+          "id": "publisher-bot",
+          "realm_roles": [],
+          "client_roles": {
+            "document-service": [
+              "publisher"
+            ]
+          }
+        },
+        {
+          "type": "service",
+          "id": "ops-bot",
+          "realm_roles": [],
+          "client_roles": {
+            "realm-management": [
+              "manage-realm"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "scenarios": [
+    {
+      "name": "a01-cd-own-authority-own-purpose",
+      "description": "research-agent, with its own token, reads q3-report for its own upkeep (agent-maintenance) using its own reader grant.",
+      "query": {
+        "mandate": "agent-maintenance",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "actor_chain": []
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a02-cd-own-token-samanthas-purpose",
+      "description": "research-agent, with its own token, reads q3-report claiming samantha's purpose (generate-report). Its own grant is not usable under that mandate; samantha's delegation needs a token proving it acts for her.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "mandate_permitted",
+        "delegation_path_matches"
+      ]
+    },
+    {
+      "name": "a03-cd-for-samantha-her-purpose",
+      "description": "research-agent acts for samantha and reads q3-report under generate-report, through her delegation.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a04-cd-for-samantha-agents-purpose",
+      "description": "research-agent acts for samantha but claims its own purpose (agent-maintenance). Neither its own grant (wrong path) nor her delegation (wrong mandate) applies.",
+      "query": {
+        "mandate": "agent-maintenance",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "delegation_path_matches",
+        "mandate_permitted"
+      ]
+    },
+    {
+      "name": "a05-cd-pure-deputy",
+      "description": "research-agent acts for samantha and indexes q3-report, a capability only the agent itself holds. The classic confused deputy.",
+      "query": {
+        "mandate": "agent-maintenance",
+        "capability": {
+          "resource_type": "document",
+          "action": "index"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "delegation_path_matches"
+      ]
+    },
+    {
+      "name": "a06-cd-for-bob",
+      "description": "research-agent acts for bob and reads bob-notes through bob's own delegation.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "bob-notes",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "bob"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a07-cd-no-cross-subject-substitution",
+      "description": "research-agent acts for bob and reads q3-report. Bob's q3 delegation was revoked; samantha's live q3 delegation must not substitute.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "bob"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "revoked",
+        "delegation_path_matches"
+      ]
+    },
+    {
+      "name": "a08-stale-expired-parent-live-child",
+      "description": "research-agent acts for samantha and annotates q3-report. Samantha's root expired on 2026-09-01; the delegated child claims validity until the end of 2026.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "expired",
+        "validity_extended"
+      ]
+    },
+    {
+      "name": "a09-stale-child-starts-before-parent",
+      "description": "research-agent acts for samantha and summarizes q3-report. The child claims validity from 2026-05-01, before its parent's 2026-06-01.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "validity_extended"
+      ]
+    },
+    {
+      "name": "a10-stale-revoked-root-live-delegation",
+      "description": "research-agent acts for bob and generates bob-notes. Bob's root generate grant was revoked; the delegation below it is unrevoked.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "resource": "bob-notes",
+        "effect": {
+          "kind": "produce",
+          "audience": "organization"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "bob"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "revoked"
+      ]
+    },
+    {
+      "name": "a11-stale-revoked-middle-link",
+      "description": "summarizer-agent acts for carol via planner-agent and generates q3-report. The middle link (planner-agent's delegation) was revoked.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "organization"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "summarizer-agent"
+          },
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "revoked"
+      ]
+    },
+    {
+      "name": "a12-stale-anchor-removed-depth3",
+      "description": "As a19, but the live role mappings show carol no longer holds report-author.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          },
+          {
+            "type": "service",
+            "id": "summarizer-agent"
+          },
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ],
+        "principals": [
+          {
+            "type": "user",
+            "id": "carol",
+            "realm_roles": [],
+            "client_roles": {}
+          },
+          {
+            "type": "service",
+            "id": "research-agent",
+            "realm_roles": [],
+            "client_roles": {
+              "document-service": [
+                "reader"
+              ]
+            }
+          },
+          {
+            "type": "service",
+            "id": "planner-agent",
+            "realm_roles": [],
+            "client_roles": {}
+          },
+          {
+            "type": "service",
+            "id": "summarizer-agent",
+            "realm_roles": [],
+            "client_roles": {}
+          },
+          {
+            "type": "service",
+            "id": "publisher-bot",
+            "realm_roles": [],
+            "client_roles": {
+              "document-service": [
+                "publisher"
+              ]
+            }
+          },
+          {
+            "type": "service",
+            "id": "ops-bot",
+            "realm_roles": [],
+            "client_roles": {
+              "realm-management": [
+                "manage-realm"
+              ]
+            }
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "anchor_missing"
+      ]
+    },
+    {
+      "name": "a13-stale-future-dated-revocation",
+      "description": "research-agent acts for bob and annotates bob-notes. The delegation's revocation is dated 2027-01-01, after evaluated_at: the model treats a listed revocation as effective (the date is not consulted).",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "resource": "bob-notes",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "bob"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "revoked"
+      ]
+    },
+    {
+      "name": "a14-stale-exactly-valid-from",
+      "description": "As a03 at exactly the delegation's valid_from (inclusive).",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ],
+        "evaluated_at": "2026-09-01T00:00:00Z"
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a15-stale-one-second-before-valid-from",
+      "description": "As a03 one second before the delegation's valid_from.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ],
+        "evaluated_at": "2026-08-31T23:59:59Z"
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "not_yet_valid"
+      ]
+    },
+    {
+      "name": "a16-stale-one-second-before-valid-until",
+      "description": "As a03 one second before the delegation's valid_until.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ],
+        "evaluated_at": "2026-12-31T23:59:58Z"
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a17-stale-exactly-valid-until",
+      "description": "As a03 at exactly the delegation's valid_until (exclusive).",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ],
+        "evaluated_at": "2026-12-31T23:59:59Z"
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "expired"
+      ]
+    },
+    {
+      "name": "a18-chain-depth2-matches",
+      "description": "summarizer-agent acts for carol via planner-agent (act = summarizer{act = planner}) and reads q3-report: carol -> planner -> summarizer.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "summarizer-agent"
+          },
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a19-chain-depth3-matches",
+      "description": "research-agent acts for carol via summarizer-agent and planner-agent and reads q3-report: carol -> planner -> summarizer -> research-agent.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          },
+          {
+            "type": "service",
+            "id": "summarizer-agent"
+          },
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a20-chain-reversed",
+      "description": "The actor chain of a18 reversed: planner-agent is the current actor.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "planner-agent"
+          },
+          {
+            "type": "service",
+            "id": "summarizer-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "delegation_path_matches"
+      ]
+    },
+    {
+      "name": "a21-chain-skips-a-hop",
+      "description": "research-agent acts for carol via planner-agent only; the ledger chain goes through summarizer-agent.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          },
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "delegation_path_matches"
+      ]
+    },
+    {
+      "name": "a22-chain-depth-exceeded",
+      "description": "summarizer-agent acts for carol via planner-agent and annotates q3-report. Carol's root has delegable_depth 1, so planner-agent could not delegate further.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "annotate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "summarizer-agent"
+          },
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "delegation_depth_exceeded"
+      ]
+    },
+    {
+      "name": "a23-chain-cycle",
+      "description": "planner-agent acts for summarizer-agent and indexes q3-report with grants that delegate to each other (A -> B -> A) and have no root.",
+      "query": {
+        "mandate": "agent-maintenance",
+        "capability": {
+          "resource_type": "document",
+          "action": "index"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "summarizer-agent"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "planner-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "cycle"
+      ]
+    },
+    {
+      "name": "a24-chain-unregistered-middle-named",
+      "description": "research-agent acts for carol via ghost-agent, which holds the middle link but is not in ledger.principals.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          },
+          {
+            "type": "service",
+            "id": "ghost-agent"
+          }
+        ]
+      },
+      "expect": "indeterminate",
+      "expect_reasons": [
+        "unknown_principal"
+      ]
+    },
+    {
+      "name": "a25-chain-unregistered-middle-omitted",
+      "description": "As a24 with ghost-agent omitted from the token.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "summarize"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "delegation_path_matches"
+      ]
+    },
+    {
+      "name": "a26-contra-live-and-revoked-twin",
+      "description": "samantha publishes q3-report. One of her two publish grants is revoked; the other authorizes (grants combine permissively).",
+      "query": {
+        "mandate": "publish-release",
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "public"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": []
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a27-contra-prohibition-beats-grant",
+      "description": "publisher-bot publishes q3-report publicly with a valid grant; a prohibition forbids it public disclosure.",
+      "query": {
+        "mandate": "publish-release",
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "public"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "prohibited"
+      ]
+    },
+    {
+      "name": "a28-contra-subject-prohibition-binds-actor",
+      "description": "research-agent acts for carol and shares q3-report with the organization. Carol is prohibited from disclosure to the organization or wider.",
+      "query": {
+        "mandate": "share-document",
+        "capability": {
+          "resource_type": "document",
+          "action": "share"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "organization"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "prohibited"
+      ]
+    },
+    {
+      "name": "a29-contra-org-prohibition-covers-public",
+      "description": "As a28 but disclosing publicly: disclose:public is at or above disclose:organization.",
+      "query": {
+        "mandate": "share-document",
+        "capability": {
+          "resource_type": "document",
+          "action": "share"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "public"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "prohibited"
+      ]
+    },
+    {
+      "name": "a30-contra-org-prohibition-leaves-self",
+      "description": "As a28 but disclosing to self only: below the prohibition.",
+      "query": {
+        "mandate": "share-document",
+        "capability": {
+          "resource_type": "document",
+          "action": "share"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "carol"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a31-contra-prohibition-kind-confusion",
+      "description": "ops-bot administers realm-config. A prohibition freezes ops-bot but names it with the user kind, while the ledger registers it as a service. Deny-overrides must hold.",
+      "query": {
+        "mandate": "operate-realm",
+        "capability": {
+          "resource_type": "admin-surface",
+          "action": "administer"
+        },
+        "resource": "realm-config",
+        "effect": {
+          "kind": "administer"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "ops-bot"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "prohibited"
+      ]
+    },
+    {
+      "name": "a32-esc-amplifying-children",
+      "description": "research-agent acts for samantha and exports q3-report. Five delegations of samantha's export grant each break one attenuation rule (target, effect, mandate, delegator, depth).",
+      "query": {
+        "mandate": "export-archive",
+        "capability": {
+          "resource_type": "document",
+          "action": "export"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "target_amplified",
+        "effect_amplified",
+        "mandate_amplified",
+        "forged_delegation",
+        "delegation_depth_exceeded"
+      ]
+    },
+    {
+      "name": "a33-esc-anchor-held-by-someone-else",
+      "description": "publisher-bot archives q3-report with a root grant anchored in the realm role document-publisher, which samantha holds and the bot does not.",
+      "query": {
+        "mandate": "export-archive",
+        "capability": {
+          "resource_type": "document",
+          "action": "archive"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "anchor_missing"
+      ]
+    },
+    {
+      "name": "a34-esc-under-unanchored-all-powerful-parent",
+      "description": "research-agent acts for samantha and translates q3-report through a delegation whose parent has no provenance and claims administer.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "translate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "indeterminate",
+      "expect_reasons": [
+        "insufficient_evidence"
+      ]
+    },
+    {
+      "name": "a35-up-unknown-actor",
+      "description": "ghost-agent, not in ledger.principals, acts for samantha.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "ghost-agent"
+          }
+        ]
+      },
+      "expect": "indeterminate",
+      "expect_reasons": [
+        "unknown_principal"
+      ]
+    },
+    {
+      "name": "a36-up-service-id-as-user",
+      "description": "The token names research-agent with the user kind; the ledger registers a service.",
+      "query": {
+        "mandate": "agent-maintenance",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "research-agent"
+        },
+        "actor_chain": []
+      },
+      "expect": "indeterminate",
+      "expect_reasons": [
+        "principal_kind_mismatch"
+      ]
+    },
+    {
+      "name": "a37-me-perfect-grant-without-provenance",
+      "description": "publisher-bot translates q3-report with a grant that matches in every respect but has no provenance.",
+      "query": {
+        "mandate": "review-draft",
+        "capability": {
+          "resource_type": "document",
+          "action": "translate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "actor_chain": []
+      },
+      "expect": "indeterminate",
+      "expect_reasons": [
+        "insufficient_evidence"
+      ]
+    },
+    {
+      "name": "a38-me-root-holder-absent-from-facts",
+      "description": "As a03, but the adapter did not project samantha's role mappings.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ],
+        "principals": [
+          {
+            "type": "user",
+            "id": "bob",
+            "realm_roles": [
+              "report-author"
+            ],
+            "client_roles": {}
+          },
+          {
+            "type": "user",
+            "id": "carol",
+            "realm_roles": [
+              "report-author"
+            ],
+            "client_roles": {}
+          },
+          {
+            "type": "service",
+            "id": "research-agent",
+            "realm_roles": [],
+            "client_roles": {
+              "document-service": [
+                "reader"
+              ]
+            }
+          },
+          {
+            "type": "service",
+            "id": "planner-agent",
+            "realm_roles": [],
+            "client_roles": {}
+          },
+          {
+            "type": "service",
+            "id": "summarizer-agent",
+            "realm_roles": [],
+            "client_roles": {}
+          },
+          {
+            "type": "service",
+            "id": "publisher-bot",
+            "realm_roles": [],
+            "client_roles": {
+              "document-service": [
+                "publisher"
+              ]
+            }
+          },
+          {
+            "type": "service",
+            "id": "ops-bot",
+            "realm_roles": [],
+            "client_roles": {
+              "realm-management": [
+                "manage-realm"
+              ]
+            }
+          }
+        ]
+      },
+      "expect": "indeterminate",
+      "expect_reasons": [
+        "insufficient_evidence"
+      ]
+    },
+    {
+      "name": "a39-mandate-purpose-limited",
+      "description": "research-agent reads q3-report claiming security-audit. The mandate covers read and observe, but none of the agent's grants was issued for that purpose.",
+      "query": {
+        "mandate": "security-audit",
+        "capability": {
+          "resource_type": "document",
+          "action": "read"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "mandate_permitted"
+      ]
+    },
+    {
+      "name": "a40-mandate-narrowed",
+      "description": "research-agent generates q3-report (observe) under agent-maintenance. Its grant lists agent-maintenance, but the mandate no longer covers document:generate.",
+      "query": {
+        "mandate": "agent-maintenance",
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "observe"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "research-agent"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "mandate_covers_capability"
+      ]
+    },
+    {
+      "name": "a41-mandate-effect-not-covered",
+      "description": "samantha generates q3-report for the public. Her grant allows produce:public; the mandate generate-report stops at produce:organization.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "public"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": []
+      },
+      "expect": "deny",
+      "expect_reasons": [
+        "effect_within_mandate"
+      ]
+    },
+    {
+      "name": "a42-known_weakness-downstream-effect",
+      "description": "research-agent acts for samantha and generates q3-report for the organization; research-agent is prohibited from public disclosure. If generating in fact publishes the report, the kernel cannot see it: a request declares one effect and nothing downstream.",
+      "query": {
+        "mandate": "generate-report",
+        "capability": {
+          "resource_type": "document",
+          "action": "generate"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "produce",
+          "audience": "organization"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "user",
+          "id": "samantha"
+        },
+        "actor_chain": [
+          {
+            "type": "service",
+            "id": "research-agent"
+          }
+        ]
+      },
+      "expect": "allow"
+    },
+    {
+      "name": "a43-known_weakness-underdeclared-effect",
+      "description": "publisher-bot publishes q3-report but declares disclose:self. Publishing has no effect floor, so the declaration passes the grant, the mandate and the prohibition on public disclosure (effect honesty, threat-model A1).",
+      "query": {
+        "mandate": "publish-release",
+        "capability": {
+          "resource_type": "document",
+          "action": "publish"
+        },
+        "resource": "q3-report",
+        "effect": {
+          "kind": "disclose",
+          "audience": "self"
+        }
+      },
+      "facts": {
+        "subject": {
+          "type": "service",
+          "id": "publisher-bot"
+        },
+        "actor_chain": []
+      },
+      "expect": "allow"
+    }
+  ]
+}

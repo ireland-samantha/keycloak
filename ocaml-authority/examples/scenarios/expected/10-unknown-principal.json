@@ -1,0 +1,46 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "demo-10-unknown-principal",
+  "decision": "indeterminate",
+  "acting": {
+    "type": "user",
+    "id": "mallory"
+  },
+  "subject": {
+    "type": "user",
+    "id": "mallory"
+  },
+  "actor_chain": [],
+  "mandate": "generate-report",
+  "capability": {
+    "resource_type": "document",
+    "action": "read"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "observe"
+  },
+  "reasons": [
+    {
+      "code": "unknown_principal",
+      "message": "mallory (user) is not in ledger.principals"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate generate-report covers document:read"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "pass",
+        "detail": "observe is within mandate generate-report effects observe, produce:organization"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [],
+    "held_capabilities": []
+  }
+}

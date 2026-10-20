@@ -1,0 +1,93 @@
+{
+  "schema": "typed-authority/decision/v1",
+  "request_id": "9b83a36b-802b-46de-8e6e-15d5645184ba",
+  "decision": "indeterminate",
+  "acting": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "subject": {
+    "type": "service",
+    "id": "research-agent"
+  },
+  "actor_chain": [],
+  "mandate": "publish-release",
+  "capability": {
+    "resource_type": "document",
+    "action": "publish"
+  },
+  "resource": "q3-report",
+  "effect": {
+    "kind": "disclose",
+    "audience": "public"
+  },
+  "reasons": [
+    {
+      "code": "insufficient_evidence",
+      "message": "u-agent-publish: provenance: the ledger entry has no provenance (unanchored) and can never authorize"
+    }
+  ],
+  "evidence": {
+    "request_checks": [
+      {
+        "check": "mandate_covers_capability",
+        "outcome": "pass",
+        "detail": "mandate publish-release covers document:publish"
+      },
+      {
+        "check": "effect_within_mandate",
+        "outcome": "pass",
+        "detail": "disclose:public is within mandate publish-release effects disclose:public"
+      }
+    ],
+    "prohibitions": [],
+    "candidates": [
+      {
+        "grant": "u-agent-publish",
+        "status": "undetermined",
+        "checks": [
+          {
+            "check": "holder_is_actor",
+            "outcome": "pass",
+            "detail": "holder research-agent (service) is the acting principal"
+          },
+          {
+            "check": "delegation_path_matches",
+            "outcome": "pass",
+            "detail": "ledger path [research-agent] matches token path [research-agent]"
+          },
+          {
+            "check": "target_covers_resource",
+            "outcome": "pass",
+            "detail": "target q3-report covers q3-report"
+          },
+          {
+            "check": "mandate_permitted",
+            "outcome": "pass",
+            "detail": "usable under publish-release"
+          },
+          {
+            "check": "effect_within_grant",
+            "outcome": "pass",
+            "detail": "disclose:public is within grant effects disclose:public"
+          },
+          {
+            "check": "mandate_covers_capability",
+            "outcome": "pass",
+            "detail": "mandate publish-release covers document:publish"
+          },
+          {
+            "check": "effect_within_mandate",
+            "outcome": "pass",
+            "detail": "disclose:public is within mandate publish-release effects disclose:public"
+          },
+          {
+            "check": "provenance",
+            "outcome": "unknown",
+            "detail": "the ledger entry has no provenance (unanchored) and can never authorize"
+          }
+        ]
+      }
+    ]
+  }
+}

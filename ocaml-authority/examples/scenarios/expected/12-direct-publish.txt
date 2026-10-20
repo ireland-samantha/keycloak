@@ -1,0 +1,11 @@
+ALLOW
+principal:  samantha (user)
+mandate:    publish-release
+capability: document:publish on q3-report
+effect:     disclose -> public
+authority:
+  g-samantha-publish     samantha (user)            root: realm role document-publisher
+  anchor: samantha holds realm role document-publisher (facts.source = fixture)
+checks:     all 8 passed
+candidates:
+  g-samantha-publish     authorizes

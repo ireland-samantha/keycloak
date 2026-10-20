@@ -1,0 +1,42 @@
+; Adversarial review, authority-semantics lens. test_adversarial.exe runs the
+; attacks, then property oracles (evidence completeness S2, binding of an
+; ALLOW's authority to its request, determinism) over every decision it
+; computed and over every scenario of the files it is given.
+(test
+ (name test_adversarial)
+ (libraries authority tjson)
+ (deps
+  ../../../examples/scenarios/demo.json
+  ../../../examples/scenarios/adversarial.json)
+ (action
+  (run
+   %{test}
+   ../../../examples/scenarios/demo.json
+   ../../../examples/scenarios/adversarial.json)))
+
+; adversarial.json with --check semantics: every scenario meets its expected
+; decision and reason codes (known_weakness scenarios pin current behaviour).
+(rule
+ (alias runtest)
+ (action
+  (run
+   %{dep:../../../bin/authority_kernel/main.exe}
+   scenarios
+   %{dep:../../../examples/scenarios/adversarial.json}
+   --check)))
+
+; Which dimension decided each adversarial scenario. The ablation fails
+; outright if a decision's evidence cannot reproduce its verdict. After an
+; intended change: dune build @test/authority/adversarial/runtest; dune promote.
+(rule
+ (with-stdout-to
+  ablation.md.out
+  (run
+   %{dep:../../../bin/authority_kernel/main.exe}
+   ablate
+   %{dep:../../../examples/scenarios/adversarial.json})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expected/ablation.md ablation.md.out)))

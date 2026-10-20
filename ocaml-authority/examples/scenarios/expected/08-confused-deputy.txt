@@ -1,0 +1,14 @@
+DENY
+principal:  research-agent (service) acting for samantha (user)
+mandate:    generate-report
+capability: document:read on q3-report
+effect:     observe
+reason:
+  g-samantha-read: holder samantha (user) is not the acting principal research-agent (service)
+  g-samantha-read: ledger path [samantha] differs from token path [samantha > research-agent]
+  g-agent-read: ledger path [research-agent] differs from token path [samantha > research-agent]
+  d-agent-read is not valid before 2026-04-01T00:00:00Z
+candidates:
+  g-samantha-read        refuted       holder_is_actor fail, delegation_path_matches fail
+  g-agent-read           refuted       delegation_path_matches fail
+  d-agent-read           refuted       provenance fail

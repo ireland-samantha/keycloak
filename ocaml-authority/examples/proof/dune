@@ -1,0 +1,52 @@
+; attempt_proof on the committed Keycloak slice (docs/proof-search.md).
+;
+; `dune test examples/proof` regenerates certificate.json, keycloak_authz_types.ml
+; and report.txt from keycloak-authz.graph.json and fails if a committed copy is
+; stale; `dune promote` accepts the new run. It also runs the independent checker
+; on the committed certificate and compiles the committed OCaml type graph.
+
+(rule
+ (targets certificate.json.gen keycloak_authz_types.ml.gen report.txt.gen)
+ (deps keycloak-authz.graph.json)
+ (action
+  (with-stdout-to
+   report.txt.gen
+   (run
+    %{exe:../../bin/prove/main.exe}
+    keycloak-authz.graph.json
+    --certificate
+    certificate.json.gen
+    --emit
+    keycloak_authz_types.ml.gen
+    --report))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff certificate.json certificate.json.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff keycloak_authz_types.ml keycloak_authz_types.ml.gen)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff report.txt report.txt.gen)))
+
+(rule
+ (alias runtest)
+ (deps keycloak-authz.graph.json certificate.json)
+ (action
+  (run %{exe:../../bin/prove/main.exe} --check keycloak-authz.graph.json certificate.json)))
+
+(library
+ (name keycloak_authz_types)
+ (modules keycloak_authz_types))
+
+; Linking forces the committed type graph to compile as part of the tests.
+(test
+ (name emitted_types_compile)
+ (modules emitted_types_compile)
+ (libraries keycloak_authz_types))

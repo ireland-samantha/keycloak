@@ -1,0 +1,17 @@
+; Adversarial review of attempt_proof (docs/flashlight.md; findings in the review report).
+;
+; test_false_proven and test_evasions run the real extractor,
+; tools/java-graph/JavaGraph.java, on fixtures/ with the JDK on PATH. dune does not
+; scan tools/, so the extractor is found by walking up from the build directory,
+; and (universe) makes the suites rerun when it changes.
+
+(tests
+ (names test_false_proven test_evasions test_checker test_rule_table flashlight)
+ (modules adv test_false_proven test_evasions test_checker test_rule_table flashlight)
+ (libraries proof tjson)
+ (deps
+  (universe)
+  (source_tree fixtures)
+  glue-sites.tsv
+  ../../../examples/proof/keycloak-authz.graph.json
+  ../../../examples/proof/certificate.json))

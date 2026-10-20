@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Rebuilds and re-checks everything this directory claims, and writes the
+# record to docs/verification.md. The live Keycloak demo runs only with --live
+# (it needs a built distribution of the fork and ~2 minutes).
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+cd "$HERE"
+LIVE=0; [ "${1:-}" = "--live" ] && LIVE=1
+# Recorded before anything runs: the live demo rewrites examples/keycloak/demo-output/.
+HEAD_SHA="$(git rev-parse HEAD)"
+DIRTY=""
+if ! git diff --quiet HEAD -- . ':!docs/verification.md' || [ -n "$(git ls-files --others --exclude-standard -- . ':!docs/verification.md')" ]; then
+  DIRTY=" + uncommitted changes"
+fi
+LOG="$(mktemp)"
+OUT="$HERE/docs/verification.md"
+status=0
+
+step() { # TITLE COMMAND...
+  local title=$1; shift
+  printf '\n### %s\n\n```\n$ %s\n' "$title" "$*" >> "$LOG"
+  local t0=$SECONDS
+  if out=$("$@" 2>&1); then rc=0; else rc=$?; status=1; fi
+  # Keep the output short: tool noise out, counts and verdicts in.
+  printf '%s\n' "$out" | grep -v 'JAVA_TOOL_OPTIONS' | grep -E -i \
+    'passed|failed|tests|scenarios|accepted|rejected|compiles|PROVEN|STRENGTHENED|UNKNOWN|REFUTED|memo|states|greedy|Tests run|BUILD|error|exception|^ok |FAIL|OPEN|decisive|allow|deny|indeterminate|NCLOC|tuples|compound|administered|files changed|drift|what-if|Verdict|^[0-9]+$' \
+    | grep -v -E '^\s*$|^\s+(PROVEN|UNKNOWN|STRENGTHENED|REFUTED)\s+[A-Za-z_]+:|^(INFO|WARN):|^\s+at |literal-S2 exception' | head -400 >> "$LOG"
+  printf '(exit %d, %ds)\n```\n' "$rc" $((SECONDS - t0)) >> "$LOG"
+}
+
+KERNEL="$HERE/_build/default/bin/authority_kernel/main.exe"
+PROVE="$HERE/_build/default/bin/prove/main.exe"
+ncloc() {
+  awk 'FNR==1{inb=0} { l=$0; gsub(/^[ \t]+|[ \t]+$/,"",l) }
+       inb { if (l ~ /\*\//) { inb=0; sub(/.*\*\//,"",l); gsub(/^[ \t]+/,"",l) } else next }
+       l ~ /^\/\*/ { if (l !~ /\*\//) inb=1; next }
+       l=="" || l ~ /^\/\// { next } { t++ } END { print t }' $(find keycloak-adapter/src/main/java -name '*.java')
+}
+
+step "OCaml build" dune build
+step "OCaml tests (kernel, scenarios, must-not-compile, proof search)" dune test --force
+step "Kernel scenarios" "$KERNEL" scenarios examples/scenarios/demo.json --check
+[ -f examples/scenarios/adversarial.json ] && step "Adversarial scenarios" "$KERNEL" scenarios examples/scenarios/adversarial.json --check
+step "Ablation (W4)" "$KERNEL" ablate examples/scenarios/demo.json
+step "Compound-role surface (W1)" "$KERNEL" surface examples/scenarios/demo.json
+step "attempt_proof certificate check (P1)" "$PROVE" --check examples/proof/keycloak-authz.graph.json examples/proof/certificate.json
+step "Extractor reproduces the committed graph" bash -c \
+  "java tools/java-graph/JavaGraph.java --root .. --commit 6688a3d63f59e0c4a9131bfdd556c4312799f04e --slice tools/java-graph/authz-slice.txt --out /tmp/verify-graph.json && cmp /tmp/verify-graph.json examples/proof/keycloak-authz.graph.json && echo 'graph: byte-identical, accepted'"
+step "OCaml's review of this checkout (prove-it.sh: drift gate)" ./prove-it.sh
+step "What-if reviews reproduce (examples/proof/what-if)" bash -c '
+  ok=0
+  for p in examples/proof/what-if/*.patch; do
+    r="${p%.patch}.review.md"; want=0; case "$p" in *scope-gains-behaviour*) want=1 ;; esac
+    ./prove-it.sh --what-if "$p" 2>/dev/null > /tmp/verify-whatif.md; got=$?
+    if cmp -s /tmp/verify-whatif.md "$r" && [ $got = $want ]; then
+      echo "what-if $(basename "$p"): identical review, verdict $([ $got = 0 ] && echo accepted || echo refused)"
+    else echo "what-if $(basename "$p"): FAIL (exit $got, expected $want)"; ok=1; fi
+  done; exit $ok'
+step "Java adapter tests with the real kernel" bash -c \
+  "cd keycloak-adapter && mvn -B -q test -Dtyped.authority.kernel='$KERNEL' >/dev/null 2>&1; grep -h 'Tests run' target/surefire-reports/*.txt | awk -F'[ ,]+' '{r+=\$3; f+=\$5; e+=\$7; s+=\$9} END {print \"Tests run: \"r\", Failures: \"f\", Errors: \"e\", Skipped: \"s}'"
+step "Adapter size (S4, NCLOC of main Java)" ncloc
+step "Kernel size (W6, lines of lib/authority)" bash -c "cat lib/authority/*.ml lib/authority/*.mli | wc -l"
+step "Upstream Keycloak untouched" bash -c \
+  "echo 'files changed outside ocaml-authority/: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' | paste -sd' ' -); echo 'files changed outside ocaml-authority/, README.md, the OCaml workflow and the unit-test module exclusion: '\$(git -C .. diff --name-only 6688a3d63f59e0c4a9131bfdd556c4312799f04e -- . ':!ocaml-authority' ':!README.md' ':!.github/workflows/ocaml-does-keycloak.yml' ':!.github/scripts/find-modules-with-unit-tests.sh' | wc -l)"
+if [ $LIVE = 1 ]; then
+  step "Live Keycloak demo (examples/keycloak/run-demo.sh)" bash -c \
+    "examples/keycloak/run-demo.sh >/tmp/verify-demo.log 2>&1; rc=\$?; grep -E '^[0-9]{2}-|server_error|ClassCastException|no policy evaluation' /tmp/verify-demo.log; exit \$rc"
+fi
+
+{
+  echo "# Verification record"
+  echo
+  echo "Generated by \`./verify-all.sh$([ $LIVE = 1 ] && echo ' --live')\`. Do not edit by hand; re-run it."
+  echo
+  echo "| | |"
+  echo "|---|---|"
+  echo "| date (UTC) | $(date -u +%Y-%m-%dT%H:%M:%SZ) |"
+  echo "| repository commit | \`$HEAD_SHA\`$DIRTY |"
+  echo "| Keycloak baseline | \`6688a3d63f59e0c4a9131bfdd556c4312799f04e\` ($(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ../pom.xml | head -1)) |"
+  echo "| OCaml | $(ocamlc -version) |"
+  echo "| dune | $(dune --version) |"
+  echo "| Java | $(java -version 2>&1 | grep -v JAVA_TOOL | head -1) |"
+  echo "| Maven | $(mvn -v 2>/dev/null | grep -v JAVA_TOOL | head -1) |"
+  echo "| OS | $(. /etc/os-release; echo "$PRETTY_NAME") $(uname -m) |"
+  echo "| overall | $([ $status = 0 ] && echo 'all steps exited 0' || echo 'SOME STEPS FAILED') |"
+  cat "$LOG"
+} > "$OUT"
+rm -f "$LOG"
+echo "wrote $OUT ($([ $status = 0 ] && echo ok || echo FAILURES))"
+exit $status

@@ -1,0 +1,36 @@
+adapter jar: adapter jar built from a62035c9 (before the act gate) (0 jti references)
+realm import: HTTP 201
+== 1. genuine delegated token
+-- delegated (token exchange, samantha consented)
+   token:     {"sub":"36e9c968-f526-4d22-b3c0-69b55212e9c5","azp":"research-agent","jti":"trrtte:fe792a5f-9b4a-c3cf-b4d7-3cf32e2c7a7c","sid":null,"act":{"sub":"0b4fa642-2a17-4ee2-9774-3e1e6d1dc9dc","client_id":"research-agent"}}
+   response:  {"result":true}
+   projected: {"subject":"samantha","actor_chain":["research-agent"]}
+   kernel:    {"decision":"allow","reasons":[],"grant":"d-agent-read-for-samantha","chain":["samantha","research-agent"]}
+== 2. act from a hardcoded-claim mapper (JSON) on samantha-app
+   mapper: HTTP 201
+-- samantha's login token for samantha-app (no exchange, no delegation consent)
+   token:     {"sub":"36e9c968-f526-4d22-b3c0-69b55212e9c5","azp":"samantha-app","jti":"onrtac:8b9c0f88-413d-c2fc-9945-15f123d3a980","sid":"xWYoY5sVVkEQgYcE9WgrIYaZ","act":{"sub":"0b4fa642-2a17-4ee2-9774-3e1e6d1dc9dc","client_id":"research-agent"}}
+   response:  {"result":true}
+   projected: {"subject":"samantha","actor_chain":["research-agent"]}
+   kernel:    {"decision":"allow","reasons":[],"grant":"d-agent-read-for-samantha","chain":["samantha","research-agent"]}
+== 3. the same mapper with JSON type String
+-- samantha's login token, act as a JSON string
+   token:     {"sub":"36e9c968-f526-4d22-b3c0-69b55212e9c5","azp":"samantha-app","jti":"onrtac:70f40eaf-5fc3-ef9f-f006-408c6d7af049","sid":"2o-dMLXgH0hkZb-9hWsHHc-k","act":"{\"sub\":\"0b4fa642-2a17-4ee2-9774-3e1e6d1dc9dc\",\"client_id\":\"research-agent\"}"}
+   response:  {"result":true}
+   projected: {"subject":"samantha","actor_chain":["research-agent"]}
+   kernel:    {"decision":"allow","reasons":[],"grant":"d-agent-read-for-samantha","chain":["samantha","research-agent"]}
+== 4. admin impersonation
+   impersonate: {"redirect":"http://localhost:18380/realms/typed-authority-demo/account","sameRealm":true}
+-- helpdesk impersonating samantha, token for samantha-app
+   token:     {"sub":"36e9c968-f526-4d22-b3c0-69b55212e9c5","azp":"samantha-app","jti":"onrtac:986994bb-59ba-9ecc-04a1-5e5674e10ddc","sid":"88RG8EBlTeLjqYo8uL1-SySq","act":{"sub":"1f44e726-bfe7-45e9-841b-88e8b921f070","preferred_username":"helpdesk"}}
+   response:  {"error":"access_denied","error_description":"not_authorized"}
+   projected: {"subject":"samantha","actor_chain":["helpdesk"]}
+   kernel:    {"decision":"indeterminate","reasons":["unknown_principal"],"grant":null,"chain":[]}
+== 5. act from a hardcoded-claim mapper on research-agent, nested by the delegation exchange
+   mapper: HTTP 201
+   actor token: {"sub":"0b4fa642-2a17-4ee2-9774-3e1e6d1dc9dc","azp":"research-agent","jti":"trrtcc:6f7b69c4-87ef-8ac3-1eba-c414f5baed1c","act":{"sub":"9bfe410d-43b1-4a08-9377-3181b6408c76"}}
+-- delegated token whose actor token carried a mapper-made act
+   token:     {"sub":"36e9c968-f526-4d22-b3c0-69b55212e9c5","azp":"research-agent","jti":"trrtte:75b38c3a-c9f6-493f-3bd5-f505ffc8eb2e","sid":null,"act":{"sub":"0b4fa642-2a17-4ee2-9774-3e1e6d1dc9dc","client_id":"research-agent","act":{"sub":"9bfe410d-43b1-4a08-9377-3181b6408c76"}}}
+   response:  {"error":"access_denied","error_description":"not_authorized"}
+   projected: {"subject":"samantha","actor_chain":["research-agent","document-service-rbac"]}
+   kernel:    {"decision":"indeterminate","reasons":["unknown_principal"],"grant":null,"chain":[]}

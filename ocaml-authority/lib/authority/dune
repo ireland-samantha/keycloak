@@ -1,0 +1,7 @@
+; The authority kernel (docs/authority-model.md). authority.ml is the library
+; interface. Mint holds the only constructor of Authority.t and is private: its
+; .cmi is not visible to bin/, test/ or any other library.
+(library
+ (name authority)
+ (libraries tjson)
+ (private_modules mint))

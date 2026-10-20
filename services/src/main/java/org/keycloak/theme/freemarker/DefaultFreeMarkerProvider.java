@@ -39,8 +39,11 @@ public class DefaultFreeMarkerProvider implements FreeMarkerProvider {
                 template = cache.get(key);
                 if (template == null) {
                     template = getTemplate(templateName, theme);
-                    if (cache.putIfAbsent(key, template) != null) {
-                        template = cache.get(key);
+                    // Use the value returned by putIfAbsent: reading the map again could observe a concurrent
+                    // clearCache() and yield null
+                    Template cached = cache.putIfAbsent(key, template);
+                    if (cached != null) {
+                        template = cached;
                     }
                 }
             } else {
