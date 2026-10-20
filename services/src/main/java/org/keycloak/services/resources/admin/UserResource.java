@@ -924,11 +924,6 @@ public class UserResource {
             else throw new ForbiddenException();
         }
 
-        if (userLabel == null || userLabel.trim().isEmpty()) {
-            throw new ErrorResponseException("missingCredentialLabel", "Credential label must not be empty", Status.BAD_REQUEST);
-
-        }
-
         user.credentialManager().updateCredentialLabel(credentialId, userLabel);
     }
 

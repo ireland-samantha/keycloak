@@ -440,6 +440,21 @@ The `FreeMarkerProviderFactory` interface gains a `clearCache()` method for this
 The method has a no-op default implementation, so existing custom implementations continue to compile and run unchanged.
 If you provide a custom `FreeMarkerProviderFactory` that caches compiled templates, override `clearCache()` to discard that cache.
 
+=== Admin REST API accepts an empty credential label
+// https://github.com/keycloak/keycloak/issues/51440
+
+The Admin REST API endpoint for updating a credential label (`PUT /admin/realms/\{realm}/users/\{id}/credentials/\{credentialId}/userLabel`) no longer rejects an empty or blank label with a `400 Bad Request` and the `missingCredentialLabel` error.
+The label is now stored as sent, which is how the equivalent Account REST API endpoint has always behaved.
+
+This removes a long-standing inconsistency between the two APIs.
+Two credentials of the same type still cannot share a label.
+That comparison ignores leading and trailing whitespace on both the stored label and the new label, in either order.
+Setting `""` when another credential of the same type is already labeled `"   "` (or the reverse) returns `409 Conflict`.
+The stored value is still the label as sent, including surrounding whitespace.
+A `null` label is still exempt from the uniqueness check.
+
+If you relied on this endpoint returning `400` to keep credential labels non-blank, validate the label in your own client before calling the API.
+
 // ------------------------ Deprecated features ------------------------ //
 == Deprecated features
 

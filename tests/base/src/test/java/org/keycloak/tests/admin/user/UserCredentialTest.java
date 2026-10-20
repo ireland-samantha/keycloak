@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -150,19 +149,82 @@ public class UserCredentialTest extends AbstractUserTest {
     }
 
     @Test
-    public void testShouldFailToSetCredentialUserLabelWhenLabelIsEmpty() {
-        UserResource user = userOtp1.admin();
-        CredentialRepresentation otpCred = user.credentials().get(0);
-        BadRequestException ex = Assertions.assertThrows(BadRequestException.class, () -> {
-            user.setCredentialUserLabel(otpCred.getId(), "   ");
+    public void testShouldSetCredentialUserLabelToEmptyOrBlank() {
+        UserResource user = userOtp2.admin();
+        String otpId = user.credentials().stream().filter(cr -> OTPCredentialModel.TYPE.equals(cr.getType()))
+                .findFirst().orElseThrow().getId();
+
+        // like on the Account API, an empty or blank label is accepted and stored as sent
+        user.setCredentialUserLabel(otpId, "");
+        Assertions.assertEquals("", getCredentialUserLabel(user, otpId));
+
+        user.setCredentialUserLabel(otpId, "   ");
+        Assertions.assertEquals("   ", getCredentialUserLabel(user, otpId));
+    }
+
+    @Test
+    public void testSecondEmptyCredentialUserLabelStillConflicts() {
+        UserResource user = userOtp2.admin();
+
+        List<CredentialRepresentation> credentials = user.credentials().stream()
+                .filter(c -> c.getType().equals(OTPCredentialModel.TYPE))
+                .toList();
+        Assertions.assertEquals(2, credentials.size());
+
+        user.setCredentialUserLabel(credentials.get(0).getId(), "");
+
+        // an empty label is accepted, but it is still a label: the unique-label rule applies to a second credential of the same type
+        ClientErrorException ex = Assertions.assertThrows(ClientErrorException.class, () -> {
+            user.setCredentialUserLabel(credentials.get(1).getId(), "");
         });
 
-        Response response = ex.getResponse();
-        String body = response.readEntity(String.class);
+        Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), ex.getResponse().getStatus());
+    }
 
-        Assertions.assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        Assertions.assertTrue(body.contains("missingCredentialLabel"));
-        Assertions.assertTrue(body.contains("Credential label must not be empty"));
+    @Test
+    public void testBlankAndEmptyCredentialUserLabelsConflictInEitherOrder() {
+        UserResource user = userOtp2.admin();
+
+        List<CredentialRepresentation> credentials = user.credentials().stream()
+                .filter(c -> c.getType().equals(OTPCredentialModel.TYPE))
+                .toList();
+        Assertions.assertEquals(2, credentials.size());
+
+        String firstId = credentials.get(0).getId();
+        String secondId = credentials.get(1).getId();
+
+        // Shared user across the class: start from distinct labels so earlier tests cannot leak into this one.
+        user.setCredentialUserLabel(firstId, "Device A");
+        user.setCredentialUserLabel(secondId, "Device B");
+
+        user.setCredentialUserLabel(firstId, "   ");
+        Assertions.assertEquals("   ", getCredentialUserLabel(user, firstId));
+
+        ClientErrorException blankThenEmpty = Assertions.assertThrows(ClientErrorException.class, () -> {
+            user.setCredentialUserLabel(secondId, "");
+        });
+        Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), blankThenEmpty.getResponse().getStatus());
+        blankThenEmpty.getResponse().close();
+        Assertions.assertEquals("Device B", getCredentialUserLabel(user, secondId));
+
+        user.setCredentialUserLabel(firstId, "Device A");
+        user.setCredentialUserLabel(secondId, "");
+        Assertions.assertEquals("", getCredentialUserLabel(user, secondId));
+
+        ClientErrorException emptyThenBlank = Assertions.assertThrows(ClientErrorException.class, () -> {
+            user.setCredentialUserLabel(firstId, "   ");
+        });
+        Assertions.assertEquals(Response.Status.CONFLICT.getStatusCode(), emptyThenBlank.getResponse().getStatus());
+        emptyThenBlank.getResponse().close();
+        Assertions.assertEquals("Device A", getCredentialUserLabel(user, firstId));
+
+        user.setCredentialUserLabel(firstId, "Device A");
+        user.setCredentialUserLabel(secondId, "Device B");
+    }
+
+    private static String getCredentialUserLabel(UserResource user, String credentialId) {
+        return user.credentials().stream().filter(cr -> cr.getId().equals(credentialId))
+                .findFirst().orElseThrow().getUserLabel();
     }
 
     @Test
